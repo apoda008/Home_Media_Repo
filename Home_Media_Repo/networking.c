@@ -24,6 +24,7 @@ bool pipe_to_server()
 	BOOL connected = ConnectNamedPipe(pipe, NULL) ? TRUE : (GetLastError() == ERROR_PIPE_CONNECTED);
 
 	if (connected) {
+		
 		char buffer[128];
 		DWORD bytesRead;
 		ReadFile(pipe, buffer, sizeof(buffer) - 1, &bytesRead, NULL);
