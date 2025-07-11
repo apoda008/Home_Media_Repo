@@ -1,5 +1,7 @@
 #include "networking.h"
 
+
+//ignore this for now
 bool pipe_to_server() 
 {	
 	const char* pipeNamed = "\\\\.\\pipe\\MediaRepoPipe";
