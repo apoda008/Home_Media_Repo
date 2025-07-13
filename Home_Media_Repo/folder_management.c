@@ -77,14 +77,50 @@ void Create_Folders(Master_Directory* global_ptr) {
         }
     }
 
+    //media_bin directory
+    _tcscpy_s(global_ptr->movie_bin_path, MAX_PATH, global_ptr->path_to_media);
+    _tcscat_s(global_ptr->movie_bin_path, MAX_PATH, _T("\\Movies_bin"));
 
-    //TODO:
-    //MORE FOLDER CREATION
-    //Bin folders
-    //Series folders 
+
+    if (CreateDirectory(global_ptr->movie_bin_path, NULL)) {
+        _tprintf(TEXT("\nFolder created successfully: %s\n"), global_ptr->movie_bin_path);
+
+    }
+    else {
+        DWORD error = GetLastError();
+        if (error == ERROR_ALREADY_EXISTS) {
+            _tprintf(TEXT("\nDatabase folder already exists: %s\n"), global_ptr->movie_bin_path);
+
+        }
+        else {
+            _tprintf(TEXT("\nfailed: %s\n"), global_ptr->movie_bin_path);
+
+        }
+    }
+    
+    //Temp directory
+    _tcscpy_s(global_ptr->temp_folder_path, MAX_PATH, global_ptr->master_folder);
+    _tcscat_s(global_ptr->temp_folder_path, MAX_PATH, _T("\\Temp"));
+
+
+    if (CreateDirectory(global_ptr->temp_folder_path, NULL)) {
+        _tprintf(TEXT("\nFolder created successfully: %s\n"), global_ptr->temp_folder_path);
+
+    }
+    else {
+        DWORD error = GetLastError();
+        if (error == ERROR_ALREADY_EXISTS) {
+            _tprintf(TEXT("\nDatabase folder already exists: %s\n"), global_ptr->temp_folder_path);
+
+        }
+        else {
+            _tprintf(TEXT("\nfailed: %s\n"), global_ptr->temp_folder_path);
+
+        }
+    }
 }
 
-void MoveMediaToMaster(TCHAR* path) {
+void MoveMediaToMaster(TCHAR* path, Master_Directory* global_ptr) {
    
     TCHAR copy_path[MAX_PATH];
 
@@ -96,7 +132,7 @@ void MoveMediaToMaster(TCHAR* path) {
     HANDLE hFind = FindFirstFile(copy_path, &findFileData);
 
     if (hFind == INVALID_HANDLE_VALUE) {
-        _tprintf(_T("Error handle value. Error: \n"), GetLastError());
+        _tprintf(_T("Error handle value. Error: %lu \n"), GetLastError());
     }
     else {
         do {
@@ -106,21 +142,38 @@ void MoveMediaToMaster(TCHAR* path) {
                 continue;
             }
             
+            TCHAR next_dir[MAX_PATH];
+
+            _tcscpy_s(next_dir, MAX_PATH, path);
+            _tcscat_s(next_dir, MAX_PATH, _T("\\"));
+            _tcscat_s(next_dir, MAX_PATH, findFileData.cFileName);
+            //_tprintf(_T("NEXT_DIR: %s\n"), next_dir);
+            
             //check if it's a directory or a file
             if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
                 _tprintf(_T("[DIR]: %s\n"), findFileData.cFileName);
-                
-                //Set up the next directory
-                TCHAR next_dir[MAX_PATH];
-
-                _tcscat_s(next_dir, MAX_PATH, path);
-                _tcscat_s(next_dir, MAX_PATH, _T("\\"));
-                _tcscat_s(next_dir, MAX_PATH, findFileData.cFileName);
-                MoveMediaToMaster(next_dir);
+             
+                MoveMediaToMaster(next_dir, global_ptr);
+              
             }
             else {
                 _tprintf(_T("[FILE]: %s\n"), findFileData.cFileName);
+                
+                //This creates a directory path with the target filename
+                //MovieFile does not auto concat the filename
+                TCHAR dest[MAX_PATH];
+                _tcscpy_s(dest, MAX_PATH, global_ptr->path_to_media);
+                _tcscat_s(dest, MAX_PATH, _T("\\"));
+                _tcscat_s(dest, MAX_PATH, findFileData.cFileName);
+                               
                 //This is when we would move them all to the primary file
+                if (MoveFile(next_dir, dest)) {
+                    _tprintf(_T("Moved: %s\n"), findFileData.cFileName);
+                } 
+                else {
+                    _tprintf(_T("Failed to move: %s (Error: %lu)"), findFileData.cFileName, GetLastError());
+                }
+       
             }
             
         } while (FindNextFile(hFind, &findFileData) != 0);
@@ -136,10 +189,118 @@ void MoveMediaToMaster(TCHAR* path) {
 
 }
 
+TCHAR Parse_Helper(TCHAR* title) {
+    size_t nameLen = strlen(title);
+    TCHAR newFileName[260];
+
+    /*
+    TODO:
+    File verification: make sure file is of a media type (.avi, .mkv, etc)
+    tracker of those failed files (number/location?)
+    maybe move them to a separate folder?
+    the steralization will also need adjustment for characters such as '_'
+    */
+
+    for (int i = 0; i < (nameLen - 3); i++) {
+        if (title[i] == '.') {
+            newFileName[i] = ' ';
+            //When it detects junk it sets the string terminator and breaks loop
+            if ((isdigit(title[i + 1])) && (isdigit(title[i + 2])) && (isdigit(title[i + 3]))) {
+                newFileName[i] = '\0';
+                break;
+            }
+        }
+        //'()' are not in normal titles, cut when detected
+        else if (title[i] == '(') {
+            newFileName[i] = '\0';
+            break;
+        }
+        else {
+            //title is normal so it stores it in the new TCHAR
+            newFileName[i] = title[i];
+        }
+    }
+    //removes .filetype
+    newFileName[nameLen - 3] = '\0';
+
+
+    //THIS will probably be moved into a tokenization 
+    char buffertwo[260];
+    size_t j = 0;
+
+    for (int i = 0; i < nameLen; i++) {
+        if ((newFileName[i] == ' ') && (newFileName[i + 1] == '\0')) {
+            break;
+        }
+
+        if ((newFileName[i] == ' ') && (newFileName[i + 1] != '\0')) {
+            buffertwo[j] = '%';
+            buffertwo[j + 1] = '2';
+            buffertwo[j + 2] = '0';
+            j += 3;
+        }
+        else {
+            buffertwo[j] = newFileName[i];
+            j++;
+        }
+
+    }
+    buffertwo[j] = '\0';
+}
+
+int File_Search_Parse(Master_Directory* global_ptr) {
+    
+    //TCHAR* token = _tcstok_s()
+    
+    //NEEDS TO ASK USER IF THEY WANT TO PARSE FILES
+    TCHAR copy_path[MAX_PATH];
+    _tcscpy_s(copy_path, MAX_PATH,global_ptr->path_to_media);
+    _tcscat_s(copy_path, MAX_PATH, _T("\\*"));
+
+    WIN32_FIND_DATA findFileData;
+    HANDLE hFind = FindFirstFile(copy_path, &findFileData);
+
+    if (hFind == INVALID_HANDLE_VALUE) {
+        _tprintf(_T("Error handle value. Error: %lu \n"), GetLastError());
+    }
+    else {
+        do {
+
+            //Skip "." ".." file names
+            if ((strcmp(findFileData.cFileName, ".") == 0) || (strcmp(findFileData.cFileName, "..") == 0)) {
+                continue;
+            }
+
+
+            //check if it's a directory or a file
+            if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+                _tprintf(_T("[DIR]: %s\n"), findFileData.cFileName);
+                //DO NOTHING, ALL MEDIA SHOULD BE IN A SINGLE TARGET 
+                //FOLDER
+            }
+            else {
+                //THIS WILL BE FILES
+                //TAKE FILE NAME AND PARSE IT FOR SENDING TO TMDB
+                TCHAR parsed_name = Parse_Helper(findFileData.cFileName);
+            }
+
+        } while (FindNextFile(hFind, &findFileData) != 0);
+
+        if (GetLastError() != ERROR_NO_MORE_FILES) {
+            printf("FindNextFile Failed (%d)\n", GetLastError());
+        }
+
+        FindClose(hFind);
+    }
+    return 0;
+}
+
+
 void FolderExecution(Master_Directory* global_ptr) {
     
     //Gets:Sets folder location for Repo location
     //Gets:Sets folder location for media import 
+    //URGENT: NEED TO FIX IF CANCELLED
     printf("Select a location to save the Repository.\n");
     HRESULT hr = CoInitialize(NULL);
     if (SUCCEEDED(hr)) {
@@ -156,6 +317,7 @@ void FolderExecution(Master_Directory* global_ptr) {
     TCHAR copy[MAX_PATH];
 
     _tcscpy_s(copy, MAX_PATH, global_ptr->path_to_media_for_import);
-    MoveMediaToMaster(copy);
-
+    MoveMediaToMaster(copy, global_ptr);
+    
 }
+
