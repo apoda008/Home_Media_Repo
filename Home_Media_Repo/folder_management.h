@@ -23,7 +23,7 @@ void Create_Folders(Master_Directory* global_ptr);
 
 void MoveMediaToMaster(TCHAR* path, Master_Directory* global_ptr);
 
-TCHAR Parse_Helper(TCHAR title);
+TCHAR* Parse_Helper(TCHAR title);
 
 int File_Search_Parse(Master_Directory* global_ptr);
 
