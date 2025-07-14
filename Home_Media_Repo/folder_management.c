@@ -1,4 +1,5 @@
 #include "folder_management.h"
+#include "networking.h"
 
 
 void BrowseForFolder(Master_Directory* ptr, int create_or_move) {
@@ -192,15 +193,10 @@ void MoveMediaToMaster(TCHAR* path, Master_Directory* global_ptr) {
 TCHAR* Parse_Helper(TCHAR* title) {
     size_t nameLen = _tcslen(title);
     TCHAR newFileName[MAX_PATH] = { 0 };
-    _tprintf(_T("First part of parse %s\n"), title);
-    
     //NEEDS DYNAMIC ALLOCATION. WILL BE FREED WHEN TMDB IS CALLED
-
-
 
     for (int i = 0; i < (nameLen - 3); i++) {
         if (title[i] == '.') {
-            _tprintf(_T("1"));
             newFileName[i] = ' ';
             //When it detects junk it sets the string terminator and breaks loop
             //its trying to detect things like Movie Title.2014DVD.mkv
@@ -212,23 +208,17 @@ TCHAR* Parse_Helper(TCHAR* title) {
         
         //'()' are not in normal titles, cut when detected
         else if (title[i] == '(') {
-            _tprintf(_T("2"));
             newFileName[i] = '\0';
             break;
         }
         //will need a condition in here for '_'
 
         else {
-            _tprintf(_T("3"));
             //title is normal so it stores it in the new TCHAR
             newFileName[i] = title[i];
         }
     }
-    _tprintf(_T("Exited part 1: %s\n"), newFileName);
-    //removes .filetype
-    //newFileName[nameLen - 3] = '\0';
 
-    _tprintf(_T("Second part of parse\n"));
     //THIS will probably be moved into a tokenization 
     TCHAR buffertwo[MAX_PATH] = { 0 };
     size_t j = 0;
@@ -250,17 +240,17 @@ TCHAR* Parse_Helper(TCHAR* title) {
         }
 
     }
-    _tprintf(_T("Exited part 2\n"));
     buffertwo[j] = '\0';
-    _tprintf(_T("Exited part 2 %s\n"), buffertwo);
-    return buffertwo;
+    TCHAR* return_char_ptr = malloc((j + 1) * sizeof(TCHAR));
+    if (return_char_ptr) {
+        _tcscpy_s(return_char_ptr, (j + 1), buffertwo);
+    }
+
+    
+    return return_char_ptr;
 }
 
 int File_Search_Parse(Master_Directory* global_ptr) {
-    _tprintf(_T("Entered parse\n"));
-    //TCHAR* token = _tcstok_s()
-    
-    //NEEDS TO ASK USER IF THEY WANT TO PARSE FILES
     TCHAR copy_path[MAX_PATH];
     _tcscpy_s(copy_path, MAX_PATH,global_ptr->path_to_media);
     _tcscat_s(copy_path, MAX_PATH, _T("\\*"));
@@ -291,7 +281,7 @@ int File_Search_Parse(Master_Directory* global_ptr) {
                 //THIS WILL BE FILES
                 //TAKE FILE NAME AND PARSE IT FOR SENDING TO TMDB
                 TCHAR* parsed_name = Parse_Helper(findFileData.cFileName);
-                //_tprintf(_T("EXITED\n"));
+                information_Request(parsed_name);
                 _tprintf(_T("Parsed: %s\n"), parsed_name);
             }
 
@@ -329,6 +319,10 @@ void FolderExecution(Master_Directory* global_ptr) {
 
     _tcscpy_s(copy, MAX_PATH, global_ptr->path_to_media_for_import);
     MoveMediaToMaster(copy, global_ptr);
+    
+    //some point needs to ask user to do this
     File_Search_Parse(global_ptr);
+    
 }
+
 

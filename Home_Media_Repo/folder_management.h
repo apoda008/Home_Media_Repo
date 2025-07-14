@@ -15,6 +15,7 @@ typedef struct Master_Directory {
 
     TCHAR movie_bin_path[MAX_PATH];
     TCHAR series_bin_path[MAX_PATH];
+    size_t tmdb_limiter;
 } Master_Directory;
 
 void BrowseForFolder(Master_Directory* ptr, int create_or_move);
@@ -28,5 +29,6 @@ TCHAR* Parse_Helper(TCHAR title);
 int File_Search_Parse(Master_Directory* global_ptr);
 
 void FolderExecution(Master_Directory* global_ptr);
+
 
 #endif // !FOLDER_MANAGEMENT_H
