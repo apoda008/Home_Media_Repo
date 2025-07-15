@@ -196,7 +196,7 @@ TCHAR* Parse_Helper(TCHAR* title) {
     //NEEDS DYNAMIC ALLOCATION. WILL BE FREED WHEN TMDB IS CALLED
 
     for (int i = 0; i < (nameLen - 3); i++) {
-        if (title[i] == '.') {
+        if (title[i] == '.' || title[i] == '_') {
             newFileName[i] = ' ';
             //When it detects junk it sets the string terminator and breaks loop
             //its trying to detect things like Movie Title.2014DVD.mkv
@@ -243,8 +243,10 @@ TCHAR* Parse_Helper(TCHAR* title) {
     buffertwo[j] = '\0';
     TCHAR* return_char_ptr = (TCHAR*)malloc((j + 1) * sizeof(TCHAR));
     if (return_char_ptr) {
-		printf("Allocated memory for return_char_ptr\n");
         _tcscpy_s(return_char_ptr, (j + 1), buffertwo);
+    }
+    else {
+		printf("Memory allocation failed for return_char_ptr.\n");
     }
 
     
@@ -270,7 +272,6 @@ int File_Search_Parse(Master_Directory* global_ptr) {
                 continue;
             }
 
-
             //check if it's a directory or a file
             if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
                 _tprintf(_T("[DIR_in_Search]: %s\n"), findFileData.cFileName);
@@ -282,30 +283,9 @@ int File_Search_Parse(Master_Directory* global_ptr) {
                 //THIS WILL BE FILES
                 //TAKE FILE NAME AND PARSE IT FOR SENDING TO TMDB
                 TCHAR* parsed_name = Parse_Helper(findFileData.cFileName);
-                information_Request(parsed_name);
+                information_Request(parsed_name, global_ptr);
                 _tprintf(_T("Parsed: %s\n"), parsed_name);
                 
-    //            const char* movie_titles[] = {
-    //                "The Shawshank Redemption",
-    //                "The Godfather",
-    //                "The Dark Knight",
-    //                "Pulp Fiction",
-    //                "Forrest Gump",
-    //                "Inception",
-    //                "Fight Club",
-    //                "The Matrix",
-    //                "Goodfellas",
-    //                "The Lord of the Rings: The Return of the King",
-    //                "Interstellar",
-    //                "Gladiator",
-    //                "The Silence of the Lambs",
-    //                "Saving Private Ryan",
-    //                "Whiplash"
-    //            };
-				//for (int i = 0; i < 15; i++) {
-				//	information_Request(movie_titles[i]);
-				//}
-
             }
 
         } while (FindNextFile(hFind, &findFileData) != 0);
@@ -347,5 +327,3 @@ void FolderExecution(Master_Directory* global_ptr) {
     File_Search_Parse(global_ptr);
     
 }
-
-

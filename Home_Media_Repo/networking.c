@@ -10,8 +10,6 @@ void ConvertTCHARtoUTF8(const TCHAR* input, char* output, size_t outputSize) {
 #endif
 }
 
-
-
 size_t write_chunk(void* contents, size_t size, size_t nmemb, void* userp) {
 	
 	size_t total_size = size * nmemb;
@@ -38,6 +36,14 @@ size_t write_chunk(void* contents, size_t size, size_t nmemb, void* userp) {
 
 //sourced by themoviedb.org api system
 void information_Request(TCHAR* movie_title, Master_Directory* global_ptr) {
+	//This is to pass into media_write
+	TCHAR dir_position[MAX_PATH];
+	_tcscpy_s(dir_position, MAX_PATH, global_ptr->path_to_media);
+	_tcscat_s(dir_position, MAX_PATH, _T("\\"));
+	_tcscat_s(dir_position, MAX_PATH, movie_title);
+
+
+
 
 	//tmbd request control 
 	if (global_ptr->tmdb_limiter >= 40) {
@@ -116,8 +122,8 @@ void information_Request(TCHAR* movie_title, Master_Directory* global_ptr) {
 				//grab first response and break out of loop
 				cJSON_ArrayForEach(movie, results) {
 					//DELETE
-					char* json_str2 = cJSON_Print(movie);
-					printf("THING: %s\n", json_str2);
+					//char* json_str2 = cJSON_Print(movie);
+					//printf("THING: %s\n", json_str2);
 
 					cJSON* title = cJSON_GetArrayItem(movie, 3);
 					cJSON* description = cJSON_GetObjectItemCaseSensitive(movie, "overview");
@@ -125,7 +131,7 @@ void information_Request(TCHAR* movie_title, Master_Directory* global_ptr) {
 					cJSON* genre_ids = cJSON_GetObjectItemCaseSensitive(movie, "genre_ids");
 					cJSON* media_type = cJSON_GetObjectItemCaseSensitive(movie, "media_type");
 
-					//media_write(title, description, id, genre_ids, media_type, dir_position, create_folder_location);
+					media_write(title, description, id, genre_ids, media_type, dir_position, global_ptr);
 					break;
 
 					//media_write(title, description, id, genre_ids, media_type, dir_position, create_folder_location);
@@ -146,32 +152,6 @@ void information_Request(TCHAR* movie_title, Master_Directory* global_ptr) {
 	global_ptr->tmdb_limiter++; //increment the limiter for the next call
 	return 0;
 }//end of information_request 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 //ignore this for now
