@@ -28,7 +28,14 @@ int main() {
     printf("Global tmdb counter: %d", master_pathing.tmdb_limiter);
 
 
-
+    //builds folders at requested location
+    //moves Media from where it is to the constructed folders
+    //TMDB the parsed media 
+    //writes media to bin 
+    //bin_media is instanced and put into a hash table
+    //DB sets up Genre mapping
+    //DB waits for commands 
+    //..
 
 
     return 0;

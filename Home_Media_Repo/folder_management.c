@@ -247,6 +247,7 @@ TCHAR* Parse_Helper(TCHAR* title) {
     }
     else {
 		printf("Memory allocation failed for return_char_ptr.\n");
+        return NULL;
     }
 
     
@@ -298,7 +299,6 @@ int File_Search_Parse(Master_Directory* global_ptr) {
     }
     return 0;
 }
-
 
 void FolderExecution(Master_Directory* global_ptr) {
     

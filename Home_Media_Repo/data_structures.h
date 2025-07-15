@@ -68,8 +68,17 @@ void inorder_traversal_print(TreeNode* root);
 //frees mem from a binary tree
 TreeNode* free_binary_tree(TreeNode* root);
 
-//&&&&&&&&&&&&&DICTIONARY&&&&&&&&&&&&&&&&&&&&&&&&&&
-//void dictionary_append(Dictionary* dict);
+/////TIME TO MAKE A FUCKING HASH TABLE!!!///////
+/////LETS FUUCKING GOOOOOO//////////////////////
+char* Hash_Initialization(int amount_of_files);
+
+int Hash_Function(const char* title);
+
+void Insert_Hash_Table(char* hash_table, MediaData* data);
+
+void Delete_From_Hash_Table(char* hash_table, const char* title);
+
+MediaData* Search_Hash_Table(char* hash_table, const char* title);
 
 
 #endif // !DATA_STRUCTURES_H

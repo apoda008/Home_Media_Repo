@@ -1,6 +1,53 @@
 #include "program_functions.h"
 #include "networking.h"
 
+//returns head of linked list of MediaData
+//More than likely needs an entire restructuring 
+//into a hash table or binary tree
+MediaNode* Bin_Read(char* database_file) {
+
+
+	printf("DATABASE FILE: %s\n", database_file);
+	FILE* file = fopen(database_file, "rb");
+	if (file == NULL) {
+		perror("Failed to open file");
+		return 0;
+	}
+
+	MediaNode* head = NULL;
+	MediaNode* tail = NULL;
+	MediaData temp;
+
+	while ((fread(&temp, sizeof(MediaData), 1, file)) == 1) {
+		MediaNode* new_node = (MediaNode*)malloc(sizeof(MediaNode));
+		if (new_node == NULL) {
+			perror("MediaData Memory allocation failed");
+			fclose(file);
+			return 0;
+		}
+
+		memcpy(&new_node->data, &temp, sizeof(MediaData));
+		new_node->next = NULL;
+
+		if (head == NULL) {
+			head = new_node;
+			tail = new_node;
+		}
+		else {
+			tail->next = new_node;
+			tail = new_node;
+		}
+		//DELETE
+		printf("Title order: %s\n", new_node->data.title);
+
+		for (int i = 0; i < 19; i++) {
+
+		}
+	}
+
+	fclose(file);
+	return head;
+}
 
 void media_write(cJSON* title, cJSON* description, cJSON* id, cJSON* genre_ids, cJSON* media_type, TCHAR dir_position, Master_Directory* global_ptr) {
 	char* first_char_string = title->valuestring;

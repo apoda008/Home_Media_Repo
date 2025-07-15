@@ -17,6 +17,7 @@ void information_Request(TCHAR* title, Master_Directory* global_ptr);
 
 void ConvertTCHARtoUTF8(const TCHAR* input, char* output, size_t outputSize);
 
+//Forward declaration of media_write function
 void media_write(cJSON* title, cJSON* description, cJSON* id, cJSON* genre_ids, cJSON* media_type, TCHAR movie_dir, Master_Directory* global_ptr);
 
 
