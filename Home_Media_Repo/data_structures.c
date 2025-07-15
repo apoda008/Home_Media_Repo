@@ -190,12 +190,68 @@ TreeNode* free_binary_tree(TreeNode* root) {
 
 //&&&&&&&&&&&&&&&&&&&&---HASH MAP------&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
-//needs to be the size of total movies + 1/2 the size 
-//
-//int hashfuction(char* title_to_parse);
+//hash function 
+size_t Hash_Function(const char* title, size_t array_size) {
+	//simple hash function that sums the ASCII values of the characters in the title
+	size_t hash = 0;
+	while (*title) {
+		hash += (unsigned char)(*title);
+		if (hash > array_size) {
+			hash %= array_size; //to ensure it fits in the array size
+			printf("Exceded array\n");
+		}
+		title++;
+	}
+	printf("hash: %zu\n", hash);
+	return hash;
+}
 
-//
 
+MediaData** Hash_Initialization(size_t amount_of_files, Master_Directory* global_ptr) {
+	printf("HASHING BABY\n");
+	//starts a hash table of MediaData pointers
+	size_t adjusted_size = amount_of_files * 2;
+	MediaData** hash_table = malloc(adjusted_size * sizeof(MediaData*));
+	if (hash_table == NULL) {
+		printf("Memory allocation failed for hash table.\n");
+		return NULL;
+	}
+	
+	//Needs to read all bin files and assign them to the array 
+	TCHAR dir_for_reading[MAX_PATH];
+	_tcsnccpy_s(dir_for_reading, MAX_PATH, global_ptr->path_to_media, MAX_PATH);
+	_tcscat_s(dir_for_reading, MAX_PATH, _T("\\"));
+	//_tprintf(_T("Dir %s\n"), dir_for_reading);
+	
+	TCHAR dir_iteration[MAX_PATH];
+	_tcscpy_s(dir_iteration, MAX_PATH, global_ptr->path_to_media);
+	_tcscat_s(dir_iteration, MAX_PATH, _T("\\*"));
 
+	WIN32_FIND_DATA findFileData;
+	HANDLE hFind = FindFirstFile(dir_iteration, &findFileData);
+
+	if (hFind == INVALID_HANDLE_VALUE) {
+		_tprintf(_T("Error handle value. Error: %lu \n"), GetLastError());
+		free(hash_table);
+		return NULL;
+	}
+	else {
+		do {
+			if ((strcmp(findFileData.cFileName, ".") == 0) || (strcmp(findFileData.cFileName, "..") == 0)) {
+				continue;
+			}
+
+			//check if it's a directory or a file
+			if (!(findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+				_tprintf(_T("[DIR]: %s\n"), findFileData.cFileName);
+				_tcscat_s(dir_for_reading, MAX_PATH, findFileData.cFileName);
+				Bin_Read(dir_for_reading);
+			}
+		} while (FindNextFile(hFind, &findFileData) != 0);
+	}
+
+	
+	return hash_table;
+}
 
 //&&&&&&&&&&&&&&&&&&&&&&&&-------&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&

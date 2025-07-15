@@ -25,7 +25,9 @@ int main() {
     printf("\n\n\n");
     _tprintf(_T("Global dir MASTER: %s\n"), master_pathing.master_folder);
     _tprintf(_T("Global dir IMPORT: %s\n"), master_pathing.path_to_media_for_import);
-    printf("Global tmdb counter: %d", master_pathing.tmdb_limiter);
+    printf("Global tmdb counter: %d\n", master_pathing.tmdb_limiter);
+
+	Hash_Initialization(1000, dir_struct_ptr);
 
 
     //builds folders at requested location

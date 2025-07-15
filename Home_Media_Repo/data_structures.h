@@ -3,6 +3,7 @@
 #define DATA_STRUCTURES_H
 //#include "database_commands.h"
 #include "master.h"
+#include "program_functions.h"
 
 
 typedef struct MediaData {
@@ -29,6 +30,9 @@ typedef struct TreeNode {
     struct TreeNode* right;
 } TreeNode;
 
+
+//Forward
+MediaNode* Bin_Read(char* database_file);
 
 /*
 ===========LINKED LIST==================
@@ -70,9 +74,9 @@ TreeNode* free_binary_tree(TreeNode* root);
 
 /////TIME TO MAKE A FUCKING HASH TABLE!!!///////
 /////LETS FUUCKING GOOOOOO//////////////////////
-char* Hash_Initialization(int amount_of_files);
+MediaData** Hash_Initialization(size_t amount_of_files, Master_Directory* global_ptr);
 
-int Hash_Function(const char* title);
+size_t Hash_Function(const char* title, size_t array_size);
 
 void Insert_Hash_Table(char* hash_table, MediaData* data);
 
@@ -80,5 +84,6 @@ void Delete_From_Hash_Table(char* hash_table, const char* title);
 
 MediaData* Search_Hash_Table(char* hash_table, const char* title);
 
+MediaData* Resize_Hash_Table(char* hash_table, int new_size);
 
 #endif // !DATA_STRUCTURES_H

@@ -1,52 +1,45 @@
 #include "program_functions.h"
 #include "networking.h"
 
+//temp
+#include "data_structures.h"
+
 //returns head of linked list of MediaData
 //More than likely needs an entire restructuring 
 //into a hash table or binary tree
-MediaNode* Bin_Read(char* database_file) {
+MediaNode* Bin_Read(TCHAR* database_file) {
 
 
-	printf("DATABASE FILE: %s\n", database_file);
-	FILE* file = fopen(database_file, "rb");
+	_tprintf(_T("DATABASE FILE: %s\n"), database_file);
+	FILE* file = _tfopen(database_file, "rb");
 	if (file == NULL) {
 		perror("Failed to open file");
 		return 0;
 	}
 
-	MediaNode* head = NULL;
-	MediaNode* tail = NULL;
+	//MediaData buffer
 	MediaData temp;
 
 	while ((fread(&temp, sizeof(MediaData), 1, file)) == 1) {
-		MediaNode* new_node = (MediaNode*)malloc(sizeof(MediaNode));
+
+		MediaData* new_node = (MediaData*)malloc(sizeof(MediaData));
 		if (new_node == NULL) {
-			perror("MediaData Memory allocation failed");
+			perror("Memory allocation failed for new node");
 			fclose(file);
-			return 0;
+			return NULL;
 		}
-
-		memcpy(&new_node->data, &temp, sizeof(MediaData));
-		new_node->next = NULL;
-
-		if (head == NULL) {
-			head = new_node;
-			tail = new_node;
-		}
-		else {
-			tail->next = new_node;
-			tail = new_node;
-		}
-		//DELETE
-		printf("Title order: %s\n", new_node->data.title);
-
-		for (int i = 0; i < 19; i++) {
-
-		}
+		printf("Here\n");
+		memcpy(new_node, &temp, sizeof(MediaData));
+		//new_node->next = NULL;
+		printf("Title: %s\n", new_node->title);
+		printf("ID: %f\n", new_node->tmdb_id);
+		printf("Description: %s\n", new_node->description);
+		printf("Media Type: %d\n", new_node->media_type);
+		printf("Directory Position: %s\n", new_node->dir_position_media);
 	}
 
 	fclose(file);
-	return head;
+	return;
 }
 
 void media_write(cJSON* title, cJSON* description, cJSON* id, cJSON* genre_ids, cJSON* media_type, TCHAR dir_position, Master_Directory* global_ptr) {
@@ -89,6 +82,7 @@ void media_write(cJSON* title, cJSON* description, cJSON* id, cJSON* genre_ids, 
 	//strcpy_s(temp.dir_position_media, MAX_PATH, dir_position);
 	_tcscpy_s(temp.dir_position_media, MAX_PATH, &dir_position);
 	
+	Hash_Function(temp.title, 1000);
 	cJSON* genre_number;
 	int i = 0;
 	cJSON_ArrayForEach(genre_number, genre_ids) {

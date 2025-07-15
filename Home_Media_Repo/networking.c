@@ -149,6 +149,7 @@ void information_Request(TCHAR* movie_title, Master_Directory* global_ptr) {
 	curl_easy_cleanup(hnd);
 	free(response.string);
 	free(movie_title);
+	movie_title = NULL; //removes dangling pointer
 	global_ptr->tmdb_limiter++; //increment the limiter for the next call
 	return 0;
 }//end of information_request 
