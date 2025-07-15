@@ -206,6 +206,50 @@ size_t Hash_Function(const char* title, size_t array_size) {
 	return hash;
 }
 
+void Insert_Hash_Table(MediaData** hash_table, MediaData data, size_t array_size) {
+	if (hash_table == NULL) {
+		printf("Hash table or data is NULL.\n");
+		return;
+	}
+
+	printf("DATA: %s\n", data.title);
+	size_t index = Hash_Function(data.title, array_size); //assuming 1000 is the size of the hash table
+	//while (hash_table[index] != NULL) {
+	//	//index = (index + 1) % 1000; //linear probing
+	//}
+	
+	//if the index is already occupied, find the next available slot
+	//spreading in both directions; inserting at a higher first then
+	//reversing if the insert reaches the end of the array 
+	if (hash_table[index] != NULL) {
+		size_t above = index - array_size;
+		for (int i = index; i < array_size; i++) {
+			if (hash_table[i + 1] == NULL) {
+				index = i + 1;
+				//insert
+				hash_table[index] = &data;
+				break;
+			}
+			if (i == array_size) {
+				for (int j = index; j > 0; j--) {
+					if (hash_table[j - 1] == NULL) {
+						index = j - 1;
+						hash_table[index] = &data;
+						//insert
+						break;
+					}
+				}
+
+			}
+		}
+	}
+	else { hash_table[index] = &data; } //if the index is empty, insert it there
+
+
+	//hash_table[index] = data;
+	printf("Inserted %s at index %zu\n", data.title, index);
+}
+
 
 MediaData** Hash_Initialization(size_t amount_of_files, Master_Directory* global_ptr) {
 	printf("HASHING BABY\n");
@@ -216,15 +260,21 @@ MediaData** Hash_Initialization(size_t amount_of_files, Master_Directory* global
 		printf("Memory allocation failed for hash table.\n");
 		return NULL;
 	}
-	
-	//Needs to read all bin files and assign them to the array 
-	TCHAR dir_for_reading[MAX_PATH];
-	_tcsnccpy_s(dir_for_reading, MAX_PATH, global_ptr->path_to_media, MAX_PATH);
-	_tcscat_s(dir_for_reading, MAX_PATH, _T("\\"));
-	//_tprintf(_T("Dir %s\n"), dir_for_reading);
-	
+	for (size_t i = 0; i < adjusted_size; i++) {
+		hash_table[i] = NULL; //initialize all slots to NULL
+	}
+
+	//TEST===========================================
+	MediaData temp = { 1, "JACKASS", 123456789, {0}, "This is a test description.", "C:\\test\\movie.bin" };
+	size_t pos = Hash_Function(temp.title, adjusted_size);
+	hash_table[pos] = &temp; //insert a test value to see if it works
+	_tprintf(_T("Hash table initialized with size: %zu\n"), adjusted_size);
+	printf("Title of test: %s\n", hash_table[pos]->title);
+	//==================================================
+
+
 	TCHAR dir_iteration[MAX_PATH];
-	_tcscpy_s(dir_iteration, MAX_PATH, global_ptr->path_to_media);
+	_tcscpy_s(dir_iteration, MAX_PATH, global_ptr->movie_bin_path);
 	_tcscat_s(dir_iteration, MAX_PATH, _T("\\*"));
 
 	WIN32_FIND_DATA findFileData;
@@ -244,12 +294,25 @@ MediaData** Hash_Initialization(size_t amount_of_files, Master_Directory* global
 			//check if it's a directory or a file
 			if (!(findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
 				_tprintf(_T("[DIR]: %s\n"), findFileData.cFileName);
+				
+				TCHAR dir_for_reading[MAX_PATH];
+				_tcsnccpy_s(dir_for_reading, MAX_PATH, global_ptr->movie_bin_path, MAX_PATH);
+				_tcscat_s(dir_for_reading, MAX_PATH, _T("\\"));
 				_tcscat_s(dir_for_reading, MAX_PATH, findFileData.cFileName);
-				Bin_Read(dir_for_reading);
+				Bin_Read(hash_table, dir_for_reading, adjusted_size);
 			}
 		} while (FindNextFile(hFind, &findFileData) != 0);
 	}
 
+	//ITERATION THROUGH HASH TO MAKE SURE
+	for (int i = 0; i < adjusted_size; i++) {
+		if (hash_table[i] != NULL) {
+			printf("Index %d: %s\n", i, hash_table[i]->title);
+		}
+		else {
+			//printf("Index %d: NULL\n", i);
+		}
+	}
 	
 	return hash_table;
 }

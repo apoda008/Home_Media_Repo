@@ -35,15 +35,13 @@ size_t write_chunk(void* contents, size_t size, size_t nmemb, void* userp) {
 }
 
 //sourced by themoviedb.org api system
-void information_Request(TCHAR* movie_title, Master_Directory* global_ptr) {
+void information_Request(TCHAR* parsed_movie_title, Master_Directory* global_ptr, TCHAR* dir_title) {
 	//This is to pass into media_write
 	TCHAR dir_position[MAX_PATH];
 	_tcscpy_s(dir_position, MAX_PATH, global_ptr->path_to_media);
 	_tcscat_s(dir_position, MAX_PATH, _T("\\"));
-	_tcscat_s(dir_position, MAX_PATH, movie_title);
-
-
-
+	_tcscat_s(dir_position, MAX_PATH, dir_title);
+	_tprintf(_T("DIR POSITION BEFORE WRITE FUNC: %s\n"), dir_position);
 
 	//tmbd request control 
 	if (global_ptr->tmdb_limiter >= 40) {
@@ -67,7 +65,7 @@ void information_Request(TCHAR* movie_title, Master_Directory* global_ptr) {
 	CURL* hnd = curl_easy_init();
 
 	char* utf8_movie[MAX_PATH];
-	ConvertTCHARtoUTF8(movie_title, utf8_movie, sizeof(utf8_movie));
+	ConvertTCHARtoUTF8(parsed_movie_title, utf8_movie, sizeof(utf8_movie));
 
 
 	char search_buffer[MAX_PATH];
@@ -148,8 +146,8 @@ void information_Request(TCHAR* movie_title, Master_Directory* global_ptr) {
 
 	curl_easy_cleanup(hnd);
 	free(response.string);
-	free(movie_title);
-	movie_title = NULL; //removes dangling pointer
+	free(parsed_movie_title);
+	parsed_movie_title = NULL; //removes dangling pointer
 	global_ptr->tmdb_limiter++; //increment the limiter for the next call
 	return 0;
 }//end of information_request 

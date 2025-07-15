@@ -32,7 +32,7 @@ typedef struct TreeNode {
 
 
 //Forward
-MediaNode* Bin_Read(char* database_file);
+MediaNode* Bin_Read(MediaData** hash_table, TCHAR* database_file, size_t size);
 
 /*
 ===========LINKED LIST==================
@@ -78,7 +78,7 @@ MediaData** Hash_Initialization(size_t amount_of_files, Master_Directory* global
 
 size_t Hash_Function(const char* title, size_t array_size);
 
-void Insert_Hash_Table(char* hash_table, MediaData* data);
+void Insert_Hash_Table(MediaData**, MediaData* data, size_t size_of_array);
 
 void Delete_From_Hash_Table(char* hash_table, const char* title);
 

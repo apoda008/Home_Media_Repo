@@ -2,7 +2,7 @@
 #include "networking.h"
 
 
-void BrowseForFolder(Master_Directory* ptr, int create_or_move) {
+bool BrowseForFolder(Master_Directory* ptr, int create_or_move) {
     
     BROWSEINFO bi = { 0 };
     bi.lpszTitle = _T("Select a folder");
@@ -19,6 +19,7 @@ void BrowseForFolder(Master_Directory* ptr, int create_or_move) {
                 _tcscpy_s(ptr->master_folder, MAX_PATH, path);
             }
             CoTaskMemFree(pidl);
+            //return true;
         }
         else 
         {
@@ -29,8 +30,10 @@ void BrowseForFolder(Master_Directory* ptr, int create_or_move) {
                 _tcscpy_s(ptr->path_to_media_for_import, MAX_PATH, path);
             }
             CoTaskMemFree(pidl);
+            //return true;
         }
-    }
+    } 
+    //return false; //cancelled or failed
 }
 
 void Create_Folders(Master_Directory* global_ptr) {
@@ -284,8 +287,8 @@ int File_Search_Parse(Master_Directory* global_ptr) {
                 //THIS WILL BE FILES
                 //TAKE FILE NAME AND PARSE IT FOR SENDING TO TMDB
                 TCHAR* parsed_name = Parse_Helper(findFileData.cFileName);
-                information_Request(parsed_name, global_ptr);
-                _tprintf(_T("Parsed: %s\n"), parsed_name);
+                information_Request(parsed_name, global_ptr, findFileData.cFileName);
+                //_tprintf(_T("Parsed: %s\n"), parsed_name);
                 
             }
 
@@ -301,17 +304,28 @@ int File_Search_Parse(Master_Directory* global_ptr) {
 }
 
 void FolderExecution(Master_Directory* global_ptr) {
-    
+	_tprintf(_T("POINTER: %s\n"), global_ptr->master_folder);
+    //return;
     //Gets:Sets folder location for Repo location
     //Gets:Sets folder location for media import 
     //URGENT: NEED TO FIX IF CANCELLED
     printf("Select a location to save the Repository.\n");
     HRESULT hr = CoInitialize(NULL);
     if (SUCCEEDED(hr)) {
-        BrowseForFolder(global_ptr, 0);
-        _tprintf(_T("Please select the media to import\n"));
-        BrowseForFolder(global_ptr, 1);
-        CoUninitialize();
+        
+        if(BrowseForFolder(global_ptr, 0)){
+			printf("Success\n");
+            _tprintf(_T("Please select the media to import\n"));
+        }
+        else { 
+            return; 
+        }
+        
+        if (BrowseForFolder(global_ptr, 1)) {
+            printf("Success\n");
+            //return; }
+            CoUninitialize();
+        }
     }
 
     //ERROR HANDLING

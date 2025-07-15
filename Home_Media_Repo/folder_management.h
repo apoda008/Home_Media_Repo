@@ -18,7 +18,7 @@
 //    size_t tmdb_limiter;
 //} Master_Directory;
 
-void BrowseForFolder(Master_Directory* ptr, int create_or_move);
+bool BrowseForFolder(Master_Directory* ptr, int create_or_move);
 
 void Create_Folders(Master_Directory* global_ptr);
 

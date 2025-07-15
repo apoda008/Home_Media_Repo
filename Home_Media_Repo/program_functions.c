@@ -7,42 +7,50 @@
 //returns head of linked list of MediaData
 //More than likely needs an entire restructuring 
 //into a hash table or binary tree
-MediaNode* Bin_Read(TCHAR* database_file) {
+MediaNode* Bin_Read(TCHAR* database_file, size_t size, MediaData** hash_table) {
 
-
-	_tprintf(_T("DATABASE FILE: %s\n"), database_file);
-	FILE* file = _tfopen(database_file, "rb");
+	FILE* file = _tfopen(database_file, _T("rb"));
 	if (file == NULL) {
 		perror("Failed to open file");
 		return 0;
+	}
+	else {
+		printf("bin open successfully\n");
 	}
 
 	//MediaData buffer
 	MediaData temp;
 
 	while ((fread(&temp, sizeof(MediaData), 1, file)) == 1) {
-
+		printf("Entered the while\n");
 		MediaData* new_node = (MediaData*)malloc(sizeof(MediaData));
 		if (new_node == NULL) {
 			perror("Memory allocation failed for new node");
 			fclose(file);
 			return NULL;
 		}
-		printf("Here\n");
+		
 		memcpy(new_node, &temp, sizeof(MediaData));
-		//new_node->next = NULL;
+		
+		//This will be removed after testing
 		printf("Title: %s\n", new_node->title);
 		printf("ID: %f\n", new_node->tmdb_id);
 		printf("Description: %s\n", new_node->description);
 		printf("Media Type: %d\n", new_node->media_type);
-		printf("Directory Position: %s\n", new_node->dir_position_media);
+		_tprintf(_T("Directory Position: %s\n"), new_node->dir_position_media);
+		////////////////////////////////////
+		
+		Insert_Hash_Table(hash_table, &new_node, size);
+
+		free(new_node);
+		new_node = NULL;
 	}
 
 	fclose(file);
 	return;
 }
 
-void media_write(cJSON* title, cJSON* description, cJSON* id, cJSON* genre_ids, cJSON* media_type, TCHAR dir_position, Master_Directory* global_ptr) {
+void media_write(cJSON* title, cJSON* description, cJSON* id, cJSON* genre_ids, cJSON* media_type, TCHAR* dir_position, Master_Directory* global_ptr) {
 	char* first_char_string = title->valuestring;
 	TCHAR filename[8] = _T("\\a.bin");
 
@@ -80,7 +88,15 @@ void media_write(cJSON* title, cJSON* description, cJSON* id, cJSON* genre_ids, 
 	strcpy_s(temp.title, 256, title->valuestring);
 	strcpy_s(temp.description, 2000, description->valuestring);
 	//strcpy_s(temp.dir_position_media, MAX_PATH, dir_position);
-	_tcscpy_s(temp.dir_position_media, MAX_PATH, &dir_position);
+	
+	//PROBLEM
+	if (dir_position == NULL) { 
+		printf("Dir is null\n"); 
+	}
+	else { _tprintf(_T("DIR BEFORE: %s\n"), dir_position); }
+
+	_tcscpy_s(temp.dir_position_media, MAX_PATH, dir_position);
+	_tprintf(_T("DIR POSITION AFTER: %s\n"), temp.dir_position_media);
 	
 	Hash_Function(temp.title, 1000);
 	cJSON* genre_number;
