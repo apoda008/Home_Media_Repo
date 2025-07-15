@@ -1,7 +1,6 @@
 #include "networking.h"
 
 void ConvertTCHARtoUTF8(const TCHAR* input, char* output, size_t outputSize) {
-	printf("are you crashing my shit?\n");
 #ifdef UNICODE
 	// Convert wide TCHAR (wchar_t*) to UTF-8 char*
 	WideCharToMultiByte(CP_UTF8, 0, input, -1, output, (int)outputSize, NULL, NULL);
@@ -12,27 +11,40 @@ void ConvertTCHARtoUTF8(const TCHAR* input, char* output, size_t outputSize) {
 }
 
 
-size_t write_chunk(void* data, size_t size, size_t nmemb, void* user_data) {
-	size_t real_size = size * nmemb;
 
-	struct Memory* response = (struct Memory*)user_data;
+size_t write_chunk(void* contents, size_t size, size_t nmemb, void* userp) {
+	
+	size_t total_size = size * nmemb;
+	struct Memory* mem = (struct Memory*)userp;
 
-	char* ptr = realloc(response->string, response->size + real_size + 1);
-
+	char* ptr = realloc(mem->string, mem->size + total_size + 1);
 	if (ptr == NULL) {
-		return CURL_WRITEFUNC_ERROR;
+		// Allocation failed
+		return 0;
 	}
 
-	response->string = ptr;
-	memcpy(&(response->string[response->size]), data, real_size);
-	response->size += real_size;
-	response->string[response->size] = '\0';
+	mem->string = ptr;
+	memcpy(mem->string + mem->size, contents, total_size);
 
-	return real_size;
+	if (!mem || !contents) {
+		fprintf(stderr, "write_chunk: NULL pointer\n");
+		return 0;
+	}
+	mem->size += total_size;
+	mem->string[mem->size] = '\0';  // Null-terminate
+
+	return total_size;
 }
 
 //sourced by themoviedb.org api system
-void information_Request(TCHAR* movie_title) {
+void information_Request(TCHAR* movie_title, Master_Directory* global_ptr) {
+
+	//tmbd request control 
+	if (global_ptr->tmdb_limiter >= 40) {
+		printf("You have reached the TMDB API limit for this session.\n");
+		Sleep(10000);
+		global_ptr->tmdb_limiter = 0; //reset the limiter
+	}
 
 	//====this is solely to get the key for api call==== 
 	//in real implentation this will ask for the users key
@@ -44,9 +56,18 @@ void information_Request(TCHAR* movie_title) {
 
 	fgets(authorization, 267, file);
 	fclose(file);
-	//==================================================
+	//==========================================================
 
 	CURL* hnd = curl_easy_init();
+
+	char* utf8_movie[MAX_PATH];
+	ConvertTCHARtoUTF8(movie_title, utf8_movie, sizeof(utf8_movie));
+
+
+	char search_buffer[MAX_PATH];
+	snprintf(search_buffer, sizeof(search_buffer), "https://api.themoviedb.org/3/search/multi?query=%s&include_adult=false&language=en-US", utf8_movie);
+	printf("FINAL URL: %s\n", search_buffer);
+
 
 	if (!hnd) {
 		fprintf(stderr, "Error with curl initialization \n");
@@ -64,18 +85,8 @@ void information_Request(TCHAR* movie_title) {
 
 	//DELETE strictly for viewing what is being fully returned in the JSON, serves no function to the program overall
 	//curl_easy_setopt(hnd, CURLOPT_WRITEDATA, stdout);
-	char* utf8[256];
-	ConvertTCHARtoUTF8(movie_title, utf8, sizeof(utf8));
 
-
-	char search_buffer[260] = "";
-	snprintf(search_buffer, sizeof(search_buffer), "https://api.themoviedb.org/3/search/multi?query=%s&include_adult=false&language=en-US", utf8);
-	printf("SEARCH: %s\n", search_buffer);
-
-	CURLcode answer = curl_easy_setopt(hnd, CURLOPT_URL, search_buffer);
-	if (answer != CURLE_OK) {
-		fprintf(stderr, "setop URL FAILED: %s\n", curl_easy_strerror(answer));
-	}
+	curl_easy_setopt(hnd, CURLOPT_URL, search_buffer);
 
 	struct curl_slist* headers = NULL;
 	headers = curl_slist_append(headers, "accept: application/json");
@@ -131,6 +142,8 @@ void information_Request(TCHAR* movie_title) {
 
 	curl_easy_cleanup(hnd);
 	free(response.string);
+	free(movie_title);
+	global_ptr->tmdb_limiter++; //increment the limiter for the next call
 	return 0;
 }//end of information_request 
 
