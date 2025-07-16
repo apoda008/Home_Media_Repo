@@ -7,8 +7,8 @@
 //returns head of linked list of MediaData
 //More than likely needs an entire restructuring 
 //into a hash table or binary tree
-MediaNode* Bin_Read(TCHAR* database_file, size_t size, MediaData** hash_table) {
-
+MediaNode* Bin_Read(MediaData** hash_table, TCHAR* database_file, size_t size) {
+	
 	FILE* file = _tfopen(database_file, _T("rb"));
 	if (file == NULL) {
 		perror("Failed to open file");
@@ -33,17 +33,18 @@ MediaNode* Bin_Read(TCHAR* database_file, size_t size, MediaData** hash_table) {
 		memcpy(new_node, &temp, sizeof(MediaData));
 		
 		//This will be removed after testing
-		printf("Title: %s\n", new_node->title);
+		printf("\nTitle: %s\n", new_node->title);
 		printf("ID: %f\n", new_node->tmdb_id);
 		printf("Description: %s\n", new_node->description);
 		printf("Media Type: %d\n", new_node->media_type);
-		_tprintf(_T("Directory Position: %s\n"), new_node->dir_position_media);
+		_tprintf(_T("Directory Position: %s\n\n"), new_node->dir_position_media);
 		////////////////////////////////////
 		
-		Insert_Hash_Table(hash_table, &new_node, size);
+		Insert_Hash_Table(hash_table, new_node, size);
 
-		free(new_node);
-		new_node = NULL;
+		//free(new_node);
+		//new_node = NULL;
+		
 	}
 
 	fclose(file);
@@ -61,21 +62,8 @@ void media_write(cJSON* title, cJSON* description, cJSON* id, cJSON* genre_ids, 
 	_tcscpy_s(file_buffer, MAX_PATH, global_ptr->movie_bin_path);
 	_tcscat_s(file_buffer, MAX_PATH, filename);
 	
-	//(OLD)strcat_s(file_buffer, MAX_PATH, create_folder_location);
-	//(OLD)strcat_s(file_buffer, MAX_PATH, "\\");
-
-	//(OLD)set global bin file path for quick reference 
-	//(OLD)strcpy_s(master_pathing.movie_bin_path, MAX_PATH, file_buffer);
-
-	//(OLD)strcat_s(file_buffer, MAX_PATH, filename);
-
 	//DELETE BE AWARE; TEMP IS NOT FREED. 
-	_tprintf(_T("FILE_BUFFER: %s\n"), file_buffer);
-
-	//(OLD)set global bin file path for quick reference 
-
-	//(OLD)printf("GLOBAL DIR PATH: %s", master_pathing.movie_bin_path);
-	//(OLD)_tprintf(_T("GLOBAL DIR PATH: %s\n"), master_pathing.movie_bin_path);
+	//_tprintf(_T("FILE_BUFFER: %s\n"), file_buffer);
 
 	bool is_movie = false;
 
@@ -87,27 +75,14 @@ void media_write(cJSON* title, cJSON* description, cJSON* id, cJSON* genre_ids, 
 
 	strcpy_s(temp.title, 256, title->valuestring);
 	strcpy_s(temp.description, 2000, description->valuestring);
-	//strcpy_s(temp.dir_position_media, MAX_PATH, dir_position);
-	
-	//PROBLEM
-	if (dir_position == NULL) { 
-		printf("Dir is null\n"); 
-	}
-	else { _tprintf(_T("DIR BEFORE: %s\n"), dir_position); }
-
 	_tcscpy_s(temp.dir_position_media, MAX_PATH, dir_position);
-	_tprintf(_T("DIR POSITION AFTER: %s\n"), temp.dir_position_media);
 	
-	Hash_Function(temp.title, 1000);
 	cJSON* genre_number;
 	int i = 0;
 	cJSON_ArrayForEach(genre_number, genre_ids) {
 		temp.genre_types[i] = (int)genre_number->valuedouble;
 		i++;
 	}
-
-	//DELETE
-	printf("\n");
 
 	cJSON_Delete(genre_number);
 	////////////////FILE WRITE///////////////////////

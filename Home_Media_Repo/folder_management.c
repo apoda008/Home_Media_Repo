@@ -155,13 +155,13 @@ void MoveMediaToMaster(TCHAR* path, Master_Directory* global_ptr) {
             
             //check if it's a directory or a file
             if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-                _tprintf(_T("[DIR]: %s\n"), findFileData.cFileName);
+                //_tprintf(_T("[DIR]: %s\n"), findFileData.cFileName);
              
                 MoveMediaToMaster(next_dir, global_ptr);
-              
+        
             }
             else {
-                _tprintf(_T("[FILE]: %s\n"), findFileData.cFileName);
+                //_tprintf(_T("[FILE]: %s\n"), findFileData.cFileName);
                 
                 //This creates a directory path with the target filename
                 //MovieFile does not auto concat the filename
@@ -267,6 +267,7 @@ int File_Search_Parse(Master_Directory* global_ptr) {
 
     if (hFind == INVALID_HANDLE_VALUE) {
         _tprintf(_T("Error handle value. Error: %lu \n"), GetLastError());
+        return 1;
     }
     else {
         do {
@@ -278,18 +279,16 @@ int File_Search_Parse(Master_Directory* global_ptr) {
 
             //check if it's a directory or a file
             if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-                _tprintf(_T("[DIR_in_Search]: %s\n"), findFileData.cFileName);
                 //DO NOTHING, ALL MEDIA SHOULD BE IN A SINGLE TARGET 
-                //FOLDER
+                //DIRECTORY
             }
             else {
-                _tprintf(_T("About to parse file\n"));
+                
                 //THIS WILL BE FILES
                 //TAKE FILE NAME AND PARSE IT FOR SENDING TO TMDB
                 TCHAR* parsed_name = Parse_Helper(findFileData.cFileName);
                 information_Request(parsed_name, global_ptr, findFileData.cFileName);
-                //_tprintf(_T("Parsed: %s\n"), parsed_name);
-                
+               
             }
 
         } while (FindNextFile(hFind, &findFileData) != 0);
@@ -304,29 +303,35 @@ int File_Search_Parse(Master_Directory* global_ptr) {
 }
 
 void FolderExecution(Master_Directory* global_ptr) {
-	_tprintf(_T("POINTER: %s\n"), global_ptr->master_folder);
+	
     //return;
     //Gets:Sets folder location for Repo location
     //Gets:Sets folder location for media import 
     //URGENT: NEED TO FIX IF CANCELLED
     printf("Select a location to save the Repository.\n");
-    HRESULT hr = CoInitialize(NULL);
-    if (SUCCEEDED(hr)) {
-        
-        if(BrowseForFolder(global_ptr, 0)){
-			printf("Success\n");
-            _tprintf(_T("Please select the media to import\n"));
-        }
-        else { 
-            return; 
-        }
-        
-        if (BrowseForFolder(global_ptr, 1)) {
-            printf("Success\n");
-            //return; }
-            CoUninitialize();
-        }
-    }
+
+    //Will learn more about this function to more safely execute 
+    // this code
+    // HRESULT hr = CoInitialize(NULL);
+   // if (SUCCEEDED(hr)) {
+   //     
+   //     if(BrowseForFolder(global_ptr, 0)){
+			//printf("Success\n");
+   //         _tprintf(_T("Please select the media to import\n"));
+   //     }
+   //     else { 
+   //         return; 
+   //     }
+   //     
+   //     if (BrowseForFolder(global_ptr, 1)) {
+   //         printf("Success\n");
+   //         //return; }
+   //         CoUninitialize();
+   //     }
+   // }
+
+	_tcsnccpy_s(global_ptr->master_folder, MAX_PATH, _T("C:\\Users\\dan_a\\Desktop\\TestLocationForRepo"), MAX_PATH);
+    _tcsnccpy_s(global_ptr->path_to_media_for_import, MAX_PATH, _T("C:\\Users\\dan_a\\Desktop\\testdirfolder"), MAX_PATH);
 
     //ERROR HANDLING
     Create_Folders(global_ptr);

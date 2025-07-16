@@ -206,14 +206,14 @@ size_t Hash_Function(const char* title, size_t array_size) {
 	return hash;
 }
 
-void Insert_Hash_Table(MediaData** hash_table, MediaData data, size_t array_size) {
+void Insert_Hash_Table(MediaData** hash_table, MediaData* data, size_t array_size) {
 	if (hash_table == NULL) {
 		printf("Hash table or data is NULL.\n");
 		return;
 	}
 
-	printf("DATA: %s\n", data.title);
-	size_t index = Hash_Function(data.title, array_size); //assuming 1000 is the size of the hash table
+	printf("(INSERT)DATA: %s\n", data->title);
+	size_t index = Hash_Function(data->title, array_size); 
 	//while (hash_table[index] != NULL) {
 	//	//index = (index + 1) % 1000; //linear probing
 	//}
@@ -222,19 +222,21 @@ void Insert_Hash_Table(MediaData** hash_table, MediaData data, size_t array_size
 	//spreading in both directions; inserting at a higher first then
 	//reversing if the insert reaches the end of the array 
 	if (hash_table[index] != NULL) {
+		printf("COLLISION\n");
 		size_t above = index - array_size;
 		for (int i = index; i < array_size; i++) {
 			if (hash_table[i + 1] == NULL) {
 				index = i + 1;
 				//insert
-				hash_table[index] = &data;
+				hash_table[index] = data;
 				break;
 			}
 			if (i == array_size) {
 				for (int j = index; j > 0; j--) {
 					if (hash_table[j - 1] == NULL) {
 						index = j - 1;
-						hash_table[index] = &data;
+						hash_table[index] = data;
+						
 						//insert
 						break;
 					}
@@ -243,11 +245,11 @@ void Insert_Hash_Table(MediaData** hash_table, MediaData data, size_t array_size
 			}
 		}
 	}
-	else { hash_table[index] = &data; } //if the index is empty, insert it there
-
+	else { hash_table[index] = data; } //if the index is empty, insert it there
+	//printf("AFTER: %zu\n", hash_table[index]->title, index);
 
 	//hash_table[index] = data;
-	printf("Inserted %s at index %zu\n", data.title, index);
+	printf("Inserted %s at index %zu\n", data->title, index);
 }
 
 
@@ -283,6 +285,7 @@ MediaData** Hash_Initialization(size_t amount_of_files, Master_Directory* global
 	if (hFind == INVALID_HANDLE_VALUE) {
 		_tprintf(_T("Error handle value. Error: %lu \n"), GetLastError());
 		free(hash_table);
+		hash_table = NULL; //free the hash table if it was allocated
 		return NULL;
 	}
 	else {
@@ -299,6 +302,7 @@ MediaData** Hash_Initialization(size_t amount_of_files, Master_Directory* global
 				_tcsnccpy_s(dir_for_reading, MAX_PATH, global_ptr->movie_bin_path, MAX_PATH);
 				_tcscat_s(dir_for_reading, MAX_PATH, _T("\\"));
 				_tcscat_s(dir_for_reading, MAX_PATH, findFileData.cFileName);
+				_tprintf(_T("String: %s\n"), dir_for_reading);
 				Bin_Read(hash_table, dir_for_reading, adjusted_size);
 			}
 		} while (FindNextFile(hFind, &findFileData) != 0);

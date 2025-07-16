@@ -27,8 +27,9 @@ int main() {
     _tprintf(_T("Global dir IMPORT: %s\n"), master_pathing.path_to_media_for_import);
     printf("Global tmdb counter: %d\n", master_pathing.tmdb_limiter);
 
-	Hash_Initialization(1000, dir_struct_ptr);
+	MediaData** hash_table = Hash_Initialization(500, dir_struct_ptr);
 
+    printf("Hash[36]: %s", hash_table[36]->title);
 
     //builds folders at requested location
     //moves Media from where it is to the constructed folders

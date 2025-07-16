@@ -41,7 +41,6 @@ void information_Request(TCHAR* parsed_movie_title, Master_Directory* global_ptr
 	_tcscpy_s(dir_position, MAX_PATH, global_ptr->path_to_media);
 	_tcscat_s(dir_position, MAX_PATH, _T("\\"));
 	_tcscat_s(dir_position, MAX_PATH, dir_title);
-	_tprintf(_T("DIR POSITION BEFORE WRITE FUNC: %s\n"), dir_position);
 
 	//tmbd request control 
 	if (global_ptr->tmdb_limiter >= 40) {
@@ -67,11 +66,8 @@ void information_Request(TCHAR* parsed_movie_title, Master_Directory* global_ptr
 	char* utf8_movie[MAX_PATH];
 	ConvertTCHARtoUTF8(parsed_movie_title, utf8_movie, sizeof(utf8_movie));
 
-
 	char search_buffer[MAX_PATH];
 	snprintf(search_buffer, sizeof(search_buffer), "https://api.themoviedb.org/3/search/multi?query=%s&include_adult=false&language=en-US", utf8_movie);
-	printf("FINAL URL: %s\n", search_buffer);
-
 
 	if (!hnd) {
 		fprintf(stderr, "Error with curl initialization \n");
