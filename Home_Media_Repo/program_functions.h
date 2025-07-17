@@ -28,8 +28,6 @@ enum GenreTypeMovie {
     WESTERN = 37
 };
 
-void media_write(cJSON* title, cJSON* description, cJSON* id, cJSON* genre_ids, cJSON* media_type, TCHAR* movie_dir, Master_Directory* global_ptr);
-
 //MediaNode* Bin_Read(char* database_file);
 
 #endif // !PROGRAM_FUNCTIONS_H

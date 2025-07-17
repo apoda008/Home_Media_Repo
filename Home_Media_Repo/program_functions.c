@@ -33,11 +33,11 @@ MediaNode* Bin_Read(MediaData** hash_table, TCHAR* database_file, size_t size) {
 		memcpy(new_node, &temp, sizeof(MediaData));
 		
 		//This will be removed after testing
-		printf("\nTitle: %s\n", new_node->title);
-		printf("ID: %f\n", new_node->tmdb_id);
-		printf("Description: %s\n", new_node->description);
-		printf("Media Type: %d\n", new_node->media_type);
-		_tprintf(_T("Directory Position: %s\n\n"), new_node->dir_position_media);
+		//printf("\nTitle: %s\n", new_node->title);
+		//printf("ID: %f\n", new_node->tmdb_id);
+		//printf("Description: %s\n", new_node->description);
+		//printf("Media Type: %d\n", new_node->media_type);
+		//_tprintf(_T("Directory Position: %s\n\n"), new_node->dir_position_media);
 		////////////////////////////////////
 		
 		Insert_Hash_Table(hash_table, new_node, size);

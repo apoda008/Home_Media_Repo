@@ -82,7 +82,7 @@ void Insert_Hash_Table(MediaData**, MediaData* data, size_t size_of_array);
 
 void Delete_From_Hash_Table(char* hash_table, const char* title);
 
-MediaData* Search_Hash_Table(char* hash_table, const char* title);
+//MediaData* Search_Hash_Table(char* hash_table, const char* title);
 
 MediaData* Resize_Hash_Table(char* hash_table, int new_size);
 

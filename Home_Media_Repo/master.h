@@ -34,6 +34,7 @@ typedef struct Master_Directory {
     TCHAR movie_bin_path[MAX_PATH];
     TCHAR series_bin_path[MAX_PATH];
     size_t tmdb_limiter;
+    size_t num_of_files;
 } Master_Directory;
 
 

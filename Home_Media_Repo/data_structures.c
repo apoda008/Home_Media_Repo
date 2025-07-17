@@ -212,11 +212,7 @@ void Insert_Hash_Table(MediaData** hash_table, MediaData* data, size_t array_siz
 		return;
 	}
 
-	printf("(INSERT)DATA: %s\n", data->title);
 	size_t index = Hash_Function(data->title, array_size); 
-	//while (hash_table[index] != NULL) {
-	//	//index = (index + 1) % 1000; //linear probing
-	//}
 	
 	//if the index is already occupied, find the next available slot
 	//spreading in both directions; inserting at a higher first then
@@ -246,9 +242,7 @@ void Insert_Hash_Table(MediaData** hash_table, MediaData* data, size_t array_siz
 		}
 	}
 	else { hash_table[index] = data; } //if the index is empty, insert it there
-	//printf("AFTER: %zu\n", hash_table[index]->title, index);
 
-	//hash_table[index] = data;
 	printf("Inserted %s at index %zu\n", data->title, index);
 }
 
@@ -266,6 +260,7 @@ MediaData** Hash_Initialization(size_t amount_of_files, Master_Directory* global
 		hash_table[i] = NULL; //initialize all slots to NULL
 	}
 
+
 	//TEST===========================================
 	MediaData temp = { 1, "JACKASS", 123456789, {0}, "This is a test description.", "C:\\test\\movie.bin" };
 	size_t pos = Hash_Function(temp.title, adjusted_size);
@@ -273,7 +268,6 @@ MediaData** Hash_Initialization(size_t amount_of_files, Master_Directory* global
 	_tprintf(_T("Hash table initialized with size: %zu\n"), adjusted_size);
 	printf("Title of test: %s\n", hash_table[pos]->title);
 	//==================================================
-
 
 	TCHAR dir_iteration[MAX_PATH];
 	_tcscpy_s(dir_iteration, MAX_PATH, global_ptr->movie_bin_path);
@@ -306,18 +300,33 @@ MediaData** Hash_Initialization(size_t amount_of_files, Master_Directory* global
 				Bin_Read(hash_table, dir_for_reading, adjusted_size);
 			}
 		} while (FindNextFile(hFind, &findFileData) != 0);
-	}
 
+		if (GetLastError() != ERROR_NO_MORE_FILES) {
+			printf("FindNextFile Failed (%d)\n", GetLastError());
+			free(hash_table);
+			hash_table = NULL; //free the hash table if it was allocated
+			return NULL;
+		}
+
+	}
+	
+	FindClose(hFind); //close the find handle
+	
+	size_t hash_size = 0;
 	//ITERATION THROUGH HASH TO MAKE SURE
 	for (int i = 0; i < adjusted_size; i++) {
 		if (hash_table[i] != NULL) {
 			printf("Index %d: %s\n", i, hash_table[i]->title);
+			hash_size += sizeof(MediaData); //calculate the size of each MediaData		
 		}
 		else {
 			//printf("Index %d: NULL\n", i);
+			hash_size += sizeof(MediaData*); //calculate the size of each pointer
 		}
 	}
-	
+
+	printf("Created Hash Table with size: %zu bytes\n", hash_size);
+
 	return hash_table;
 }
 
