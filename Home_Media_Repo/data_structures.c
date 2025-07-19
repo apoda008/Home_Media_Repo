@@ -189,6 +189,32 @@ TreeNode* free_binary_tree(TreeNode* root) {
 
 
 //&&&&&&&&&&&&&&&&&&&&---HASH MAP------&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+MediaData** Resize_Hash_Table(MediaData** orginal_table, size_t size_array) {
+	if (orginal_table == NULL) {
+		printf("Invalid hash table or new size.\n");
+		return NULL;
+	}
+	size_t new_size = size_array * 2; //double the size of the hash table
+
+	MediaData** new_table = malloc(new_size * sizeof(MediaData*));
+	if (new_table == NULL) {
+		printf("Memory allocation failed for resized hash table.\n");
+		return NULL;
+	}
+	for (int i = 0; i < new_size; i++) {
+		if (i < size_array) {
+			new_table[i] = orginal_table[i]; //copy the old data into the new table
+		}
+		else {
+			new_table[i] = NULL; //initialize all slots to NULL
+		}
+	}
+	//Rehash the existing data into the new table
+
+	free(orginal_table); //free the old table
+	return new_table;
+}
+
 MediaNode* Bin_Read(MediaData** hash_table, TCHAR* database_file, size_t size) {
 
 	FILE* file = _tfopen(database_file, _T("rb"));
@@ -279,7 +305,9 @@ void Insert_Hash_Table(MediaData** hash_table, MediaData* data, size_t array_siz
 					}
 					if (j == 0) {
 						printf("Hash table is full, cannot insert %s\n", data->title);
-						return; //if we reach the end of the array and nothing is found
+						hash_table = Resize_Hash_Table(hash_table, array_size);
+						Insert_Hash_Table(hash_table, data, (array_size * 2)); //resize and reinsert
+						return; //if we reach the end of the array and nothing is found the table is full 
 					}
 				}
 
@@ -428,30 +456,6 @@ MediaData* Search_Hash_Table(MediaData** hash_table, const char* title, size_t s
 	}
 }
 
-// Resize_Hash_Table is commented out because it is not implemented yet
 
-//MediaData** Resize_Hash_Table(MediaData** orginal_table) {
-//	if (orginal_table == NULL) {
-//		printf("Invalid hash table or new size.\n");
-//		return NULL;
-//	}
-//	MediaData** new_table = malloc(2 * sizeof(MediaData*));
-//	if (new_table == NULL) {
-//		printf("Memory allocation failed for resized hash table.\n");
-//		return NULL;
-//	}
-//	for (int i = 0; i < new_size; i++) {
-//		new_table[i] = NULL; //initialize all slots to NULL
-//	}
-//	//Rehash the existing data into the new table
-//	for (int i = 0; i < sizeof(orginal_table) / sizeof(MediaData*); i++) {
-//		if (orginal_table[i] != NULL) {
-//			size_t new_index = Hash_Function(orginal_table[i]->title, new_size);
-//			new_table[new_index] = orginal_table[i]; //insert into the new table
-//		}
-//	}
-//	free(orginal_table); //free the old table
-//	return new_table;
-//}
 
 //&&&&&&&&&&&&&&&&&&&&&&&&-------&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&

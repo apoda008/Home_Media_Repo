@@ -28,7 +28,8 @@ int main() {
     _tprintf(_T("Global dir IMPORT: %s\n"), master_pathing.path_to_media_for_import);
     printf("Global tmdb counter: %d\n", master_pathing.tmdb_limiter);
     printf("Total files: %d\n", master_pathing.num_of_files);
-
+    
+    //REMEMBER TO PROPERLY SET THE SIZE
 	MediaData** hash_table = Hash_Initialization(500, dir_struct_ptr);
 
     //will initialize genre mapping here which will return an object with an array for each 

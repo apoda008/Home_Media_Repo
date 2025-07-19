@@ -273,7 +273,27 @@ void information_Request(TCHAR* parsed_movie_title, Master_Directory* global_ptr
 }//end of information_request 
 
 
+bool IpAddress_Validation(const char* ip_address) {
+	bool end = false;
+	char* context;
+	char* token = strtok_s(ip_address, ".", &context);
 
+	if (strcmp(token, "192") == 0){
+		//DELETE
+		//printf("Toekn1: %s\n", token);
+		token = strtok_s(NULL, ".", &context);
+		//DELETE
+		//printf("Toekn2: %s\n", token);
+		if (strcmp(token, "168") == 0) {
+			token = strtok_s(NULL, ".", &context);
+			end = true; //Valid Network Address
+		}
+		else { end = false; } //NonValid Network address
+	}
+	else { end = false; }// NonValid Network address
+
+	return end;
+}
 //====================================================================================
 ////This is the main API connection function that will be used to connect to the server
 void Api_Connection(MediaData** hash_table, size_t array_size) {
@@ -283,6 +303,7 @@ void Api_Connection(MediaData** hash_table, size_t array_size) {
 	struct sockaddr_in database_addr, client_addr;
 	int client_len = sizeof(client_addr);
 	char buffer[4096] = { 0 };
+	char client_ip[INET6_ADDRSTRLEN] = { 0 };
 
 	int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (result != 0) {
@@ -310,47 +331,62 @@ void Api_Connection(MediaData** hash_table, size_t array_size) {
 		return 1;
 	}
 
-	//WTF IS IS EVEN SOMAXCONN
-	//WHY DOES WINDOWS SUCK ASS TO CODE IN???
-	listen(database_socket, SOMAXCONN);
-
-	printf("Database Online \n\n");
-
-	client_socket = accept(database_socket, (SOCKADDR*)&client_addr, &client_len);
-	if (client_socket == INVALID_SOCKET) {
-		printf("Accept failed: %d \n", WSAGetLastError());
-		closesocket(database_socket);
-		WSACleanup();
-		return 1;
-	}
 
 	while (1) {
-		int bytes_received = recv(client_socket, buffer, sizeof(buffer) - 1, 0);
-		if (bytes_received > 0) {
-			//this is where i will need to call the input parsing  
-			//which will take in the request for whatever media info 
-			//it wants
-			buffer[bytes_received] = "\0";
-			printf("Received: %s\n", buffer);
+		//WTF IS IS EVEN SOMAXCONN
+		//WHY DOES WINDOWS SUCK ASS TO CODE IN???
+		listen(database_socket, SOMAXCONN);
 
-			if (strcmp(buffer, "EXIT") == 0) {
-				break;
-			}
+		printf("Database Online \n\n");
 
-			cJSON* result = input_string_parsing(hash_table, buffer, array_size);
-			if (result == NULL) {
-				send(client_socket, "null", 5, 0);
-			}
-			char* j_print = cJSON_Print(result);
-			printf("sending (as JSON) %s\n", j_print);
+		client_socket = accept(database_socket, (SOCKADDR*)&client_addr, &client_len);
+		if (client_socket == INVALID_SOCKET) {
+			printf("Accept failed: %d \n", WSAGetLastError());
+			closesocket(database_socket);
+			WSACleanup();
+			return 1;
+		}
+
+		inet_ntop(AF_INET, &(client_addr.sin_addr), client_ip, INET_ADDRSTRLEN);
+	
+		//This will become a log
+		printf("Client IP: %s, Port: %d\n", client_ip, ntohs(client_addr.sin_port));
+	
+		if (IpAddress_Validation(client_ip) == false) {
+			//break connection:
+			printf("Invalid address\n");
+			closesocket(client_socket);
+		}
+
+		while (1) {
+			int bytes_received = recv(client_socket, buffer, sizeof(buffer) - 1, 0);
+			if (bytes_received > 0) {
+				//this is where i will need to call the input parsing  
+				//which will take in the request for whatever media info 
+				//it wants
+				buffer[bytes_received] = "\0";
+				printf("Received: %s\n", buffer);
+
+				if (strcmp(buffer, "EXIT") == 0) {
+					break;
+				}
+
+				cJSON* result = input_string_parsing(hash_table, buffer, array_size);
+				if (result == NULL) {
+					send(client_socket, "null", 5, 0);
+				}
+				char* j_print = cJSON_Print(result);
+				printf("sending (as JSON) %s\n", j_print);
 
 			
-			send(client_socket, j_print, strlen(j_print), 0);
+				send(client_socket, j_print, strlen(j_print), 0);
 
+			}
 		}
-	}
 
-	closesocket(client_socket);
+		closesocket(client_socket);
+		printf("Client disconnected.\n");
+	}
 	closesocket(database_socket);
 
 	return 0;
