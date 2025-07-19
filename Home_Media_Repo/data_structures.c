@@ -189,7 +189,49 @@ TreeNode* free_binary_tree(TreeNode* root) {
 
 
 //&&&&&&&&&&&&&&&&&&&&---HASH MAP------&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+MediaNode* Bin_Read(MediaData** hash_table, TCHAR* database_file, size_t size) {
 
+	FILE* file = _tfopen(database_file, _T("rb"));
+	if (file == NULL) {
+		perror("Failed to open file");
+		return 0;
+	}
+	else {
+		printf("bin open successfully\n");
+	}
+
+	//MediaData buffer
+	MediaData temp;
+
+	while ((fread(&temp, sizeof(MediaData), 1, file)) == 1) {
+		printf("Entered the while\n");
+		MediaData* new_node = (MediaData*)malloc(sizeof(MediaData));
+		if (new_node == NULL) {
+			perror("Memory allocation failed for new node");
+			fclose(file);
+			return NULL;
+		}
+
+		memcpy(new_node, &temp, sizeof(MediaData));
+
+		//This will be removed after testing
+		//printf("\nTitle: %s\n", new_node->title);
+		//printf("ID: %f\n", new_node->tmdb_id);
+		//printf("Description: %s\n", new_node->description);
+		//printf("Media Type: %d\n", new_node->media_type);
+		//_tprintf(_T("Directory Position: %s\n\n"), new_node->dir_position_media);
+		////////////////////////////////////
+
+		Insert_Hash_Table(hash_table, new_node, size);
+
+		//free(new_node);
+		//new_node = NULL;
+
+	}
+
+	fclose(file);
+	return;
+}
 //hash function 
 size_t Hash_Function(const char* title, size_t array_size) {
 	//simple hash function that sums the ASCII values of the characters in the title
@@ -198,7 +240,7 @@ size_t Hash_Function(const char* title, size_t array_size) {
 		hash += (unsigned char)(*title);
 		if (hash > array_size) {
 			hash %= array_size; //to ensure it fits in the array size
-			printf("Exceded array\n");
+			printf("Beyond array size\n");
 		}
 		title++;
 	}
@@ -218,10 +260,10 @@ void Insert_Hash_Table(MediaData** hash_table, MediaData* data, size_t array_siz
 	//spreading in both directions; inserting at a higher first then
 	//reversing if the insert reaches the end of the array 
 	if (hash_table[index] != NULL) {
-		printf("COLLISION\n");
+		printf("=COLLISION=\n");
 		size_t above = index - array_size;
 		for (int i = index; i < array_size; i++) {
-			if (hash_table[i + 1] == NULL) {
+			if ((i < array_size) && (hash_table[i + 1] == NULL) ) {
 				index = i + 1;
 				//insert
 				hash_table[index] = data;
@@ -229,12 +271,15 @@ void Insert_Hash_Table(MediaData** hash_table, MediaData* data, size_t array_siz
 			}
 			if (i == array_size) {
 				for (int j = index; j > 0; j--) {
-					if (hash_table[j - 1] == NULL) {
+					if ((j > 0) && (hash_table[j - 1] == NULL)) {
 						index = j - 1;
 						hash_table[index] = data;
-						
 						//insert
 						break;
+					}
+					if (j == 0) {
+						printf("Hash table is full, cannot insert %s\n", data->title);
+						return; //if we reach the end of the array and nothing is found
 					}
 				}
 
@@ -260,6 +305,7 @@ MediaData** Hash_Initialization(size_t amount_of_files, Master_Directory* global
 		hash_table[i] = NULL; //initialize all slots to NULL
 	}
 
+	global_ptr->size_of_hash = adjusted_size; //set the size of the hash table in the global struct
 
 	//TEST===========================================
 	MediaData temp = { 1, "JACKASS", 123456789, {0}, "This is a test description.", "C:\\test\\movie.bin" };
@@ -329,5 +375,83 @@ MediaData** Hash_Initialization(size_t amount_of_files, Master_Directory* global
 
 	return hash_table;
 }
+
+void Delete_From_Hash_Table(MediaData** hash_table, const char* title) {
+	if (hash_table == NULL || title == NULL) {
+		printf("Hash table or title is NULL.\n");
+		return;
+	}
+	size_t index = Hash_Function(title, sizeof(hash_table) / sizeof(MediaData*));
+	if (hash_table[index] != NULL && strcmp(hash_table[index]->title, title) == 0) {
+		free(hash_table[index]);
+		hash_table[index] = NULL; //set the pointer to NULL after freeing
+		printf("Deleted %s from hash table at index %zu\n", title, index);
+	}
+	else {
+		printf("Title %s not found in hash table.\n", title);
+	}
+}
+
+MediaData* Search_Hash_Table(MediaData** hash_table, const char* title, size_t size_array) {
+	if (hash_table == NULL || title == NULL) {
+		printf("Hash table or title is NULL.\n");
+		return NULL;
+	}
+	size_t index = Hash_Function(title, size_array);
+	if (hash_table[index] != NULL && strcmp(hash_table[index]->title, title) == 0) {
+		printf("Found %s at index %zu\n", title, index);
+		return hash_table[index];
+	}
+	else if (hash_table[index] != NULL) {
+		for (int i = index + 1; i < size_array; i++) {
+			if (hash_table[i] != NULL && strcmp(hash_table[i]->title, title) == 0) {
+				printf("Found %s at index %zu\n", title, i);
+				return hash_table[i];
+			}
+			if (i == size_array - 1) {
+				for (int j = index - 1; j < index; j--) {
+					if (hash_table[j] != NULL && strcmp(hash_table[j]->title, title) == 0) {
+						printf("Found %s at index %zu\n", title, j);
+						return hash_table[j];
+					}
+					if (j == 0) {
+						printf("Title %s not found in hash table.\n", title);
+						return NULL; //if we reach the end of the array and nothing is found
+					}
+				}
+			}
+		}
+	}
+	else {
+		printf("Title %s not found in hash table.\n", title);
+		return NULL;
+	}
+}
+
+// Resize_Hash_Table is commented out because it is not implemented yet
+
+//MediaData** Resize_Hash_Table(MediaData** orginal_table) {
+//	if (orginal_table == NULL) {
+//		printf("Invalid hash table or new size.\n");
+//		return NULL;
+//	}
+//	MediaData** new_table = malloc(2 * sizeof(MediaData*));
+//	if (new_table == NULL) {
+//		printf("Memory allocation failed for resized hash table.\n");
+//		return NULL;
+//	}
+//	for (int i = 0; i < new_size; i++) {
+//		new_table[i] = NULL; //initialize all slots to NULL
+//	}
+//	//Rehash the existing data into the new table
+//	for (int i = 0; i < sizeof(orginal_table) / sizeof(MediaData*); i++) {
+//		if (orginal_table[i] != NULL) {
+//			size_t new_index = Hash_Function(orginal_table[i]->title, new_size);
+//			new_table[new_index] = orginal_table[i]; //insert into the new table
+//		}
+//	}
+//	free(orginal_table); //free the old table
+//	return new_table;
+//}
 
 //&&&&&&&&&&&&&&&&&&&&&&&&-------&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&

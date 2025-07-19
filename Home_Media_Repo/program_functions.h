@@ -28,6 +28,6 @@ enum GenreTypeMovie {
     WESTERN = 37
 };
 
-//MediaNode* Bin_Read(char* database_file);
+
 
 #endif // !PROGRAM_FUNCTIONS_H

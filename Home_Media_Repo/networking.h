@@ -3,7 +3,8 @@
 
 #include "master.h"
 #include "folder_management.h"
-#include "data_structures.h"
+//#include "data_structures.h"
+#include "api_functions.h"
 
 struct Memory {
     char* string;
@@ -18,7 +19,7 @@ void media_write(cJSON* title, cJSON* description, cJSON* id, cJSON* genre_ids, 
 
 void information_Request(TCHAR* title, Master_Directory* global_ptr, TCHAR* dir_title);
 
-
+void Api_Connection(MediaData** hash_table, size_t array_size);
 
 
 //Establishes pipe to server

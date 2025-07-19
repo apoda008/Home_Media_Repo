@@ -30,6 +30,39 @@ typedef struct TreeNode {
     struct TreeNode* right;
 } TreeNode;
 
+typedef struct Genre_Dict_Node {
+	char genre_name[50];
+	MediaNode* media_list; //linked list of media nodes
+	struct Genre_Dict_Node* next;
+} Genre_Dict_Node;
+
+typedef struct Genre_Dict_Header {
+    //heads of the linked lists to the respective genres
+	Genre_Dict_Node* head_action; 
+    Genre_Dict_Node* head_adventure;
+    Genre_Dict_Node* head_animation;
+    Genre_Dict_Node* head_comedy;
+    Genre_Dict_Node* head_crime;
+    Genre_Dict_Node* head_documentary;
+    Genre_Dict_Node* head_drama;
+    Genre_Dict_Node* head_family;
+    Genre_Dict_Node* head_fantasy;
+    Genre_Dict_Node* head_history;
+    Genre_Dict_Node* head_horror;
+    Genre_Dict_Node* head_music;
+    Genre_Dict_Node* head_mystery;
+    Genre_Dict_Node* head_romance;
+    Genre_Dict_Node* head_science_fiction;
+    Genre_Dict_Node* head_tv_movie;
+    Genre_Dict_Node* head_thriller;
+    Genre_Dict_Node* head_war;
+    Genre_Dict_Node* head_western;
+    
+    
+    size_t size; //size of the linked list
+	TCHAR genre_path[MAX_PATH]; //path to the genre bin files
+} Genre_Dict_Header;
+
 
 //Forward
 MediaNode* Bin_Read(MediaData** hash_table, TCHAR* database_file, size_t size);
@@ -74,16 +107,20 @@ TreeNode* free_binary_tree(TreeNode* root);
 
 /////TIME TO MAKE A FUCKING HASH TABLE!!!///////
 /////LETS FUUCKING GOOOOOO//////////////////////
+
+
 MediaData** Hash_Initialization(size_t amount_of_files, Master_Directory* global_ptr);
 
 size_t Hash_Function(const char* title, size_t array_size);
 
 void Insert_Hash_Table(MediaData**, MediaData* data, size_t size_of_array);
 
-void Delete_From_Hash_Table(char* hash_table, const char* title);
+void Delete_From_Hash_Table(MediaData** hash_table, char* title);
 
-//MediaData* Search_Hash_Table(char* hash_table, const char* title);
+MediaData* Search_Hash_Table(MediaData** hash_table, char* title, size_t size_array);
 
-MediaData* Resize_Hash_Table(char* hash_table, int new_size);
+MediaData** Resize_Hash_Table(MediaData** orginal_table);
+
+
 
 #endif // !DATA_STRUCTURES_H
