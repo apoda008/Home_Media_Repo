@@ -190,6 +190,7 @@ TreeNode* free_binary_tree(TreeNode* root) {
 
 //&&&&&&&&&&&&&&&&&&&&---HASH MAP------&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 MediaData** Resize_Hash_Table(MediaData** orginal_table, size_t size_array) {
+	printf("Resizing hash table from %zu to %zu\n", size_array, size_array * 2);
 	if (orginal_table == NULL) {
 		printf("Invalid hash table or new size.\n");
 		return NULL;
@@ -306,6 +307,10 @@ void Insert_Hash_Table(MediaData** hash_table, MediaData* data, size_t array_siz
 					if (j == 0) {
 						printf("Hash table is full, cannot insert %s\n", data->title);
 						hash_table = Resize_Hash_Table(hash_table, array_size);
+						if (hash_table == NULL) {
+							printf("Failed to resize hash table.\n");
+							return;
+						}
 						Insert_Hash_Table(hash_table, data, (array_size * 2)); //resize and reinsert
 						return; //if we reach the end of the array and nothing is found the table is full 
 					}
@@ -318,7 +323,6 @@ void Insert_Hash_Table(MediaData** hash_table, MediaData* data, size_t array_siz
 
 	printf("Inserted %s at index %zu\n", data->title, index);
 }
-
 
 MediaData** Hash_Initialization(size_t amount_of_files, Master_Directory* global_ptr) {
 	printf("HASHING BABY\n");
@@ -455,7 +459,5 @@ MediaData* Search_Hash_Table(MediaData** hash_table, const char* title, size_t s
 		return NULL;
 	}
 }
-
-
 
 //&&&&&&&&&&&&&&&&&&&&&&&&-------&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&

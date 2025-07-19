@@ -323,6 +323,11 @@ void Api_Connection(MediaData** hash_table, size_t array_size) {
 	//database_addr.sin_addr.s_addr = INADDR_ANY;
 
 	//this will need to be adjusted for flexibilty;
+	//needs to dynamically grab its own network address
+	//Other issues: how would outside programs know my porting #
+	//without it they cannot talk to this server and it needs to 
+	//be able to be accessed by other devices on the network
+	//without hardcoding the port.
 	inet_pton(AF_INET, "192.168.4.81", &database_addr.sin_addr);
 
 	if (bind(database_socket, (SOCKADDR*)&database_addr, sizeof(database_addr)) == SOCKET_ERROR) {
