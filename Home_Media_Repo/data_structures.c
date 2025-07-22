@@ -231,7 +231,6 @@ MediaNode* Bin_Read(MediaData** hash_table, TCHAR* database_file, size_t size) {
 	MediaData temp;
 
 	while ((fread(&temp, sizeof(MediaData), 1, file)) == 1) {
-		printf("Entered the while\n");
 		MediaData* new_node = (MediaData*)malloc(sizeof(MediaData));
 		if (new_node == NULL) {
 			perror("Memory allocation failed for new node");
@@ -305,7 +304,7 @@ void Insert_Hash_Table(MediaData** hash_table, MediaData* data, size_t array_siz
 						break;
 					}
 					if (j == 0) {
-						printf("Hash table is full, cannot insert %s\n", data->title);
+						printf("Hash table is full, cannot insert.\nResizing... %s\n", data->title);
 						hash_table = Resize_Hash_Table(hash_table, array_size);
 						if (hash_table == NULL) {
 							printf("Failed to resize hash table.\n");

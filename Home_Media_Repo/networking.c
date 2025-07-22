@@ -294,6 +294,7 @@ bool IpAddress_Validation(const char* ip_address) {
 
 	return end;
 }
+
 //====================================================================================
 ////This is the main API connection function that will be used to connect to the server
 void Api_Connection(MediaData** hash_table, size_t array_size) {
@@ -376,7 +377,7 @@ void Api_Connection(MediaData** hash_table, size_t array_size) {
 					break;
 				}
 
-				cJSON* result = input_string_parsing(hash_table, buffer, array_size);
+				cJSON* result = Input_String_Parsing(hash_table, buffer, array_size);
 				if (result == NULL) {
 					send(client_socket, "null", 5, 0);
 				}

@@ -1,7 +1,7 @@
 #include "api_functions.h"
 
 
-cJSON* get_media(MediaData** hash_table, const char* title, size_t array_size) {
+cJSON* Get_All_Media(MediaData** hash_table, const char* title, size_t array_size) {
 
 	//deprecated DELETE
 	//MediaNode* new_node = search_linked_list_object(title);
@@ -31,7 +31,7 @@ cJSON* get_media(MediaData** hash_table, const char* title, size_t array_size) {
 	}
 	cJSON_AddItemToObject(json_node, "genre_types", genre_array);
 	cJSON_AddStringToObject(json_node, "description", new_node->description);
-	cJSON_AddStringToObject(json_node, "dir_position_media", new_node->dir_position_media);
+	//cJSON_AddStringToObject(json_node, "dir_position_media", new_node->dir_position_media);
 
 	//DELETE
 	//char* j_print = cJSON_Print(json_node);
@@ -44,7 +44,7 @@ cJSON* get_media(MediaData** hash_table, const char* title, size_t array_size) {
 
 
 
-cJSON* input_string_parsing(MediaData** hash_table, char* user_input, size_t array_size) {
+cJSON* Input_String_Parsing(MediaData** hash_table, char* user_input, size_t array_size) {
 	/*
 	TODO:
 	this will be adjusted after completion of skeleton app server and app
@@ -86,7 +86,7 @@ cJSON* input_string_parsing(MediaData** hash_table, char* user_input, size_t arr
 			//TODO
 		}
 		if (strcmp(token, "GET") == 0) {
-			/*Next token should be "Title, discription, genre
+			/*Next token should be "Title, description, genre
 			* type, etc.
 			*/
 			token = strtok_s(NULL, " ", &context);
@@ -96,12 +96,14 @@ cJSON* input_string_parsing(MediaData** hash_table, char* user_input, size_t arr
 
 			if (strcmp(token, "TITLE") == 0) {
 				//This will be the title
-				token = strtok_s(NULL, " ", &context);
+				//token = strtok_s(NULL, " ", &context);
 
 				//DELETE
-				printf("3rd token: %s\n", token);
+				//Problem: This will sometimes return with a break when 
+				//coming from C# server
+				printf("Remaining token: %s\n", context);
 
-				cJSON* parsed_to_json = get_media(hash_table, token, array_size);
+				cJSON* parsed_to_json = Get_All_Media(hash_table, context, array_size);
 
 
 
