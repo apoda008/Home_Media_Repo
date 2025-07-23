@@ -270,7 +270,7 @@ size_t Hash_Function(const char* title, size_t array_size) {
 		}
 		title++;
 	}
-	printf("hash: %zu\n", hash);
+	//printf("hash: %zu\n", hash);
 	return hash;
 }
 

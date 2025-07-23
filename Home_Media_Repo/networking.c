@@ -261,6 +261,8 @@ void information_Request(TCHAR* parsed_movie_title, Master_Directory* global_ptr
 					*/
 				}
 			}
+			//Frees JSON after use
+			cJSON_Delete(tmdb_json);
 		}
 	}//end of JSON parsing
 
@@ -269,6 +271,8 @@ void information_Request(TCHAR* parsed_movie_title, Master_Directory* global_ptr
 	free(parsed_movie_title);
 	parsed_movie_title = NULL; //removes dangling pointer
 	global_ptr->tmdb_limiter++; //increment the limiter for the next call
+
+	
 	return 0;
 }//end of information_request 
 
@@ -338,6 +342,7 @@ void Api_Connection(MediaData** hash_table, size_t array_size) {
 	}
 
 
+	bool close = false;
 	while (1) {
 		//WTF IS IS EVEN SOMAXCONN
 		//WHY DOES WINDOWS SUCK ASS TO CODE IN???
@@ -373,11 +378,32 @@ void Api_Connection(MediaData** hash_table, size_t array_size) {
 				buffer[bytes_received] = "\0";
 				printf("Received: %s\n", buffer);
 
-				if (strcmp(buffer, "EXIT") == 0) {
+				char* context;
+				char* title_partitioned = strtok_s(buffer, " ", &context);
+
+				if (strcmp(title_partitioned, "EXIT") == 0) {
 					break;
 				}
+				//this will fail
+				if (strcmp(title_partitioned, "VIDEO") == 0) 
+				{
+					//Getting video will be a seperate branch from the traditional calls since it will require 
+					// grabbing the arguments for a send() call 
+					if (Stream_Video(client_socket, buffer) == 1) {
+						printf("Stream Video Failed\n");
+						break;
+					}
+					else {
+						printf("Stream Video Success\n");
+					}
+					
+				}
+				else {
 
 				cJSON* result = Input_String_Parsing(hash_table, buffer, array_size);
+				//^
+				//May need to free result
+
 				if (result == NULL) {
 					send(client_socket, "null", 5, 0);
 				}
@@ -386,10 +412,11 @@ void Api_Connection(MediaData** hash_table, size_t array_size) {
 
 			
 				send(client_socket, j_print, strlen(j_print), 0);
-
+				}
 			}
 		}
-
+		//remove this to allow multiple reconnects
+		close = true;
 		closesocket(client_socket);
 		printf("Client disconnected.\n");
 	}

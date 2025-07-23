@@ -1,5 +1,9 @@
 #include "api_functions.h"
 
+long GetVideoSize(FILE* video_file) {
+	fseek(video_file, 0, SEEK_END);
+	return ftell(video_file);
+}
 
 cJSON* Get_All_Media(MediaData** hash_table, const char* title, size_t array_size) {
 
@@ -40,9 +44,6 @@ cJSON* Get_All_Media(MediaData** hash_table, const char* title, size_t array_siz
 	return json_node;
 
 }
-
-
-
 
 cJSON* Input_String_Parsing(MediaData** hash_table, char* user_input, size_t array_size) {
 	/*
@@ -108,11 +109,34 @@ cJSON* Input_String_Parsing(MediaData** hash_table, char* user_input, size_t arr
 
 
 				return parsed_to_json;
-
-
+			}
+			if (strcmp(token, "VIDEO") == 0) {
+				//this will open and start a video stream to the requeser (C# app)
 			}
 		}
 		tracker += 1;
 		token = strtok_s(NULL, " ", &context);
 	}
+}
+
+int Stream_Video(SOCKET client_socket, MediaData** hash_table, size_t array_size, char* title) {
+	
+	//Needs to check if its a valid command
+	printf("Streaming video for title: %s\n", title);
+	
+	MediaData* target_vid = hash_table[Hash_Function(title, array_size)];
+	if (target_vid == NULL) {
+		printf("Video not found in hash table.\n");
+		return 1; //Error code for video not found
+	}
+	//at some point there should be a conversion from whatever video format the video is in into 
+	///mp4 which is natively supported by the C# app (HTML5)
+
+	FILE* video_file = _tfopen(target_vid->dir_position_media, _T("rb"));
+	long video_size = GetVideoSize(video_file);
+
+
+
+	return 0;
+	//Implementation of video streaming goes here
 }
