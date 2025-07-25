@@ -4,6 +4,39 @@ long GetVideoSize(FILE* video_file) {
 	fseek(video_file, 0, SEEK_END);
 	return ftell(video_file);
 }
+TCHAR* Video_Transcode_Mp4(TCHAR* video_path) {
+	//This will be used to transcode the video into mp4 format
+	//which is supported by the C# app
+	//this will be a placeholder for now
+
+	//TODO:
+	//need to do this for every format that is in the Media Library 
+	//(i.e. avi, mkv, etc.)
+
+	//this needs to change the dir paths for both input and output. Then the
+	//Transcoded video needs to be moved to the Temp folder. and the TCHAR to 
+	//that new location passed out of this function. Meaning that the new TCHAR 
+	//will need to be MALLOC'ed and then free'd after the movie has been transfered
+	//to the C# app. Look into setting a timer for the transcoded video to be deleted
+	//or reformatting the entire video library to mp4 format which can probably be done 
+	//at the start of the program. 
+	const char* cmd = "ffmpeg -i \"C:\\Users\\Dan\\Videos\\input.mov\" -c:v libx264 -c:a aac -movflags +faststart \"C:\\Users\\Dan\\Videos\\output.mp4\"";
+	
+	int result = system(cmd);
+
+	if (result != 0) 
+	{
+		printf("Video transcoding failed\n");
+		return NULL;
+	}
+	else {
+		printf("Video transcoding successful\n");
+		TCHAR* output_video = _T("output_video.mp4");
+		return output_video; //return the path to the transcoded video
+	}
+	
+	return NULL;
+}
 
 cJSON* Get_All_Media(MediaData** hash_table, const char* title, size_t array_size) {
 
@@ -125,18 +158,45 @@ int Stream_Video(SOCKET client_socket, MediaData** hash_table, size_t array_size
 	printf("Streaming video for title: %s\n", title);
 	
 	MediaData* target_vid = hash_table[Hash_Function(title, array_size)];
-	if (target_vid == NULL) {
+	if ((target_vid == NULL)) {
 		printf("Video not found in hash table.\n");
 		return 1; //Error code for video not found
 	}
+	
+	//TODO:
 	//at some point there should be a conversion from whatever video format the video is in into 
 	///mp4 which is natively supported by the C# app (HTML5)
-
+	//And just a heads up so that you can hate yourself more. At some point, probably soon you're gonna 
+	// have to self implement REST so have fun with that 
+	//TCHAR* transcoded_video = Video_Transcode_Mp4(target_vid->dir_position_media);
+	
 	FILE* video_file = _tfopen(target_vid->dir_position_media, _T("rb"));
-	long video_size = GetVideoSize(video_file);
+	
+	//May not need if I decide to restructure this whole DB
+	//long video_size = GetVideoSize(video_file);
 
+	void* large_buffer = malloc(5000);
+	if (large_buffer == NULL) {
+		printf("Memory allocation failed for large buffer.\n");
+		fclose(video_file);
+		return 1; //Error code for memory allocation failure
+	}
+	size_t bytes_read;
+	int bytes_packet = 1;
+	while ((bytes_read = fread(large_buffer, 1, 5000, video_file)) > 0) {
+		printf("Sending packet[%d] with %zu bytes\n", bytes_packet, bytes_read);
+		int bytes_sent = send(client_socket, large_buffer, bytes_read, 0);
+		if (bytes_sent == SOCKET_ERROR) {
+			printf("Failed to send video data: %d\n", WSAGetLastError());
+			free(large_buffer);
+			fclose(video_file);
+			return 1; //Error code for send failure
+		}
+		bytes_packet++;
+		recv(client_socket, NULL, 0, 0); //Wait for client to be ready for more data
+	}
 
 
 	return 0;
-	//Implementation of video streaming goes here
+	
 }

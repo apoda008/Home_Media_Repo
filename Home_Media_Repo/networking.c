@@ -74,6 +74,7 @@ void media_write(cJSON* title, cJSON* description, cJSON* id, cJSON* genre_ids, 
 
 	if (file == NULL) {
 		perror("error opening file");
+		fclose(file);
 		return 0;
 	}
 
@@ -156,7 +157,6 @@ void media_write(cJSON* title, cJSON* description, cJSON* id, cJSON* genre_ids, 
 	//	}
 	//}
 }//end of media_write
-
 
 //sourced by themoviedb.org api system
 void information_Request(TCHAR* parsed_movie_title, Master_Directory* global_ptr, TCHAR* dir_title) {
@@ -421,7 +421,7 @@ void Api_Connection(MediaData** hash_table, size_t array_size) {
 		printf("Client disconnected.\n");
 	}
 	closesocket(database_socket);
-
+		
 	return 0;
 
 }

@@ -132,6 +132,7 @@
     <ClCompile Include="cJSON.c" />
     <ClCompile Include="data_structures.c" />
     <ClCompile Include="folder_management.c" />
+    <ClCompile Include="GarbageCollection.c" />
     <ClCompile Include="main.c">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsC</CompileAs>
     </ClCompile>

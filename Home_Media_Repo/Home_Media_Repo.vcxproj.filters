@@ -42,6 +42,9 @@
     <ClCompile Include="data_structures.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GarbageCollection.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="master.h">
