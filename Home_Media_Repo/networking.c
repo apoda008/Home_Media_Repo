@@ -348,7 +348,7 @@ void Api_Connection(MediaData** hash_table, size_t array_size) {
 		//WHY DOES WINDOWS SUCK ASS TO CODE IN???
 		listen(database_socket, SOMAXCONN);
 
-		printf("Database Online \n\n");
+		printf("Database Listening.. \n\n");
 
 		client_socket = accept(database_socket, (SOCKADDR*)&client_addr, &client_len);
 		if (client_socket == INVALID_SOCKET) {
@@ -368,59 +368,92 @@ void Api_Connection(MediaData** hash_table, size_t array_size) {
 			printf("Invalid address\n");
 			closesocket(client_socket);
 		}
+		//COMMENTED OUT FOR TESTING
+		
+		//while (1) {
+		//	int bytes_received = recv(client_socket, buffer, sizeof(buffer) - 1, 0);
+		//	if (bytes_received > 0) {
+		//		//this is where i will need to call the input parsing  
+		//		//which will take in the request for whatever media info 
+		//		//it wants
+		//		buffer[bytes_received] = "\0";
+		//		printf("Received: %s\n", buffer);
 
-		while (1) {
-			int bytes_received = recv(client_socket, buffer, sizeof(buffer) - 1, 0);
-			if (bytes_received > 0) {
-				//this is where i will need to call the input parsing  
-				//which will take in the request for whatever media info 
-				//it wants
-				buffer[bytes_received] = "\0";
-				printf("Received: %s\n", buffer);
+		//		char* context;
+		//		char* title_partitioned = strtok_s(buffer, " ", &context);
 
-				char* context;
-				char* title_partitioned = strtok_s(buffer, " ", &context);
+		//		if (strcmp(title_partitioned, "EXIT") == 0) {
+		//			break;
+		//		}
+		//		//this will fail
+		//		if (strcmp(title_partitioned, "VIDEO") == 0) 
+		//		{
+		//			//Getting video will be a seperate branch from the traditional calls since it will require 
+		//			// grabbing the arguments for a send() call 
+		//			if (Stream_Video(client_socket, buffer) == 1) {
+		//				printf("Stream Video Failed\n");
+		//				break;
+		//			}
+		//			else {
+		//				printf("Stream Video Success\n");
+		//			}
+		//			
+		//		}
+		//		else {
 
-				if (strcmp(title_partitioned, "EXIT") == 0) {
-					break;
-				}
-				//this will fail
-				if (strcmp(title_partitioned, "VIDEO") == 0) 
-				{
-					//Getting video will be a seperate branch from the traditional calls since it will require 
-					// grabbing the arguments for a send() call 
-					if (Stream_Video(client_socket, buffer) == 1) {
-						printf("Stream Video Failed\n");
-						break;
-					}
-					else {
-						printf("Stream Video Success\n");
-					}
-					
-				}
-				else {
+		//		cJSON* result = Input_String_Parsing(hash_table, buffer, array_size);
+		//		//^
+		//		//May need to free result
 
-				cJSON* result = Input_String_Parsing(hash_table, buffer, array_size);
-				//^
-				//May need to free result
+		//		if (result == NULL) {
+		//			send(client_socket, "null", 5, 0);
+		//		}
+		//		char* j_print = cJSON_Print(result);
+		//		printf("sending (as JSON) %s\n", j_print);
 
-				if (result == NULL) {
-					send(client_socket, "null", 5, 0);
-				}
-				char* j_print = cJSON_Print(result);
-				printf("sending (as JSON) %s\n", j_print);
-
-			
-				send(client_socket, j_print, strlen(j_print), 0);
-				}
-			}
-		}
+		//	
+		//		send(client_socket, j_print, strlen(j_print), 0);
+		//		}
+		//	}
+		//}
 		//remove this to allow multiple reconnects
+
+		//THIS IS TEST
+
+		FILE* video_file = fopen("C:\\Users\\dan_a\\Desktop\\TestLocationForRepo\\Media_Repository\\Media_Movies\\U571.mp4", "rb");
+		if (video_file == NULL) {
+			printf("Failed to open video file.\n");
+			closesocket(client_socket);
+			continue; //skip to next iteration
+		}
+
+		char buffer[4096];
+
+		if (buffer == NULL) {
+			printf("Memory allocation failed for buffer.\n");
+			closesocket(client_socket);
+			continue; //skip to next iteration
+		}
+		size_t bytes_read = 0;
+		while ((bytes_read = fread(buffer, 1, 4096, video_file)) > 0) {
+			int bytes_sent = send(client_socket, buffer, bytes_read, 0);
+			if (bytes_sent == SOCKET_ERROR) {
+				printf("Failed to send video data: %d\n", WSAGetLastError());
+				free(buffer);
+				fclose(video_file);
+				return 1; //Error code for send failure
+			}
+			printf("Sent %zu bytes of video data.\n", bytes_sent);
+		}
+
+		//this will be the var to use to shut down listening and close all connections
+		fclose(video_file);
 		close = true;
 		closesocket(client_socket);
 		printf("Client disconnected.\n");
 	}
 	closesocket(database_socket);
+	WSACleanup();
 		
 	return 0;
 

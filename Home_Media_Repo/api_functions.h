@@ -10,6 +10,6 @@ cJSON* Get_All_Media(MediaData** hash_table, char* title, size_t array_size);
 
 cJSON* Input_String_Parsing(MediaData** hash_table, char* user_input, size_t array_size);
 
-int Stream_Video(SOCKET client_socket, char* buffer);
+
 
 #endif // !API_FUNCTIONS_H

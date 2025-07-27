@@ -195,7 +195,7 @@ int Stream_Video(SOCKET client_socket, MediaData** hash_table, size_t array_size
 		bytes_packet++;
 		recv(client_socket, NULL, 0, 0); //Wait for client to be ready for more data
 	}
-
+	fclose(video_file);	
 
 	return 0;
 	
