@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Home_Media_Repo/GarbageCollection.c
+/Home_Media_Repo/Function_Test.h
+/Home_Media_Repo/Function_Test.c
