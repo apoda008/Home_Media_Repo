@@ -45,6 +45,9 @@
     <ClCompile Include="GarbageCollection.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Function_Test.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="master.h">
@@ -60,6 +63,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="data_structures.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Function_Test.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

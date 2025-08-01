@@ -132,6 +132,7 @@
     <ClCompile Include="cJSON.c" />
     <ClCompile Include="data_structures.c" />
     <ClCompile Include="folder_management.c" />
+    <ClCompile Include="Function_Test.c" />
     <ClCompile Include="GarbageCollection.c" />
     <ClCompile Include="main.c">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsC</CompileAs>
@@ -144,6 +145,7 @@
     <ClInclude Include="cJSON.h" />
     <ClInclude Include="data_structures.h" />
     <ClInclude Include="folder_management.h" />
+    <ClInclude Include="Function_Test.h" />
     <ClInclude Include="master.h" />
     <ClInclude Include="networking.h" />
   </ItemGroup>

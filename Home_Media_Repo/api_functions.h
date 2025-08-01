@@ -4,6 +4,7 @@
 #include "master.h"
 #include "data_structures.h"
 
+void VideoTest(SOCKET client_socket);
 
 cJSON* Get_All_Media(MediaData** hash_table, char* title, size_t array_size);
 
