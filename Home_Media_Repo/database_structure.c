@@ -57,8 +57,16 @@ void Insert_Movie(DatabaseStructure* db_structure, int id, const char* title, co
 		fprintf(stderr, "Database structure, title, or description is NULL\n");
 		return;
 	}
-	
-	
+	db_structure->movies->id[db_structure->movies->num_elements_MV] = id;
+	//DELETE: want to do experiment here
+	strcpy_s(db_structure->movies->title[id], 256, title);
+	printf("Title: %s\n", db_structure->movies->title[id]);	
+
+	strcpy_s(db_structure->movies->title + (db_structure->movies->num_elements_MV * 256), 256, title);
+	printf("Title: %s\n", db_structure->movies->title + (db_structure->movies->num_elements_MV * 256));
+
+	strcpy_s(db_structure->movies->description + (db_structure->movies->num_elements_MV * 2000), 2000, description);
+	_tcscpy_s(db_structure->movies->dir_position + (db_structure->movies->num_elements_MV * MAX_PATH), MAX_PATH, dir_pos);
 
 }
 
