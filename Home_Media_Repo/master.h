@@ -21,6 +21,9 @@
 #include "cJSON.h"
 
 #include <shlobj.h>
+
+#define TWO_MB (2 * 1024 * 1024)
+
 //#include "program_functions.h"
 typedef struct Master_Directory {
     TCHAR master_folder[MAX_PATH];
@@ -39,5 +42,6 @@ typedef struct Master_Directory {
 	size_t size_of_hash;
 } Master_Directory;
 
+//Logging functions will go at a later date
 
 #endif //END

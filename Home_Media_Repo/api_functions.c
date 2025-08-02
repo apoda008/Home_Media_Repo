@@ -78,17 +78,76 @@ cJSON* Get_All_Media(MediaData** hash_table, const char* title, size_t array_siz
 
 }
 
+void Input_Parse(SOCKET client_socket, MediaData** hash_table, char* user_input, size_t array_size) {
+
+	//It would appear that the data structure component of this needs to be completely reworked in 
+	//order to make this more in line with a database structure. 
+
+	char* context; 
+	char* token = strtok_s(user_input, "%", &context);
+
+	//PRIMARY COMMANDS 
+	if (strcmp(token, "GET") == 0) {
+		//DELETE
+		printf("Primary Command: %s\n", token);
+		token = strtok_s(NULL, "%", &context);
+
+		if (strcmp(token, "MOVIE") == 0) {
+			//DELETE
+			printf("Major Category: %s\n", token);
+			token = strtok_s(NULL, "%", &context);
+
+			if (strcmp(token, "WHERE") == 0) {
+				//DELETE
+				printf("Identifier: %s\n", token);
+				token = strtok_s(NULL, "%", &context);
+
+				if (strcmp(token, "TITLE") == 0) {
+					//DELETE
+					printf("Minor Category: %s\n", token);
+					token = strtok_s(NULL, "%", &context);
+
+					if (token != NULL) {
+						cJSON* result = Get_All_Media(hash_table, token, array_size);
+						char* j_print = cJSON_Print(result);
+						send(client_socket, j_print, strlen(j_print), 0);
+						cJSON_Delete(result); //Free the JSON object after sending
+					}
+				}
+			}
+		}
+	}
+}
+
 cJSON* Input_String_Parsing(MediaData** hash_table, char* user_input, size_t array_size) {
 	/*
 	TODO:
-	this will be adjusted after completion of skeleton app server and app
-	ADD
-	RENAME
-	CHANGE DESCRIPTION
-	DELETE
-	GET
+	This will be the focus of work for the coming days. So what needs to happen is to figure out 
+	how to format the incoming command string. The primary first commands 
+
+	GET, ADD, CHANGE, DELETE 
+
+	string input format will be PRIMARY%MAJOR%IDENTIFIER%MINOR%EQUALITY%VALUE%. This helps with 
+	tokenization and prevents mix up with the spaces that are naturally in string information
+
+	In essence, SQL statements are built from a small set of keywords and clauses that you string 
+	together in a defined order. You tell the database:
+
+	What you want (SELECT, INSERT, etc.)
+
+	Where to get it (FROM)
+
+	Which rows to include (WHERE, HAVING)
+
+	How to group or sort the results (GROUP BY, ORDER BY)
+
+	and—with this consistent pattern—you can express virtually any relational operation.
+
+
 
 	*/
+
+
 	char* context;
 	char* token = strtok_s(user_input, " ", &context);
 
