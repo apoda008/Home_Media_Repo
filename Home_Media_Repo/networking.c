@@ -327,6 +327,8 @@ void Api_Connection(MediaData** hash_table, size_t array_size) {
 		return 1;
 	}
 
+	
+
 	database_addr.sin_family = AF_INET;
 	database_addr.sin_port = htons(5001);
 	//database_addr.sin_addr.s_addr = INADDR_ANY;

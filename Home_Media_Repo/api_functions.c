@@ -80,6 +80,9 @@ cJSON* Get_All_Media(MediaData** hash_table, const char* title, size_t array_siz
 
 void Input_Parse(SOCKET client_socket, MediaData** hash_table, char* user_input, size_t array_size) {
 
+	//It would appear that the data structure component of this needs to be completely reworked in 
+	//order to make this more in line with a database structure. 
+
 	char* context; 
 	char* token = strtok_s(user_input, "%", &context);
 
