@@ -5,15 +5,16 @@
 //MASTER HEADER FOR ALL CLASS LIB
 //Exceptions:
 
+#include "Database_structure.h"
 #include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <string.h>
 #include <stdint.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #pragma comment(lib, "Ws2_32.lib")
-#include <tchar.h>
+//#include <tchar.h>
 #include <windows.h>
 #include <strsafe.h>
 #include <ctype.h>
@@ -21,6 +22,7 @@
 #include "cJSON.h"
 
 #include <shlobj.h>
+
 
 #define TWO_MB (2 * 1024 * 1024)
 
