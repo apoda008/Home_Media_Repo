@@ -72,7 +72,7 @@ MovieTable* Resize_Movie_Table(MovieTable* movies) {
 	resized_movies->title = (char*)realloc(resized_movies->title, new_size * sizeof(char[256]));
 	resized_movies->description = (char*)realloc(resized_movies->description, new_size * sizeof(char[2000]));
 	resized_movies->dir_position = (TCHAR*)realloc(resized_movies->dir_position, new_size * sizeof(TCHAR[256]));
-	resized_movies->video_size = (int*)realloc(resized_movies->video_size, new_size * sizeof(int));
+	resized_movies->video_size = (long*)realloc(resized_movies->video_size, new_size * sizeof(long));
 	if (!resized_movies->id || !resized_movies->title || !resized_movies->description ||
 		!resized_movies->dir_position || !resized_movies->video_size) {
 		fprintf(stderr, "Memory reallocation failed for one or more fields in MovieTable\n");

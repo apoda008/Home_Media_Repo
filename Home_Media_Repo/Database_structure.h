@@ -16,7 +16,7 @@ typedef struct {
 	char (*title)[256]; 
 	char (*description)[2000];
 	TCHAR (*dir_position)[256]; //to keep track of the directory position of the movie
-	int* video_size;
+	long* video_size;
 	
 	int num_elements_MV; //to keep track of how many elements are in the table
 
