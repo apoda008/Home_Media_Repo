@@ -2,10 +2,12 @@
 //temp
 #include "data_structures.h"
 
-long GetVideoSize(FILE* video_file) {
+long GetVideoSize(TCHAR* movie_path) {
+	FILE* video_file = _tfopen(movie_path, _T("rb"));
 	fseek(video_file, 0, SEEK_END);
 	long result = ftell(video_file);
 	rewind(video_file); 
+	fclose(video_file);
 	return result;
 }
 
@@ -101,28 +103,34 @@ int Fill_Table_Movies(DatabaseStructure* db_structure, Master_Directory* global_
 		TCHAR* path[MAX_PATH];
 		_stprintf_s(path, MAX_PATH, _T("%s\\%c.bin"), global_ptr->movie_bin_path, alpha[i]);
 		_tprintf(_T("Reading movie bin file: %s\n"), path);
+		
 		FILE* file = _tfopen(path, _T("rb"));
 		if (file == NULL) {
 			fprintf(stderr, "Failed to open movie bin file for writing\n");
-			return 0;
+			//fclose(file);
+			continue;
 		}
+		else {
 
-		MediaData movie;
+			MediaData movie;
 
-		//iterates through the bin file and reads each movie
-		while ((fread(&movie, sizeof(MediaData), 1, file)) == 1) {
-			
-			//Might use this if style statement to make it usable for 
-			// both movies and series
-			//if (movie.media_type == true) { }
-			printf("Movie title: %d\n", movie.title);
+			//iterates through the bin file and reads each movie
+			while ((fread(&movie, sizeof(MediaData), 1, file)) == 1) {
 
-			long movie_size = GetVideoSize(movie.dir_position_media);
-			Insert_Movie(db_structure, movie.title, movie.description, movie.dir_position_media, movie_size);
-			printf("Movie Title IN TABLE:: %s\n", db_structure->movies->title[db_structure->movies->num_elements_MV]);
-			
+				//Might use this if style statement to make it usable for 
+				// both movies and series
+				//if (movie.media_type == true) { }
+
+				//printf("Movie title: %s\n", movie.title);
+				//_tprintf(_T("dir pos media: %s\n"), movie.dir_position_media);
+
+				long movie_size = GetVideoSize(movie.dir_position_media);
+				Insert_Movie(db_structure, movie.title, movie.description, movie.dir_position_media, movie_size);
+				//printf("Movie Title IN TABLE:: %s\n", db_structure->movies->title[db_structure->movies->num_elements_MV - 1]);
+
+			}
+			fclose(file);
 		}
-
 	}
 	return 1;
 }

@@ -100,7 +100,7 @@ void Insert_Movie(DatabaseStructure* db_structure, const char* title, const char
 	//DELETE: want to do experiment here. This works
 	strcpy_s(db_structure->movies->title[db_structure->movies->num_elements_MV], 256, title);
 	//DELETE
-	printf("Title: %d\n", db_structure->movies->title[db_structure->movies->num_elements_MV]);
+	printf("Title: %s\n", db_structure->movies->title[db_structure->movies->num_elements_MV]);
 
 	strcpy_s(db_structure->movies->description[db_structure->movies->num_elements_MV], 2000, description);
 	//DELETE
@@ -145,9 +145,13 @@ void Print_Movie_Table(const MovieTable* movies) {
 		return;
 	}
 	printf("Movie Table:\n");
+	printf("| ID | Title | Description | Dir Position | Video size |\n");
 	for (int i = 0; i < movies->num_elements_MV; i++) {
-		printf("ID: %d, Title: %s, Description: %s, Dir Position: %s, Video Size: %ld\n",
-			movies->id[i], movies->title[i], movies->description[i],
-			movies->dir_position[i], movies->video_size[i]);
+		printf("| %d   | %s | %s | %s | %ld |\n",
+			movies->id[i],
+			movies->title[i],
+			//movies->description[i],
+			movies->dir_position[i],
+			movies->video_size[i]);
 	}
 }
