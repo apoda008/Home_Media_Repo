@@ -35,6 +35,15 @@ DatabaseStructure* Construct_Database_Structure(size_t movie_count, size_t serie
 		return NULL;
 	}
 
+	//set values to prevent garbage values
+	for (int i = 0; i < db_structure->movie_set_size; i++) {
+		db_structure->movies->id[i] = -1; // Initialize IDs to -1 to indicate empty slots
+		db_structure->movies->title[i][0] = '\0'; // Initialize titles to empty strings
+		db_structure->movies->description[i][0] = '\0'; // Initialize descriptions to empty strings
+		_tcscpy_s(db_structure->movies->dir_position[i], 256, _T("")); // Initialize directory positions to empty strings
+		db_structure->movies->video_size[i] = 0; // Initialize video sizes to 0
+	}
+	
 	//Series Table
 	//Needs correction like the movie table but will do later
 	db_structure->series->id = (int*)malloc(series_count * sizeof(int));
@@ -56,39 +65,52 @@ DatabaseStructure* Construct_Database_Structure(size_t movie_count, size_t serie
 	return db_structure;
 }
 
-MovieTable* Resize_Movie_Table(MovieTable* movies) {
+MovieTable* Resize_Movie_Table(DatabaseStructure* db, MovieTable* movies) {
 	if (movies == NULL) {
 		fprintf(stderr, "MovieTable is NULL\n");
 		return NULL;
 	}
-	int new_size = 2 * movies->num_elements_MV; // Double the size for resizing
+	int old_size = db->movie_set_size;
+	int new_size = 2 * old_size;
+	db->movie_set_size = new_size;
 
-	MovieTable* resized_movies = (MovieTable*)realloc(movies, new_size * sizeof(MovieTable));
-	if (!resized_movies) {
-		fprintf(stderr, "Memory reallocation failed for MovieTable\n");
+	// Realloc each internal array based on the fixed-size array types
+	movies->id = (int*)realloc(movies->id, new_size * sizeof(int));
+	movies->title = (char (*)[256])realloc(movies->title, new_size * sizeof(char[256]));
+	movies->description = (char (*)[2000])realloc(movies->description, new_size * sizeof(char[2000]));
+	movies->dir_position = (TCHAR(*)[256])realloc(movies->dir_position, new_size * sizeof(TCHAR[256]));
+	movies->video_size = (long*)realloc(movies->video_size, new_size * sizeof(long));
+
+	// Check all allocations
+	if (!movies->id || !movies->title || !movies->description ||
+		!movies->dir_position || !movies->video_size) {
+		fprintf(stderr, "Memory reallocation failed for one or more MovieTable fields.\n");
+		free(movies->id);
+		free(movies->title);
+		free(movies->description);
+		free(movies->dir_position);
+		free(movies->video_size);
+		free(movies);
 		return NULL;
 	}
-	resized_movies->id = (int*)realloc(resized_movies->id, new_size * sizeof(int));
-	resized_movies->title = (char*)realloc(resized_movies->title, new_size * sizeof(char[256]));
-	resized_movies->description = (char*)realloc(resized_movies->description, new_size * sizeof(char[2000]));
-	resized_movies->dir_position = (TCHAR*)realloc(resized_movies->dir_position, new_size * sizeof(TCHAR[256]));
-	resized_movies->video_size = (long*)realloc(resized_movies->video_size, new_size * sizeof(long));
-	if (!resized_movies->id || !resized_movies->title || !resized_movies->description ||
-		!resized_movies->dir_position || !resized_movies->video_size) {
-		fprintf(stderr, "Memory reallocation failed for one or more fields in MovieTable\n");
-		free(resized_movies);
-		return NULL;
-	}
-	return resized_movies;
+
+	// Zero out new regions (safe since we're using fixed-size arrays)
+	memset(&movies->id[old_size], 0, (new_size - old_size) * sizeof(int));
+	memset(&movies->title[old_size], 0, (new_size - old_size) * sizeof(char[256]));
+	memset(&movies->description[old_size], 0, (new_size - old_size) * sizeof(char[2000]));
+	memset(&movies->dir_position[old_size], 0, (new_size - old_size) * sizeof(TCHAR[256]));
+	memset(&movies->video_size[old_size], 0, (new_size - old_size) * sizeof(long));
+
+	return movies;
 }
 
 void Insert_Movie(DatabaseStructure* db_structure, const char* title, const char* description, TCHAR* dir_pos, int video_size) {
 	//ID can probably be removed
 	
 	if ((db_structure->movie_set_size - db_structure->movies->num_elements_MV) <= 5) {
-		printf("%d - %d\n", db_structure->movies->num_elements_MV, db_structure->movie_set_size);
-		printf("Resizing movie table...\n");
-		//TODO: Implement resizing logic for the movie table
+		//printf("%d - %d\n", db_structure->movie_set_size, db_structure->movies->num_elements_MV);
+		printf("\n\nResizing movie table...\n\n");
+		Resize_Movie_Table(db_structure, db_structure->movies);
 	}
 	
 	if ((db_structure == NULL) || (title == NULL) || (description == NULL)) {
@@ -96,25 +118,26 @@ void Insert_Movie(DatabaseStructure* db_structure, const char* title, const char
 		return;
 	}
 	db_structure->movies->id[db_structure->movies->num_elements_MV] = db_structure->movies->num_elements_MV;
-	printf("Movie ID: %d\n", db_structure->movies->id[db_structure->movies->num_elements_MV]);
-	//DELETE: want to do experiment here. This works
+	//printf("Movie ID: %d\n", db_structure->movies->id[db_structure->movies->num_elements_MV]);
+	
 	strcpy_s(db_structure->movies->title[db_structure->movies->num_elements_MV], 256, title);
 	//DELETE
-	printf("Title: %s\n", db_structure->movies->title[db_structure->movies->num_elements_MV]);
+	//printf("Title: %s\n", db_structure->movies->title[db_structure->movies->num_elements_MV]);
 
 	strcpy_s(db_structure->movies->description[db_structure->movies->num_elements_MV], 2000, description);
 	//DELETE
-	printf("Description: %s\n", db_structure->movies->description[db_structure->movies->num_elements_MV]);
+	//printf("Description: %s\n", db_structure->movies->description[db_structure->movies->num_elements_MV]);
 
 	_tcscpy_s(db_structure->movies->dir_position[db_structure->movies->num_elements_MV], 256, dir_pos);
 	//DELETE
-	_tprintf(_T("Dir Position: %s\n"), db_structure->movies->dir_position[db_structure->movies->num_elements_MV]);
+	//_tprintf(_T("Dir Position: %s\n"), db_structure->movies->dir_position[db_structure->movies->num_elements_MV]);
 
 	//Assuming video_size is an integer representing the size of the video file
 	db_structure->movies->video_size[db_structure->movies->num_elements_MV] = video_size;
-	
+	//printf("Video Size: %d\n", db_structure->movies->video_size[db_structure->movies->num_elements_MV]);
 	//increments the number of elements in the movie table
 	db_structure->movies->num_elements_MV++;
+	printf("Inserted movie: %s with ID: %d\n", title, db_structure->movies->id[db_structure->movies->num_elements_MV - 1]);
 }
 
 void Free_Database_Structure(DatabaseStructure* db_structure) {
@@ -145,13 +168,27 @@ void Print_Movie_Table(const MovieTable* movies) {
 		return;
 	}
 	printf("Movie Table:\n");
-	printf("| ID | Title | Description | Dir Position | Video size |\n");
+	printf("| %6s | %-50s | %-5s | %-50s | %6s |\n",
+		"ID", "Title", "Desc", "Dir Position", "Size");
 	for (int i = 0; i < movies->num_elements_MV; i++) {
-		printf("| %d   | %s | %s | %s | %ld |\n",
+		
+		if (!movies->title[i]) {
+			fprintf(stderr, "Null title at index %d\n", i);
+			continue;
+		}
+		if (!movies->dir_position[i]) {
+			fprintf(stderr, "Null dir_position at index %d\n", i);
+			continue;
+		}
+		else {
+
+		printf("| %6d | %-50s | %-5s | %-50s | %20I64d |\n",
 			movies->id[i],
 			movies->title[i],
-			//movies->description[i],
+			"", // placeholder for description if skipped
 			movies->dir_position[i],
 			movies->video_size[i]);
+		}
 	}
+	return;
 }

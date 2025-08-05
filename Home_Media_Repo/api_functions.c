@@ -1,9 +1,9 @@
 #include "api_functions.h"
 
-long GetVideoSize(FILE* video_file) {
-	fseek(video_file, 0, SEEK_END);
-	return ftell(video_file);
-}
+//long GetVideoSize(FILE* video_file) {
+//	fseek(video_file, 0, SEEK_END);
+//	return ftell(video_file);
+//}
 TCHAR* Video_Transcode_Mp4(TCHAR* video_path) {
 	//This will be used to transcode the video into mp4 format
 	//which is supported by the C# app
