@@ -287,6 +287,7 @@ int File_Search_Parse(Master_Directory* global_ptr) {
                 //THIS WILL BE FILES
                 //TAKE FILE NAME AND PARSE IT FOR SENDING TO TMDB
                 TCHAR* parsed_name = Parse_Helper(findFileData.cFileName);
+				//_tprintf(_T("Parsed Name: %s\n"), parsed_name);
                 information_Request(parsed_name, global_ptr, findFileData.cFileName);
 				global_ptr->num_of_files++;
                

@@ -96,19 +96,19 @@ void Insert_Movie(DatabaseStructure* db_structure, const char* title, const char
 		return;
 	}
 	db_structure->movies->id[db_structure->movies->num_elements_MV] = db_structure->movies->num_elements_MV;
-	//printf("Movie ID: %d\n", db_structure->movies->id[db_structure->movies->num_elements_MV]);
+	printf("Movie ID: %d\n", db_structure->movies->id[db_structure->movies->num_elements_MV]);
 	//DELETE: want to do experiment here. This works
 	strcpy_s(db_structure->movies->title[db_structure->movies->num_elements_MV], 256, title);
 	//DELETE
-	//printf("Title: %d\n", db_structure->movies->title[db_structure->movies->num_elements_MV]);
+	printf("Title: %d\n", db_structure->movies->title[db_structure->movies->num_elements_MV]);
 
 	strcpy_s(db_structure->movies->description[db_structure->movies->num_elements_MV], 2000, description);
 	//DELETE
-	//printf("Description: %s\n", db_structure->movies->description[db_structure->movies->num_elements_MV]);
+	printf("Description: %s\n", db_structure->movies->description[db_structure->movies->num_elements_MV]);
 
 	_tcscpy_s(db_structure->movies->dir_position[db_structure->movies->num_elements_MV], 256, dir_pos);
 	//DELETE
-	//_tprintf(_T("Dir Position: %s\n"), db_structure->movies->dir_position[db_structure->movies->num_elements_MV]);
+	_tprintf(_T("Dir Position: %s\n"), db_structure->movies->dir_position[db_structure->movies->num_elements_MV]);
 
 	//Assuming video_size is an integer representing the size of the video file
 	db_structure->movies->video_size[db_structure->movies->num_elements_MV] = video_size;
@@ -136,5 +136,18 @@ void Free_Database_Structure(DatabaseStructure* db_structure) {
 			free(db_structure->series);
 		}
 		free(db_structure);
+	}
+}
+
+void Print_Movie_Table(const MovieTable* movies) {
+	if (movies == NULL) {
+		fprintf(stderr, "MovieTable is NULL\n");
+		return;
+	}
+	printf("Movie Table:\n");
+	for (int i = 0; i < movies->num_elements_MV; i++) {
+		printf("ID: %d, Title: %s, Description: %s, Dir Position: %s, Video Size: %ld\n",
+			movies->id[i], movies->title[i], movies->description[i],
+			movies->dir_position[i], movies->video_size[i]);
 	}
 }

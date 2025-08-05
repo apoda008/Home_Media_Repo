@@ -4,7 +4,9 @@
 
 long GetVideoSize(FILE* video_file) {
 	fseek(video_file, 0, SEEK_END);
-	return ftell(video_file);
+	long result = ftell(video_file);
+	rewind(video_file); 
+	return result;
 }
 
 void genre_write(const char* genre, const char* title, int index) {
@@ -86,19 +88,41 @@ void genre_write(const char* genre, const char* title, int index) {
 //	}
 //}
 
-void Fill_Table_Movies(DatabaseStructure* db_structure, Master_Directory* global_ptr) {
+int Fill_Table_Movies(DatabaseStructure* db_structure, Master_Directory* global_ptr) {
 	if (db_structure == NULL || global_ptr == NULL) {
 		fprintf(stderr, "Database structure or global pointer is NULL\n");
 		return;
 	}
 	
-	FILE* file = _tfopen(global_ptr->movie_bin_path, _T("wb"));
-	if (file == NULL) {
-		fprintf(stderr, "Failed to open movie bin file for writing\n");
-		return;
+	char* alpha = "abcdefghijklmnopqrstuvwxyz";
+	
+	//iterates throught the bin folder files Ex: a.bin, b.bin, c.bin, etc.
+	for (int i = 0; i < strlen(alpha); i++) {
+		TCHAR* path[MAX_PATH];
+		_stprintf_s(path, MAX_PATH, _T("%s\\%c.bin"), global_ptr->movie_bin_path, alpha[i]);
+		_tprintf(_T("Reading movie bin file: %s\n"), path);
+		FILE* file = _tfopen(path, _T("rb"));
+		if (file == NULL) {
+			fprintf(stderr, "Failed to open movie bin file for writing\n");
+			return 0;
+		}
+
+		MediaData movie;
+
+		//iterates through the bin file and reads each movie
+		while ((fread(&movie, sizeof(MediaData), 1, file)) == 1) {
+			
+			//Might use this if style statement to make it usable for 
+			// both movies and series
+			//if (movie.media_type == true) { }
+			printf("Movie title: %d\n", movie.title);
+
+			long movie_size = GetVideoSize(movie.dir_position_media);
+			Insert_Movie(db_structure, movie.title, movie.description, movie.dir_position_media, movie_size);
+			printf("Movie Title IN TABLE:: %s\n", db_structure->movies->title[db_structure->movies->num_elements_MV]);
+			
+		}
+
 	}
-
-	MediaData movie;
-
-
+	return 1;
 }

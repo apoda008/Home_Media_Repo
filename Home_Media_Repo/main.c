@@ -53,6 +53,7 @@ int main() {
 
 	DatabaseStructure* test = Construct_Database_Structure(10, 10);
 
+    /*
 	printf("Movie Set Size: %zu\n", test->movie_set_size);
 	printf("Series Set Size: %zu\n", test->series_set_size);
 	printf("Movie elements: %d\n", test->movies->num_elements_MV);
@@ -84,8 +85,10 @@ int main() {
 	printf("Movie Description: %s\n", test->movies->description[2]);
 	printf("Movie Dir Position: %s\n", test->movies->dir_position[2]);
 	printf("Movie Video Size: %d\n", test->movies->video_size[2]);
+    */
 
-
+    Fill_Table_Movies(test, dir_struct_ptr);
+    Print_Movie_Table(test->movies);
     //END TEST REGION
 
 
