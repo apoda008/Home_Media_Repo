@@ -29,6 +29,6 @@ enum GenreTypeMovie {
 };
 
 
-int Fill_Table_Movies(DatabaseStructure* db_structure, Master_Directory* global_ptr);
+void Fill_Table_Movies(DatabaseStructure* db_structure, Master_Directory* global_ptr);
 
 #endif // !PROGRAM_FUNCTIONS_H

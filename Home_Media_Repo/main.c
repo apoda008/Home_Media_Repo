@@ -88,6 +88,7 @@ int main() {
     */
 
     Fill_Table_Movies(test, dir_struct_ptr);
+    
     Print_Movie_Table(test->movies);
     //END TEST REGION
 

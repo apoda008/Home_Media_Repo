@@ -24,16 +24,17 @@ __int64 GetVideoSize(TCHAR* movie_path) {
 		fclose(video_file);
 		return -1;
 	}
-	_tprintf(_T("Size: %I64d bytes\n"), result);
+	
+	//DELETE
+	//_tprintf(_T("Size: %I64d bytes\n"), result);
+	
 	fclose(video_file);
 	return result;
 }
 
-
 void genre_write(const char* genre, const char* title, int index) {
 	
 }
-
 
 //void Genre_Mapping(MediaData** hash_table, Master_Directory* global_ptr) {
 //	//genre bin write
@@ -109,7 +110,7 @@ void genre_write(const char* genre, const char* title, int index) {
 //	}
 //}
 
-int Fill_Table_Movies(DatabaseStructure* db_structure, Master_Directory* global_ptr) {
+void Fill_Table_Movies(DatabaseStructure* db_structure, Master_Directory* global_ptr) {
 	if (db_structure == NULL || global_ptr == NULL) {
 		fprintf(stderr, "Database structure or global pointer is NULL\n");
 		return;
@@ -126,13 +127,12 @@ int Fill_Table_Movies(DatabaseStructure* db_structure, Master_Directory* global_
 		FILE* file = _tfopen(path, _T("rb"));
 		if (file == NULL) {
 			fprintf(stderr, "Failed to open movie bin file for writing\n");
-			//fclose(file);
 			continue;
+
 		}
 		else {
 
 			MediaData movie;
-
 			//iterates through the bin file and reads each movie
 			while ((fread(&movie, sizeof(MediaData), 1, file)) == 1) {
 
@@ -145,11 +145,10 @@ int Fill_Table_Movies(DatabaseStructure* db_structure, Master_Directory* global_
 
 				__int64 movie_size = GetVideoSize(movie.dir_position_media);
 				Insert_Movie(db_structure, movie.title, movie.description, movie.dir_position_media, movie_size);
-				//printf("Movie Title IN TABLE:: %s\n", db_structure->movies->title[db_structure->movies->num_elements_MV - 1]);
 
 			}
 			fclose(file);
 		}
 	}
-	return 1;
+	return;
 }

@@ -58,12 +58,9 @@ void Create_Folders(Master_Directory* global_ptr) {
         }
     }
 
-    //Movie media folder where the physical media files will be held
-    
     //sets the media path and concats Media Movies to it for creation
     _tcscpy_s(global_ptr->path_to_media, MAX_PATH, global_ptr->master_folder);
     _tcscat_s(global_ptr->path_to_media, MAX_PATH, _T("\\Media_Movies"));
-    
 
     if (CreateDirectory(global_ptr->path_to_media, NULL)) {
         _tprintf(TEXT("\nFolder created successfully: %s\n"), global_ptr->path_to_media);
@@ -105,7 +102,6 @@ void Create_Folders(Master_Directory* global_ptr) {
     //Temp directory
     _tcscpy_s(global_ptr->temp_folder_path, MAX_PATH, global_ptr->master_folder);
     _tcscat_s(global_ptr->temp_folder_path, MAX_PATH, _T("\\Temp"));
-
 
     if (CreateDirectory(global_ptr->temp_folder_path, NULL)) {
         _tprintf(TEXT("\nFolder created successfully: %s\n"), global_ptr->temp_folder_path);
@@ -332,6 +328,7 @@ void FolderExecution(Master_Directory* global_ptr) {
    //     }
    // }
 
+    //hardcoded for now for both time and I need to ensure the folder selection works properly
 	_tcsnccpy_s(global_ptr->master_folder, MAX_PATH, _T("C:\\Users\\dan_a\\Desktop\\TestLocationForRepo"), MAX_PATH);
     _tcsnccpy_s(global_ptr->path_to_media_for_import, MAX_PATH, _T("C:\\Users\\dan_a\\Desktop\\testdirfolder"), MAX_PATH);
 
