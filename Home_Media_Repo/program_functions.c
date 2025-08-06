@@ -2,39 +2,6 @@
 //temp
 #include "data_structures.h"
 
-//long long GetVideoSize(TCHAR* movie_path) {
-//	_tprintf(_T("Getting video size for: %s\n"), movie_path);
-//	FILE* video_file = _tfopen(movie_path, _T("rb"));
-//	if(video_file == NULL) {
-//		perror("Failed to open video file");
-//		return -1; // Return -1 to indicate an error
-//	}
-//
-//	fseek(video_file, 0, SEEK_END);
-//	if(ferror(video_file)) {
-//		perror("Error seeking to end of video file");
-//		fclose(video_file);
-//		return -1; // Return -1 to indicate an error
-//	}
-//	long long result = ftell(video_file);
-//
-//	if (ferror(video_file)) {
-//		perror("ftell error");
-//	}
-//
-//	if(result == -1) {
-//		perror("Error getting file size");
-//		fclose(video_file);
-//		return -1; // Return -1 to indicate an error
-//	}
-//
-//	rewind(video_file); 
-//	fclose(video_file);
-//	return result;
-//}
-
-
-
 __int64 GetVideoSize(TCHAR* movie_path) {
 	_tprintf(_T("Getting video size for: %s\n"), movie_path);
 
@@ -176,7 +143,7 @@ int Fill_Table_Movies(DatabaseStructure* db_structure, Master_Directory* global_
 				//printf("Movie title: %s\n", movie.title);
 				//_tprintf(_T("dir pos media: %s\n"), movie.dir_position_media);
 
-				long long movie_size = GetVideoSize(movie.dir_position_media);
+				__int64 movie_size = GetVideoSize(movie.dir_position_media);
 				Insert_Movie(db_structure, movie.title, movie.description, movie.dir_position_media, movie_size);
 				//printf("Movie Title IN TABLE:: %s\n", db_structure->movies->title[db_structure->movies->num_elements_MV - 1]);
 

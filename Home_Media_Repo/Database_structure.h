@@ -16,7 +16,7 @@ typedef struct {
 	char (*title)[256]; 
 	char (*description)[2000];
 	TCHAR (*dir_position)[256]; //to keep track of the directory position of the movie
-	long* video_size;
+	__int64* video_size;
 	
 	int num_elements_MV; //to keep track of how many elements are in the table
 
@@ -44,7 +44,7 @@ typedef struct {
 
 DatabaseStructure* Construct_Database_Structure(size_t movie_count, size_t series_count);
 
-void Insert_Movie(DatabaseStructure* db_structure, const char* title, const char* description, TCHAR* dir_pos, int video_size);
+void Insert_Movie(DatabaseStructure* db_structure, const char* title, const char* description, TCHAR* dir_pos, __int64 video_size);
 
 //Worry about it last 
 void Free_Database_Structure(DatabaseStructure* db_structure);

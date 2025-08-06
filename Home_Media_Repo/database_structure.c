@@ -25,7 +25,7 @@ DatabaseStructure* Construct_Database_Structure(size_t movie_count, size_t serie
 	db_structure->movies->description = (char*)malloc(db_structure->movie_set_size * sizeof(char[2000])); // Assuming max description length of 2000
 	//db_structure->movies->dir_position = (TCHAR*)malloc(movie_count * MAX_PATH * sizeof(TCHAR)); // Assuming max path length of MAX_PATH
 	db_structure->movies->dir_position = (TCHAR*)malloc(db_structure->movie_set_size * sizeof(TCHAR[256])); // Assuming max path length of MAX_PATH
-	db_structure->movies->video_size = (int*)malloc(db_structure->movie_set_size * sizeof(int)); // Assuming video size is an integer
+	db_structure->movies->video_size = (int*)malloc(db_structure->movie_set_size * sizeof(__int64)); // Assuming video size is an integer
 	db_structure->movies->num_elements_MV = 0;
 
 	if (!db_structure->movies->id || !db_structure->movies->title || !db_structure->movies->description || !db_structure->movies->dir_position) {
@@ -79,7 +79,7 @@ MovieTable* Resize_Movie_Table(DatabaseStructure* db, MovieTable* movies) {
 	movies->title = (char (*)[256])realloc(movies->title, new_size * sizeof(char[256]));
 	movies->description = (char (*)[2000])realloc(movies->description, new_size * sizeof(char[2000]));
 	movies->dir_position = (TCHAR(*)[256])realloc(movies->dir_position, new_size * sizeof(TCHAR[256]));
-	movies->video_size = (long*)realloc(movies->video_size, new_size * sizeof(long));
+	movies->video_size = (long*)realloc(movies->video_size, new_size * sizeof(__int64));
 
 	// Check all allocations
 	if (!movies->id || !movies->title || !movies->description ||
@@ -99,12 +99,12 @@ MovieTable* Resize_Movie_Table(DatabaseStructure* db, MovieTable* movies) {
 	memset(&movies->title[old_size], 0, (new_size - old_size) * sizeof(char[256]));
 	memset(&movies->description[old_size], 0, (new_size - old_size) * sizeof(char[2000]));
 	memset(&movies->dir_position[old_size], 0, (new_size - old_size) * sizeof(TCHAR[256]));
-	memset(&movies->video_size[old_size], 0, (new_size - old_size) * sizeof(long));
+	memset(&movies->video_size[old_size], 0, (new_size - old_size) * sizeof(__int64));
 
 	return movies;
 }
 
-void Insert_Movie(DatabaseStructure* db_structure, const char* title, const char* description, TCHAR* dir_pos, int video_size) {
+void Insert_Movie(DatabaseStructure* db_structure, const char* title, const char* description, TCHAR* dir_pos, __int64 video_size) {
 	//ID can probably be removed
 	
 	if ((db_structure->movie_set_size - db_structure->movies->num_elements_MV) <= 5) {
@@ -134,7 +134,7 @@ void Insert_Movie(DatabaseStructure* db_structure, const char* title, const char
 
 	//Assuming video_size is an integer representing the size of the video file
 	db_structure->movies->video_size[db_structure->movies->num_elements_MV] = video_size;
-	//printf("Video Size: %d\n", db_structure->movies->video_size[db_structure->movies->num_elements_MV]);
+	printf("Video Size (INSIDE INSERT): %I64d\n", db_structure->movies->video_size[db_structure->movies->num_elements_MV]);
 	//increments the number of elements in the movie table
 	db_structure->movies->num_elements_MV++;
 	printf("Inserted movie: %s with ID: %d\n", title, db_structure->movies->id[db_structure->movies->num_elements_MV - 1]);
@@ -168,7 +168,7 @@ void Print_Movie_Table(const MovieTable* movies) {
 		return;
 	}
 	printf("Movie Table:\n");
-	printf("| %6s | %-50s | %-5s | %-50s | %6s |\n",
+	printf("| %6s | %-50s | %-5s | %-50s | %20s |\n",
 		"ID", "Title", "Desc", "Dir Position", "Size");
 	for (int i = 0; i < movies->num_elements_MV; i++) {
 		
