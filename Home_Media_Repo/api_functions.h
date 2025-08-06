@@ -31,7 +31,7 @@ enum DataBaseChoices {
 	SERIES = 1
 };
 
-void VideoTest(SOCKET client_socket);
+//void VideoTest(SOCKET client_socket);
 
 cJSON* Get_All_Media(MediaData** hash_table, char* title, size_t array_size);
 

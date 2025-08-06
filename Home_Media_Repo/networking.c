@@ -405,7 +405,7 @@ void Api_Connection(MediaData** hash_table, size_t array_size) {
 				* We ill let the handling/parsing to be done all in the api_functions.c
 				* file. For now this will remain until the refactored function is created
 				*/
-				cJSON* result = Input_String_Parsing(hash_table, buffer, array_size);
+				//cJSON* result = Input_String_Parsing(hash_table, buffer, array_size);
 
 				if (result == NULL) {
 					send(client_socket, "null", 5, 0);
