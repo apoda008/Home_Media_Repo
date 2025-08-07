@@ -25,7 +25,7 @@ int Convert_to_Mp4(TCHAR* filename_path, TCHAR* title, Master_Directory* global_
         cmd,                 
         1024,                
         _TRUNCATE,          
-        L"ffmpeg -i \"%s\" -c:v libx264 -c:a aac -movflags +faststart \"%s\\%s.mp4\"",
+        L"ffmpeg -n -i \"%s\" -c:v libx264 -c:a aac -movflags +faststart \"%s\\%s.mp4\"",
         filename_path,
         global_ptr->path_to_media,
         title
@@ -226,75 +226,6 @@ void Create_Folders(Master_Directory* global_ptr) {
     }
 }
 
-void MoveMediaToMaster(TCHAR* path, Master_Directory* global_ptr) {
-   
-    TCHAR copy_path[MAX_PATH];
-
-    //sets the * for a search through all files in the directory
-    _tcscpy_s(copy_path, MAX_PATH, path);
-    _tcscat_s(copy_path, MAX_PATH, _T("\\*"));
-
-    WIN32_FIND_DATA findFileData;
-    HANDLE hFind = FindFirstFile(copy_path, &findFileData);
-
-    if (hFind == INVALID_HANDLE_VALUE) {
-        _tprintf(_T("Error handle value. Error: %lu \n"), GetLastError());
-    }
-    else {
-        do {
-            
-            //Skip "." ".." file names
-            if ( (strcmp(findFileData.cFileName, ".") == 0) || (strcmp(findFileData.cFileName, "..") == 0 ) ) {
-                continue;
-            }
-            
-            TCHAR next_dir[MAX_PATH];
-
-            _tcscpy_s(next_dir, MAX_PATH, path);
-            _tcscat_s(next_dir, MAX_PATH, _T("\\"));
-            _tcscat_s(next_dir, MAX_PATH, findFileData.cFileName);
-            //_tprintf(_T("NEXT_DIR: %s\n"), next_dir);
-            
-            //check if it's a directory or a file
-            if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-                //_tprintf(_T("[DIR]: %s\n"), findFileData.cFileName);
-             
-                MoveMediaToMaster(next_dir, global_ptr);
-        
-            }
-            else {
-                //_tprintf(_T("[FILE]: %s\n"), findFileData.cFileName);
-                
-                //This creates a directory path with the target filename
-                //MovieFile does not auto concat the filename
-                TCHAR dest[MAX_PATH];
-                _tcscpy_s(dest, MAX_PATH, global_ptr->path_to_media);
-                _tcscat_s(dest, MAX_PATH, _T("\\"));
-                _tcscat_s(dest, MAX_PATH, findFileData.cFileName);
-                               
-                //This is when we would move them all to the primary file
-                if (MoveFile(next_dir, dest)) {
-                    _tprintf(_T("Moved: %s\n"), findFileData.cFileName);
-                } 
-                else {
-                    _tprintf(_T("Failed to move: %s (Error: %lu)"), findFileData.cFileName, GetLastError());
-                }
-       
-            }
-            
-        } while (FindNextFile(hFind, &findFileData) != 0);
-
-        if (GetLastError() != ERROR_NO_MORE_FILES) {
-            printf("FindNextFile Failed (%d)\n", GetLastError());
-        }
-
-        FindClose(hFind);
-    }
-
-   
-
-}
-
 TCHAR* Parse_Helper(TCHAR* title) {
     size_t nameLen = _tcslen(title);
     TCHAR newFileName[MAX_PATH] = { 0 };
@@ -446,9 +377,6 @@ void FolderExecution(Master_Directory* global_ptr) {
 
     _tcscpy_s(copy, MAX_PATH, global_ptr->path_to_media_for_import);
 	
-    //Media will not be moved. It will be copied to the master folder
-	//once implemented this will be removed entirely
-    //MoveMediaToMaster(copy, global_ptr);
 	printf("Moving media to master folder...\n");
 	printf("WARNING: This will take some time.\n");
 
