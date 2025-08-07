@@ -19,11 +19,8 @@ DatabaseStructure* Construct_Database_Structure(size_t movie_count, size_t serie
 
 	//Movie Table
 	db_structure->movies->id = (int*)malloc(db_structure->movie_set_size * sizeof(int));
-	//db_structure->movies->title = (char*)malloc(movie_count * 256 * sizeof(char)); // Assuming max title length of 256
 	db_structure->movies->title = (char*)malloc(db_structure->movie_set_size * sizeof(char[256])); // Assuming max title length of 256
-	//db_structure->movies->description = (char*)malloc(movie_count * 2000 * sizeof(char)); // Assuming max description length of 2000
 	db_structure->movies->description = (char*)malloc(db_structure->movie_set_size * sizeof(char[2000])); // Assuming max description length of 2000
-	//db_structure->movies->dir_position = (TCHAR*)malloc(movie_count * MAX_PATH * sizeof(TCHAR)); // Assuming max path length of MAX_PATH
 	db_structure->movies->dir_position = (TCHAR*)malloc(db_structure->movie_set_size * sizeof(TCHAR[256])); // Assuming max path length of MAX_PATH
 	db_structure->movies->video_size = (int*)malloc(db_structure->movie_set_size * sizeof(__int64)); // Assuming video size is an integer
 	db_structure->movies->num_elements_MV = 0;
@@ -109,7 +106,7 @@ void Insert_Movie(DatabaseStructure* db_structure, const char* title, const char
 	
 	if ((db_structure->movie_set_size - db_structure->movies->num_elements_MV) <= 5) {
 		//printf("%d - %d\n", db_structure->movie_set_size, db_structure->movies->num_elements_MV);
-		printf("\n\nResizing movie table...\n\n");
+		printf("\nResizing movie table...\n\n");
 		Resize_Movie_Table(db_structure, db_structure->movies);
 	}
 	
@@ -134,9 +131,11 @@ void Insert_Movie(DatabaseStructure* db_structure, const char* title, const char
 
 	//Assuming video_size is an integer representing the size of the video file
 	db_structure->movies->video_size[db_structure->movies->num_elements_MV] = video_size;
-	printf("Video Size (INSIDE INSERT): %I64d\n", db_structure->movies->video_size[db_structure->movies->num_elements_MV]);
+	//printf("Video Size (INSIDE INSERT): %I64d\n", db_structure->movies->video_size[db_structure->movies->num_elements_MV]);
 	//increments the number of elements in the movie table
 	db_structure->movies->num_elements_MV++;
+
+	//LOG
 	printf("Inserted movie: %s with ID: %d\n", title, db_structure->movies->id[db_structure->movies->num_elements_MV - 1]);
 }
 
