@@ -13,8 +13,7 @@ int CallSystemWithTCHAR(const TCHAR* cmd) {
 }
 
 int Convert_to_Mp4(TCHAR* filename_path, TCHAR* title, Master_Directory* global_ptr) {
-	//need to remove the file extension from the title
-	//This will be used to transcode the video into mp4 format
+	
 	int strlen_title = _tcslen(title);
 	
 	title[strlen_title - 4] = '\0'; //removes the last 4 characters (assumes .mov, .avi, etc.)
@@ -85,7 +84,6 @@ void Copy_To_Mp4(TCHAR* path, Master_Directory* global_ptr) {
 
             }
             else {
-                //_tprintf(_T("[FILE]: %s\n"), findFileData.cFileName);
                 //This creates a directory path with the target filename
                 TCHAR dest[MAX_PATH];
                 _tcscpy_s(dest, MAX_PATH, path);
