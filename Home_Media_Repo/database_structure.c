@@ -235,14 +235,21 @@ void Sort_Movie_Table(DatabaseStructure* db_structure) {
 
 	for (int i = 0; i < n; i++) {
 		//Set the i item to the new array
+		if( db_structure->movies->id[i] == -1) {
+			new_movies->id[i] = n; 
+		}
+		else {
 		new_movies->id[i] = db_structure->movies->id[i];
 		strcpy_s(new_movies->title[i], 256, db_structure->movies->title[i]);
 		strcpy_s(new_movies->description[i], 2000, db_structure->movies->description[i]);
 		_tcscpy_s(new_movies->dir_position[i], 256, db_structure->movies->dir_position[i]);
 		new_movies->video_size[i] = db_structure->movies->video_size[i];
-	
 		
-		for (int j = (i + 1); j < (n - i - 1); j++) {
+		}
+		//THERE AN ISSUE IF IT COPIES A NULL COLUMN IT WILL ALWAYS BE THE LOWEST
+		
+		//for (int j = (i + 1); j < (n - i - 1); j++) {
+		for (int j = 0; j < n; j++) {
 			if( db_structure->movies->id[j] == -1) {
 				//NULL column, skip
 				continue; 
@@ -277,6 +284,8 @@ void Sort_Movie_Table(DatabaseStructure* db_structure) {
 
 		new_movies->id[i] = i; // Set new ID based on index
 	}
+	//DELETE
+	printf("NUMBER OF DUPLICATES: %d\n", dups);
 
 	Free_Movies(db_structure->movies); // Free the old movies table
 	db_structure->movies = new_movies; // Update the database structure to point to the new sorted movies table
