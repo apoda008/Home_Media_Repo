@@ -50,5 +50,7 @@ void Insert_Movie(DatabaseStructure* db_structure, const char* title, const char
 void Free_Database_Structure(DatabaseStructure* db_structure);
 
 void Print_Movie_Table(const MovieTable* movies);
+
+void Sort_Movie_Table(DatabaseStructure* db_structure);
 #endif // !DATABASE_STRUCTURE_H
 

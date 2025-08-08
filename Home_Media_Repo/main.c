@@ -43,7 +43,11 @@ int main() {
 	DatabaseStructure* test = Construct_Database_Structure(10, 10);
 
     Fill_Table_Movies(test, dir_struct_ptr);
-    
+    printf("Before sorting:\n");
+    Print_Movie_Table(test->movies);
+	
+	Sort_Movie_Table(test);
+	printf("After sorting:\n");
     Print_Movie_Table(test->movies);
     
     return 0;
