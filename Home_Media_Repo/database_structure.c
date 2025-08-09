@@ -238,12 +238,20 @@ void Sort_Movie_Table(DatabaseStructure* db_structure) {
 		if( db_structure->movies->id[i] == -1) {
 			new_movies->id[i] = n; 
 		}
+		else if ((new_movies->id[i] == -1) && (db_structure->movies->id[i] != -1) ){
+			//so that it does not get stuck in a null column
+			new_movies->id[i] = db_structure->movies->id[i];
+			strcpy_s(new_movies->title[i], 256, db_structure->movies->title[i]);
+			strcpy_s(new_movies->description[i], 2000, db_structure->movies->description[i]);
+			_tcscpy_s(new_movies->dir_position[i], 256, db_structure->movies->dir_position[i]);
+			new_movies->video_size[i] = db_structure->movies->video_size[i];
+		}
 		else {
-		new_movies->id[i] = db_structure->movies->id[i];
-		strcpy_s(new_movies->title[i], 256, db_structure->movies->title[i]);
-		strcpy_s(new_movies->description[i], 2000, db_structure->movies->description[i]);
-		_tcscpy_s(new_movies->dir_position[i], 256, db_structure->movies->dir_position[i]);
-		new_movies->video_size[i] = db_structure->movies->video_size[i];
+			new_movies->id[i] = db_structure->movies->id[i];
+			strcpy_s(new_movies->title[i], 256, db_structure->movies->title[i]);
+			strcpy_s(new_movies->description[i], 2000, db_structure->movies->description[i]);
+			_tcscpy_s(new_movies->dir_position[i], 256, db_structure->movies->dir_position[i]);
+			new_movies->video_size[i] = db_structure->movies->video_size[i];
 		
 		}
 		//THERE AN ISSUE IF IT COPIES A NULL COLUMN IT WILL ALWAYS BE THE LOWEST
@@ -268,7 +276,7 @@ void Sort_Movie_Table(DatabaseStructure* db_structure) {
 				if (res == 0) {
 					//if the titles are the same, then it will not change the order
 					//tracks duplicates. Will do something with this later
-					//UPDATE
+					//UPDATE: This is tracking far more than it should
 					dups++;
 					continue;
 				}
