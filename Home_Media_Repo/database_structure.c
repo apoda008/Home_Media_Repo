@@ -19,11 +19,8 @@ DatabaseStructure* Construct_Database_Structure(size_t movie_count, size_t serie
 
 	//Movie Table
 	db_structure->movies->id = (int*)malloc(db_structure->movie_set_size * sizeof(int));
-	//db_structure->movies->title = (char*)malloc(movie_count * 256 * sizeof(char)); // Assuming max title length of 256
 	db_structure->movies->title = (char*)malloc(db_structure->movie_set_size * sizeof(char[256])); // Assuming max title length of 256
-	//db_structure->movies->description = (char*)malloc(movie_count * 2000 * sizeof(char)); // Assuming max description length of 2000
 	db_structure->movies->description = (char*)malloc(db_structure->movie_set_size * sizeof(char[2000])); // Assuming max description length of 2000
-	//db_structure->movies->dir_position = (TCHAR*)malloc(movie_count * MAX_PATH * sizeof(TCHAR)); // Assuming max path length of MAX_PATH
 	db_structure->movies->dir_position = (TCHAR*)malloc(db_structure->movie_set_size * sizeof(TCHAR[256])); // Assuming max path length of MAX_PATH
 	db_structure->movies->video_size = (int*)malloc(db_structure->movie_set_size * sizeof(__int64)); // Assuming video size is an integer
 	db_structure->movies->num_elements_MV = 0;
@@ -109,7 +106,7 @@ void Insert_Movie(DatabaseStructure* db_structure, const char* title, const char
 	
 	if ((db_structure->movie_set_size - db_structure->movies->num_elements_MV) <= 5) {
 		//printf("%d - %d\n", db_structure->movie_set_size, db_structure->movies->num_elements_MV);
-		printf("\n\nResizing movie table...\n\n");
+		printf("\nResizing movie table...\n\n");
 		Resize_Movie_Table(db_structure, db_structure->movies);
 	}
 	
@@ -134,9 +131,11 @@ void Insert_Movie(DatabaseStructure* db_structure, const char* title, const char
 
 	//Assuming video_size is an integer representing the size of the video file
 	db_structure->movies->video_size[db_structure->movies->num_elements_MV] = video_size;
-	printf("Video Size (INSIDE INSERT): %I64d\n", db_structure->movies->video_size[db_structure->movies->num_elements_MV]);
+	//printf("Video Size (INSIDE INSERT): %I64d\n", db_structure->movies->video_size[db_structure->movies->num_elements_MV]);
 	//increments the number of elements in the movie table
 	db_structure->movies->num_elements_MV++;
+
+	//LOG
 	printf("Inserted movie: %s with ID: %d\n", title, db_structure->movies->id[db_structure->movies->num_elements_MV - 1]);
 }
 
@@ -159,6 +158,17 @@ void Free_Database_Structure(DatabaseStructure* db_structure) {
 			free(db_structure->series);
 		}
 		free(db_structure);
+	}
+}
+
+void Free_Movies(MovieTable* movies) {
+	if (movies) {
+		free(movies->id);
+		free(movies->title);
+		free(movies->description);
+		free(movies->dir_position);
+		free(movies->video_size);
+		free(movies);
 	}
 }
 
@@ -191,4 +201,103 @@ void Print_Movie_Table(const MovieTable* movies) {
 		}
 	}
 	return;
+}
+
+void Sort_Movie_Table(DatabaseStructure* db_structure) {
+	if (db_structure == NULL || db_structure->movies == NULL) {
+		fprintf(stderr, "Database structure or MovieTable is NULL\n");
+		return NULL;
+	}
+	
+	MovieTable* new_movies = (MovieTable*)malloc(sizeof(MovieTable));
+	if( !new_movies) {
+		fprintf(stderr, "Memory allocation failed for new MovieTable\n");
+		return NULL;
+	}
+
+	new_movies->id = (int*)malloc(db_structure->movie_set_size * sizeof(int));
+	new_movies->title = (char*)malloc(db_structure->movie_set_size * sizeof(char[256])); // Assuming max title length of 256
+	new_movies->description = (char*)malloc(db_structure->movie_set_size * sizeof(char[2000])); // Assuming max description length of 2000
+	new_movies->dir_position = (TCHAR*)malloc(db_structure->movie_set_size * sizeof(TCHAR[256])); // Assuming max path length of MAX_PATH
+	new_movies->video_size = (int*)malloc(db_structure->movie_set_size * sizeof(__int64)); // Assuming video size is an integer
+	new_movies->num_elements_MV = db_structure->movies->num_elements_MV;
+
+	if (!db_structure->movies->id || !db_structure->movies->title || !db_structure->movies->description || !db_structure->movies->dir_position) {
+		fprintf(stderr, "Memory allocation failed for one or more fields in MovieTable\n");
+		free(db_structure->movies);
+		free(db_structure);
+		return;
+	}
+
+	int n = db_structure->movie_set_size;
+	int dups = 0;
+	int id = -1;
+
+	for (int i = 0; i < n; i++) {
+		//Set the i item to the new array
+		if( db_structure->movies->id[i] == -1) {
+			new_movies->id[i] = n; 
+		}
+		else if ((new_movies->id[i] == -1) && (db_structure->movies->id[i] != -1) ){
+			//so that it does not get stuck in a null column
+			new_movies->id[i] = db_structure->movies->id[i];
+			strcpy_s(new_movies->title[i], 256, db_structure->movies->title[i]);
+			strcpy_s(new_movies->description[i], 2000, db_structure->movies->description[i]);
+			_tcscpy_s(new_movies->dir_position[i], 256, db_structure->movies->dir_position[i]);
+			new_movies->video_size[i] = db_structure->movies->video_size[i];
+		}
+		else {
+			new_movies->id[i] = db_structure->movies->id[i];
+			strcpy_s(new_movies->title[i], 256, db_structure->movies->title[i]);
+			strcpy_s(new_movies->description[i], 2000, db_structure->movies->description[i]);
+			_tcscpy_s(new_movies->dir_position[i], 256, db_structure->movies->dir_position[i]);
+			new_movies->video_size[i] = db_structure->movies->video_size[i];
+		
+		}
+		//THERE AN ISSUE IF IT COPIES A NULL COLUMN IT WILL ALWAYS BE THE LOWEST
+		
+		//for (int j = (i + 1); j < (n - i - 1); j++) {
+		for (int j = 0; j < n; j++) {
+			if( db_structure->movies->id[j] == -1) {
+				//NULL column, skip
+				continue; 
+
+			}
+			else {
+				int res = strcmp(new_movies->title[i], db_structure->movies->title[j]);
+				if (res < 0) {
+					id = db_structure->movies->id[j];
+					strcpy_s(new_movies->title[i], 256, db_structure->movies->title[j]);
+					strcpy_s(new_movies->description[i], 2000, db_structure->movies->description[j]);
+					_tcscpy_s(new_movies->dir_position[i], 256, db_structure->movies->dir_position[j]);
+					new_movies->video_size[i] = db_structure->movies->video_size[j];
+
+				}
+				if (res == 0) {
+					//if the titles are the same, then it will not change the order
+					//tracks duplicates. Will do something with this later
+					//UPDATE: This is tracking far more than it should
+					dups++;
+					continue;
+				}
+			}
+		}
+		//Nulls the one who was discovered to be the lowest value in the old structure 
+		//db_structure->movies->id[] = -1; // Mark as processed
+		db_structure->movies->id[id] = 0;
+		db_structure->movies->title[id][0] = '\0'; // Clear title
+		db_structure->movies->description[id][0] = '\0'; // Clear description
+		_tcscpy_s(db_structure->movies->dir_position[id], 256, _T("")); // Clear directory position
+		db_structure->movies->video_size[id] = 0; // Clear video size
+
+		new_movies->id[i] = i; // Set new ID based on index
+	}
+	//DELETE
+	printf("NUMBER OF DUPLICATES: %d\n", dups);
+
+	Free_Movies(db_structure->movies); // Free the old movies table
+	db_structure->movies = new_movies; // Update the database structure to point to the new sorted movies table
+
+	return;
+	
 }
