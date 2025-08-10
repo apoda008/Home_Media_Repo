@@ -1,9 +1,13 @@
 #include "api_functions.h"
 
-//long GetVideoSize(FILE* video_file) {
-//	fseek(video_file, 0, SEEK_END);
-//	return ftell(video_file);
-//}
+
+//WE ARE BUILDING A TRIE BABY!!!
+//HASH TABLE WOULD BE EASIER BUT I HATE MYSELF
+Trie* Build_DB_Trie(){
+	return;
+}
+
+//OLD FUNCTION
 TCHAR* Video_Transcode_Mp4(TCHAR* video_path) {
 	//This will be used to transcode the video into mp4 format
 	//which is supported by the C# app
@@ -38,6 +42,7 @@ TCHAR* Video_Transcode_Mp4(TCHAR* video_path) {
 	return NULL;
 }
 
+//OLD FUNCTION
 cJSON* Get_All_Media(MediaData** hash_table, const char* title, size_t array_size) {
 
 	//deprecated DELETE
@@ -78,47 +83,23 @@ cJSON* Get_All_Media(MediaData** hash_table, const char* title, size_t array_siz
 
 }
 
-void Input_Parse(SOCKET client_socket, MediaData** hash_table, char* user_input, size_t array_size) {
-
-	//It would appear that the data structure component of this needs to be completely reworked in 
-	//order to make this more in line with a database structure. 
-
-	char* context; 
-	char* token = strtok_s(user_input, "%", &context);
-
-	//PRIMARY COMMANDS 
-	if (strcmp(token, "GET") == 0) {
-		//DELETE
-		printf("Primary Command: %s\n", token);
-		token = strtok_s(NULL, "%", &context);
-
-		if (strcmp(token, "MOVIE") == 0) {
-			//DELETE
-			printf("Major Category: %s\n", token);
-			token = strtok_s(NULL, "%", &context);
-
-			if (strcmp(token, "WHERE") == 0) {
-				//DELETE
-				printf("Identifier: %s\n", token);
-				token = strtok_s(NULL, "%", &context);
-
-				if (strcmp(token, "TITLE") == 0) {
-					//DELETE
-					printf("Minor Category: %s\n", token);
-					token = strtok_s(NULL, "%", &context);
-
-					if (token != NULL) {
-						cJSON* result = Get_All_Media(hash_table, token, array_size);
-						char* j_print = cJSON_Print(result);
-						send(client_socket, j_print, strlen(j_print), 0);
-						cJSON_Delete(result); //Free the JSON object after sending
-					}
-				}
-			}
-		}
-	}
+int* Query_Transform(const* query_string) {
+	/*TODO
+	* Tansforms the query string into an int array for use later in switches
+	* this will be a long segment of code since it will have to do a lot
+	*/
+	return 0;
 }
 
+
+void Parse_Stage_One(DatabaseStructure* db, const char* query_string) {
+	int* query_array = Query_Transform(query_string);
+
+	switch (query_array)
+}
+
+
+//OLD FUNCTION
 cJSON* Input_String_Parsing(MediaData** hash_table, char* user_input, size_t array_size) {
 	/*
 	TODO:

@@ -4,11 +4,19 @@
 #include "master.h"
 #include "data_structures.h"
 
+typedef struct {
+	struct Node* L_one;
+	struct Node* L_two;
+	struct Node* L_three;
+
+} Trie;
+
+
 enum WhatCommands {
 	SELECT = 0,
-	ADD = 1,
-	CHANGE = 2,
-	DELETE_ITEM = 3
+	CHANGE = 1,
+	REMOVE = 3,
+	SEARCH = 4,
 };
 
 enum WhereCommands {
