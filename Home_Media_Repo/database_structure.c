@@ -301,3 +301,50 @@ void Sort_Movie_Table(DatabaseStructure* db_structure) {
 	return;
 	
 }
+
+TrieNode* Insert_String_Trie(TrieNode* trie, const char* str, int switch_val) {
+	if (trie == NULL || str == NULL) {
+		fprintf(stderr, "Trie or string is NULL\n");
+		return;
+	}
+	TrieNode* current = trie;
+	int size = strlen(str);
+	for (int i = 1; i < size; i++) {
+		TrieNode* newNode = (TrieNode*)malloc(sizeof(TrieNode));
+		if (newNode == NULL) {
+			fprintf(stderr, "Memory allocation failed for TrieNode\n");
+			return;
+		}
+
+		if( str[i] == '\0') {
+			fprintf(stderr, "Invalid character in string at index %d\n", i);
+			free(newNode);
+			return;
+		}
+
+		newNode->next_l = NULL;
+		newNode->next_m = NULL;
+		newNode->next_r = NULL;
+		newNode->letter = str[i];
+		if (i == size - 1) {
+			newNode->switch_case = switch_val; // Set switch case for the last node
+			return; // Exit after inserting the last character
+		}
+		else {
+			newNode->switch_case = -1; // Set switch case for intermediate nodes
+		}
+		if(current->next_l == NULL) {
+			current->next_l = newNode; // Insert as left child if no left child exists
+		}
+		else if (current->next_m == NULL) {
+			current->next_m = newNode; // Insert as middle child if no middle child exists
+		}
+		else if (current->next_r == NULL) {
+			current->next_r = newNode; // Insert as right child if no right child exists
+		}
+		else {
+			fprintf(stderr, "Trie is full, cannot insert more nodes\n");
+			free(newNode);
+			return;
+		}
+}

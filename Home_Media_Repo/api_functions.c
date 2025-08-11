@@ -3,8 +3,29 @@
 
 //WE ARE BUILDING A TRIE BABY!!!
 //HASH TABLE WOULD BE EASIER BUT I HATE MYSELF
-Trie* Build_DB_Trie(){
-	return;
+static TrieNode Trie_Root[7] = { 
+	{ NULL, NULL, NULL, 'S', -1}, 
+	{ NULL, NULL, NULL, 'C', -1 }, 
+	{ NULL, NULL, NULL, 'R', -1 }, 
+	{ NULL, NULL, NULL, 'S', -1 }, 
+	{ NULL, NULL, NULL, 'T', -1 }, 
+	{ NULL, NULL, NULL, 'D', -1 }, 
+	{ NULL, NULL, NULL, 'G', -1 },
+	{ NULL, NULL, NULL, '*', 7 },
+}; // Initialize the root of the Trie for each command
+
+void Build_DB_Trie(){
+	Insert_String_Trie(Trie_Root, "SELECT", SELECT);
+	Insert_String_Trie(Trie_Root, "CHANGE", CHANGE);
+	Insert_String_Trie(Trie_Root, "REMOVE", REMOVE);
+	Insert_String_Trie(Trie_Root, "SEARCH", SEARCH);
+	Insert_String_Trie(Trie_Root, "TITLE", TITLE);
+	Insert_String_Trie(Trie_Root, "DESCRIPTION", DESCRIPTION);
+	Insert_String_Trie(Trie_Root, "GENRE", GENRE);
+	
+	//The last switch case if already made in intialization
+	//Insert_String_Trie(Trie_Root, "*", ALL);
+	
 }
 
 //OLD FUNCTION
@@ -92,11 +113,11 @@ int* Query_Transform(const* query_string) {
 }
 
 
-void Parse_Stage_One(DatabaseStructure* db, const char* query_string) {
+/*id Parse_Stage_One(DatabaseStructure* db, const char* query_string) {
 	int* query_array = Query_Transform(query_string);
 
 	switch (query_array)
-}
+}*/
 
 
 //OLD FUNCTION

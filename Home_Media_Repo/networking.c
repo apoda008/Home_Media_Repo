@@ -302,7 +302,6 @@ bool IpAddress_Validation(const char* ip_address) {
 	return end;
 }
 
-
 //====================================================================================
 ////This is the main API connection function that will be used to connect to the server
 void Api_Connection(MediaData** hash_table, size_t array_size) {
