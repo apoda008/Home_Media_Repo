@@ -302,7 +302,7 @@ void Sort_Movie_Table(DatabaseStructure* db_structure) {
 	
 }
 
-TrieNode* Insert_String_Trie(TrieNode* trie, const char* str, int switch_val) {
+void Insert_String_Trie(TrieNode* trie, const char* str, int switch_val) {
 	if (trie == NULL || str == NULL) {
 		fprintf(stderr, "Trie or string is NULL\n");
 		return;
@@ -316,7 +316,7 @@ TrieNode* Insert_String_Trie(TrieNode* trie, const char* str, int switch_val) {
 			return;
 		}
 
-		if( str[i] == '\0') {
+		if (str[i] == '\0') {
 			fprintf(stderr, "Invalid character in string at index %d\n", i);
 			free(newNode);
 			return;
@@ -333,7 +333,7 @@ TrieNode* Insert_String_Trie(TrieNode* trie, const char* str, int switch_val) {
 		else {
 			newNode->switch_case = -1; // Set switch case for intermediate nodes
 		}
-		if(current->next_l == NULL) {
+		if (current->next_l == NULL) {
 			current->next_l = newNode; // Insert as left child if no left child exists
 		}
 		else if (current->next_m == NULL) {
@@ -347,4 +347,7 @@ TrieNode* Insert_String_Trie(TrieNode* trie, const char* str, int switch_val) {
 			free(newNode);
 			return;
 		}
+	}
 }
+
+

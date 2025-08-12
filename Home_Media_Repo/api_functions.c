@@ -2,7 +2,8 @@
 
 
 //WE ARE BUILDING A TRIE BABY!!!
-//HASH TABLE WOULD BE EASIER BUT I HATE MYSELF
+//If more conditionals are needed, add them to the TrieNode root array
+//condsidering hash table for the first char of the string command
 static TrieNode Trie_Root[7] = { 
 	{ NULL, NULL, NULL, 'S', -1}, 
 	{ NULL, NULL, NULL, 'C', -1 }, 

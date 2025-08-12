@@ -77,7 +77,6 @@ void media_write(cJSON* title, cJSON* description, cJSON* id, cJSON* genre_ids, 
 
 	if (file == NULL) {
 		perror("error opening file");
-		fclose(file);
 		return 0;
 	}
 
