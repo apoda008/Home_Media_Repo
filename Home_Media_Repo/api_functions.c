@@ -151,10 +151,10 @@ int Recursive_Validate(const char* token, TrieNode* current, int iterator) {
 	if (current->next_l->letter == token[iterator + 1]) {
 		Recursive_Validate(token, current->next_l);
 	}
-	if (current->next_m->letter == token[iterator + 1]) {
+	else if (current->next_m->letter == token[iterator + 1]) {
 		Recursive_Validate(token, current->next_m);
 	}
-	if (current->next_r->letter == token[iterator + 1]) {
+	else if (current->next_r->letter == token[iterator + 1]) {
 		Recursive_Validate(token, current->next_r);
 	}
 	
