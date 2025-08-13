@@ -42,7 +42,7 @@ typedef struct {
 	int series_set_size;
 } DatabaseStructure;
 
-typedef struct {
+typedef struct TrieNode {
 	struct TrieNode* next_l;
 	struct TrieNode* next_m;
 	struct TrieNode* next_r;

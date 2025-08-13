@@ -4,7 +4,7 @@
 //WE ARE BUILDING A TRIE BABY!!!
 //If more conditionals are needed, add them to the TrieNode root array
 //condsidering hash table for the first char of the string command
-static TrieNode Trie_Root[7] = { 
+static TrieNode Trie_Root[8] = { 
 	{ NULL, NULL, NULL, 'S', -1}, 
 	{ NULL, NULL, NULL, 'C', -1 }, 
 	{ NULL, NULL, NULL, 'R', -1 }, 
@@ -105,12 +105,79 @@ cJSON* Get_All_Media(MediaData** hash_table, const char* title, size_t array_siz
 
 }
 
-int* Query_Transform(const* query_string) {
+int Validate(const char* token) {
+	/*
+	* This function will validate the token and return an int value
+	* that will be used in the switch statement later on
+	*/ 
+	int size = strlen(token);
+
+	for(int i = 0 ; i < 8; i++) {
+		if(Trie_Root[i].letter == token[0]) {
+			//DELETE
+			//printf("Token: %s\n", token);
+			//printf("Trie Root: %c\n", Trie_Root[i].letter);
+			TrieNode* current = &Trie_Root[i];
+			for (int j = 1; j < size; j++) {
+				if( (token[j] == current->letter) && (current->switch_case > 0) && (i == size - 1) ) {
+					return current->switch_case;
+				}
+				else if (token[j] == current->letter) {
+					current = current->next_l; // Move to the next left node
+				}
+				else {
+					return -1; // Invalid token
+				}
+			}
+		}
+	} 
+}
+
+int Recursive_Validate(const char* token, TrieNode* current, int iterator) {
+	/*
+	* This function will validate the token and return an int value
+	* that will be used in the switch statement later on
+	*/ 
+	
+	if (current >= 0) {
+		return current->switch_case; // Return the switch case if we reach the end of the token
+	}
+	if( iterator >= strlen(token) - 1) {
+		return -1; // If we reach the end of the token without finding a match, return -1
+	}
+
+	iterator += 1; // Move to the next character in the token
+
+	if (current->next_l->letter == token[iterator + 1]) {
+		Recursive_Validate(token, current->next_l);
+	}
+	if (current->next_m->letter == token[iterator + 1]) {
+		Recursive_Validate(token, current->next_m);
+	}
+	if (current->next_r->letter == token[iterator + 1]) {
+		Recursive_Validate(token, current->next_r);
+	}
+	
+	return -1; // If we reach here, the token is invalid
+}
+void Query_Transform(const* query_string) {
 	/*TODO
 	* Tansforms the query string into an int array for use later in switches
 	* this will be a long segment of code since it will have to do a lot
 	*/
-	return 0;
+
+	int total[8] = { -1 };
+
+	char* context;
+	char* token = strtok_s(query_string, " ", &context);
+
+	for (int i = 0; token != NULL; i++) {
+		int[i] = Validate(token);
+		token = strtok_s(NULL, " ", &context);
+	}
+
+
+	return;
 }
 
 
