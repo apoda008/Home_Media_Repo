@@ -12,7 +12,7 @@ static TrieNode Trie_Root[8] = {
 	{ NULL, NULL, NULL, 'T', -1 }, 
 	{ NULL, NULL, NULL, 'D', -1 }, 
 	{ NULL, NULL, NULL, 'G', -1 },
-	{ NULL, NULL, NULL, '*', 7 },
+	{ NULL, NULL, NULL, '*', 8 },
 }; // Initialize the root of the Trie for each command
 
 void Build_DB_Trie(){
@@ -25,8 +25,7 @@ void Build_DB_Trie(){
 	Insert_String_Trie(Trie_Root, "GENRE", GENRE);
 	
 	//The last switch case if already made in intialization
-	//Insert_String_Trie(Trie_Root, "*", ALL);
-	
+	//Insert_String_Trie(Trie_Root, "*", ALL);	
 }
 
 //OLD FUNCTION
@@ -132,32 +131,47 @@ int Validate(const char* token) {
 		}
 	} 
 }
+int value = 0;
 
-int Recursive_Validate(const char* token, TrieNode* current, int iterator) {
+int Recursive_Validate(const char* token, TrieNode* current, int array_pos) {
 	/*
 	* This function will validate the token and return an int value
 	* that will be used in the switch statement later on
 	*/ 
-	
-	if (current >= 0) {
+	printf("Entered: Current: %c\n", current->letter);
+
+	if (current->switch_case >= 0) {
+		printf("Switch Case: %d\n", current->switch_case);
 		return current->switch_case; // Return the switch case if we reach the end of the token
 	}
-	if( iterator >= strlen(token) - 1) {
+	if( array_pos >= strlen(token) - 1) {
+		printf("Reached end of token without match\n");
 		return -1; // If we reach the end of the token without finding a match, return -1
 	}
-
-	iterator += 1; // Move to the next character in the token
-
-	if (current->next_l->letter == token[iterator + 1]) {
-		Recursive_Validate(token, current->next_l);
+	if (current == NULL) {
+		return -1; // If the current node is NULL, return -1
 	}
-	else if (current->next_m->letter == token[iterator + 1]) {
-		Recursive_Validate(token, current->next_m);
+	printf("Array Position: %d\n", array_pos);
+
+	array_pos += 1; // Move to the next character in the token
+
+	char char_compare = toupper(token[array_pos]); // Convert to uppercase for case-insensitive comparison
+
+	if (current->next_l->letter == char_compare) {
+		printf("Next Left: %c\n", current->next_l->letter);
+		value = Recursive_Validate(token, current->next_l, array_pos);
 	}
-	else if (current->next_r->letter == token[iterator + 1]) {
-		Recursive_Validate(token, current->next_r);
+	else if (current->next_m->letter == char_compare) {
+		value = Recursive_Validate(token, current->next_m, array_pos);
+	}
+	else if (current->next_r->letter == char_compare) {
+		value = Recursive_Validate(token, current->next_r, array_pos);
 	}
 	
+	if(value >= 0) {
+		return value; // Return the valid switch case
+	}
+
 	return -1; // If we reach here, the token is invalid
 }
 void Query_Transform(const* query_string) {
@@ -165,15 +179,39 @@ void Query_Transform(const* query_string) {
 	* Tansforms the query string into an int array for use later in switches
 	* this will be a long segment of code since it will have to do a lot
 	*/
-
+	printf("Query Transform called with: %s\n", query_string);
 	int total[8] = { -1 };
 
 	char* context;
 	char* token = strtok_s(query_string, " ", &context);
-
+	printf("First token: %s\n", token);
+	
+	char comparable = toupper(token[0]); // Convert to uppercase for case-insensitive comparison
 	for (int i = 0; token != NULL; i++) {
-		int[i] = Validate(token);
+		
+		for (int j = 0; j < 8; j++) {
+			if (Trie_Root[j].letter == comparable) {
+				//DELETE
+				//printf("Token: %s\n", token);
+				//printf("Trie Root: %c\n", Trie_Root[j].letter);
+				TrieNode* current = &Trie_Root[j];
+				total[i] = Recursive_Validate(token, current, 0);
+				printf("Out of validate : %d\n", total[i]);
+				break;
+			}
+		}
 		token = strtok_s(NULL, " ", &context);
+	}
+
+	//TEST
+
+	for (int l = 0; l < 8; l++) {
+		if (total[l] >= 0) {
+			printf("Command %d: %d\n", l, total[l]);
+		}
+		else {
+			printf("Command %d: Invalid\n", l);
+		}
 	}
 
 

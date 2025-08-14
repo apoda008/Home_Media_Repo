@@ -46,9 +46,13 @@ int main() {
     printf("\nBefore sorting:\n");
     Print_Movie_Table(test->movies);
 	
-	Sort_Movie_Table(test);
-	printf("After sorting:\n");
-    Print_Movie_Table(test->movies);
+	//Sort_Movie_Table(test);
+	//printf("After sorting:\n");
+    //Print_Movie_Table(test->movies);
+
+	Build_DB_Trie();
+
+	Query_Transform("TITLE");
     
     return 0;
 }

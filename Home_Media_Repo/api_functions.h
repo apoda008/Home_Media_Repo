@@ -23,21 +23,6 @@ enum WhatCommands {
 	ALL = 8
 };
 
-enum WhereCommands {
-	TITLE = 0,
-	DESCRIPTION = 1,
-	GENRE = 2,
-	ALL = 3
-};
-
-enum WhichCommands {
-
-};
-
-
-
-
-
 enum DataBaseChoices {
 	MOVIE = 0,
 	SERIES = 1

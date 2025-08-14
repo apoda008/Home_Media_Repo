@@ -307,45 +307,72 @@ void Insert_String_Trie(TrieNode* trie, const char* str, int switch_val) {
 		fprintf(stderr, "Trie or string is NULL\n");
 		return;
 	}
-	TrieNode* current = trie;
-	int size = strlen(str);
-	for (int i = 1; i < size; i++) {
-		TrieNode* newNode = (TrieNode*)malloc(sizeof(TrieNode));
-		if (newNode == NULL) {
-			fprintf(stderr, "Memory allocation failed for TrieNode\n");
-			return;
-		}
+	
+	//This matches the first character of the string to the first letter of the trie
+	for (int k = 0; k < 8; k++) {
+		
+		if (trie[k].letter == str[0]) {
+			TrieNode* current = &trie[k];
+			int size = strlen(str);
 
-		if (str[i] == '\0') {
-			fprintf(stderr, "Invalid character in string at index %d\n", i);
-			free(newNode);
-			return;
-		}
+			//this builds the trie structure for whatever word is passed in
+			for (int i = 1; i < size; i++) {
+				TrieNode* newNode = (TrieNode*)malloc(sizeof(TrieNode));
+				if (newNode == NULL) {
+					fprintf(stderr, "Memory allocation failed for TrieNode\n");
+					return;
+				}
 
-		newNode->next_l = NULL;
-		newNode->next_m = NULL;
-		newNode->next_r = NULL;
-		newNode->letter = str[i];
-		if (i == size - 1) {
-			newNode->switch_case = switch_val; // Set switch case for the last node
-			return; // Exit after inserting the last character
+				if (str[i] == '\0') {
+					fprintf(stderr, "Invalid character in string at index %d\n", i);
+					free(newNode);
+					return;
+				}
+
+				newNode->next_l = NULL;
+				newNode->next_m = NULL;
+				newNode->next_r = NULL;
+				newNode->letter = str[i];
+				if (i == size - 1) {
+					newNode->switch_case = switch_val; // Set switch case for the last node
+					printf("Inserting character '%c' with switch case %d\n", newNode->letter, newNode->switch_case);
+					return; // Exit after inserting the last character
+				}
+				else {
+					newNode->switch_case = -1; // Set switch case for intermediate nodes
+				}
+
+				if (current->next_l == NULL) {
+					current->next_l = newNode; // Insert as left child if no left child exists
+				}
+				else if (current->next_m == NULL) {
+					current->next_m = newNode; // Insert as middle child if no middle child exists
+				}
+				else if (current->next_r == NULL) {
+					current->next_r = newNode; // Insert as right child if no right child exists
+				}
+				else {
+					fprintf(stderr, "Trie is full, cannot insert more nodes\n");
+					free(newNode);
+					return;
+				}
+
+				current = newNode; // Move to the newly created node
+			}
 		}
-		else {
-			newNode->switch_case = -1; // Set switch case for intermediate nodes
-		}
-		if (current->next_l == NULL) {
-			current->next_l = newNode; // Insert as left child if no left child exists
-		}
-		else if (current->next_m == NULL) {
-			current->next_m = newNode; // Insert as middle child if no middle child exists
-		}
-		else if (current->next_r == NULL) {
-			current->next_r = newNode; // Insert as right child if no right child exists
-		}
-		else {
-			fprintf(stderr, "Trie is full, cannot insert more nodes\n");
-			free(newNode);
-			return;
+	}
+}
+
+void Print_Trie(TrieNode* trie) {
+	if (trie == NULL) {
+		fprintf(stderr, "Trie is NULL\n");
+		return;
+	}
+	printf("Trie Structure:\n");
+	for (int i = 0; i < 8; i++) {
+		if (trie[i].letter != '\0') {
+			printf("Root %d: %c\n", i, trie[i].letter);
+			// You can add more logic to traverse and print the entire trie structure
 		}
 	}
 }

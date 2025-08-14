@@ -61,6 +61,9 @@ void Print_Movie_Table(const MovieTable* movies);
 
 void Sort_Movie_Table(DatabaseStructure* db_structure);
 
-TrieNode* Insert_String_Trie(TrieNode* trie, const char* str, int switch_val);
+void Insert_String_Trie(TrieNode* trie, const char* str, int switch_val);
+
+void Print_Trie(TrieNode* root, int level);	
+
 #endif // !DATABASE_STRUCTURE_H
 
