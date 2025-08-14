@@ -138,8 +138,12 @@ int Recursive_Validate(const char* token, TrieNode* current, int array_pos) {
 	* This function will validate the token and return an int value
 	* that will be used in the switch statement later on
 	*/ 
-	printf("Entered: Current: %c\n", current->letter);
 
+	//printf("Its a mem access problem\n");
+	printf("Entered: Current: %c\n", current->letter);
+	if (current == NULL) {
+			return -1; // If the current node is NULL, return -1
+		}
 	if (current->switch_case >= 0) {
 		printf("Switch Case: %d\n", current->switch_case);
 		return current->switch_case; // Return the switch case if we reach the end of the token
@@ -148,29 +152,37 @@ int Recursive_Validate(const char* token, TrieNode* current, int array_pos) {
 		printf("Reached end of token without match\n");
 		return -1; // If we reach the end of the token without finding a match, return -1
 	}
-	if (current == NULL) {
-		return -1; // If the current node is NULL, return -1
-	}
+	
 	printf("Array Position: %d\n", array_pos);
 
 	array_pos += 1; // Move to the next character in the token
 
 	char char_compare = toupper(token[array_pos]); // Convert to uppercase for case-insensitive comparison
 
+	printf("Comparing with character: %c\n", char_compare);
+	if(current->next_l == NULL || current->next_m == NULL || current->next_r == NULL) {
+		printf("Next nodes are NULL, returning -1\n");
+		return -1; // If any of the next nodes are NULL, return -1
+	}
+
+
 	if (current->next_l->letter == char_compare) {
-		printf("Next Left: %c\n", current->next_l->letter);
+		//printf("Next Left: %c\n", current->next_l->letter);
 		value = Recursive_Validate(token, current->next_l, array_pos);
 	}
 	else if (current->next_m->letter == char_compare) {
+		//printf("Next Middle: %c\n", current->next_m->letter);
 		value = Recursive_Validate(token, current->next_m, array_pos);
 	}
 	else if (current->next_r->letter == char_compare) {
+		//printf("Next Right: %c\n", current->next_r->letter);
 		value = Recursive_Validate(token, current->next_r, array_pos);
 	}
 	
-	if(value >= 0) {
-		return value; // Return the valid switch case
-	}
+	//if(value >= 0) {
+	//	printf("Valid switch case found: %d\n", value);
+	//	return value; // Return the valid switch case
+	//}
 
 	return -1; // If we reach here, the token is invalid
 }
