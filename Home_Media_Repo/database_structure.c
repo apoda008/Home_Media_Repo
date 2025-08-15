@@ -303,6 +303,11 @@ void Sort_Movie_Table(DatabaseStructure* db_structure) {
 }
 
 void Insert_String_Trie(TrieNode* trie, const char* str, int switch_val) {
+	/*
+	* String must be ALL CAPITAL LETTERS. Or this function will need adjustments
+	* so that any character can be inserted into the trie
+	*/
+	
 	if (trie == NULL || str == NULL) {
 		fprintf(stderr, "Trie or string is NULL\n");
 		return;
@@ -333,10 +338,10 @@ void Insert_String_Trie(TrieNode* trie, const char* str, int switch_val) {
 				newNode->next_m = NULL;
 				newNode->next_r = NULL;
 				newNode->letter = str[i];
+				
 				if (i == size - 1) {
 					newNode->switch_case = switch_val; // Set switch case for the last node
 					printf("Inserting character '%c' with switch case %d\n", newNode->letter, newNode->switch_case);
-					return; // Exit after inserting the last character
 				}
 				else {
 					newNode->switch_case = -1; // Set switch case for intermediate nodes

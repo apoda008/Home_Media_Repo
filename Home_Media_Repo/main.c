@@ -52,7 +52,8 @@ int main() {
 
 	Build_DB_Trie();
 
-	Query_Transform("TITLE");
+
+	Query_Transform("SELECT%TITLE%WHERE%TITLE%some string%");
     
     return 0;
 }
