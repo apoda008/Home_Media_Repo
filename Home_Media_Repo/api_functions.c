@@ -153,7 +153,7 @@ int Recursive_Validate(const char* token, TrieNode* current, int array_pos) {
 	* This function will validate the token and return an int value
 	* that will be used in the switch statement later on
 	*/ 
-
+	printf("Letter of Recursive: %c\n", current->letter);
 	if (current == NULL) {
 			return -1; // If the current node is NULL, return -1
 		}
@@ -189,7 +189,8 @@ int Recursive_Validate(const char* token, TrieNode* current, int array_pos) {
 
 	return -1; // If we reach here, the token is invalid
 }
-void Query_Transform(const* query_string) {
+
+void Query_Transform(char* query_string) {
 	/*TODO
 	* Tansforms the query string into an int array for use later in switches
 	* this will be a long segment of code since it will have to do a lot
@@ -199,13 +200,16 @@ void Query_Transform(const* query_string) {
 	printf("Query Transform called with: %s\n", query_string);
 	int total[8] = { -1 };
 
-	char* context;
-	char* token = strtok_s(query_string, '%', &context);
+	char query_string2[256] = "SELECT % TITLE % WHERE % TITLE % some string";
+
+
+	char *context = NULL;
+	char *token = strtok_s(query_string2, "%", &context);
 	printf("First token: %s\n", token);
 	
 	char comparable = toupper(token[0]); // Convert to uppercase for case-insensitive comparison
 	for (int i = 0; token != NULL; i++) {
-		
+		printf("Iteration %d: Token: %s\n", i, token);
 		for (int j = 0; j < 8; j++) {
 			if (Trie_Root[j].letter == comparable) {
 				TrieNode* current = &Trie_Root[j];
@@ -214,7 +218,7 @@ void Query_Transform(const* query_string) {
 				break;
 			}
 		}
-		token = strtok_s(NULL, " ", &context);
+		token = strtok_s(NULL, "%", &context);
 	}
 
 	//TESTING ARRAY 
