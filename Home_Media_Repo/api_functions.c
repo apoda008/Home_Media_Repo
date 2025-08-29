@@ -154,40 +154,53 @@ int Recursive_Validate(const char* token, TrieNode* current, int array_pos) {
 	* that will be used in the switch statement later on
 	*/ 
 	printf("Letter of Recursive: %c\n", current->letter);
+	printf("Array Pos: %d\n", array_pos);
+	printf("Token Length: %d\n", strlen(token));
+	printf("String entered: %s\n", token);	
+	
+	//BASE CASES
 	if (current == NULL) {
 			return -1; // If the current node is NULL, return -1
 		}
+	
 	if (current->switch_case >= 0) {
-		//DELETE
-		//printf("Switch Case: %d\n", current->switch_case);
 		return current->switch_case; // Return the switch case if we reach the end of the token
 	}
+
 	if( array_pos >= strlen(token) - 1) {
-		printf("Reached end of token without match\n");
-		return -1; // If we reach the end of the token without finding a match, return -1
+		printf("Reached end of token without match, Invalid Match\n");
+		return -8; // If we reach the end of the token without finding a match, return -1
+	}
+	if( current->letter != toupper(token[array_pos]) ) {
+		printf("Current letter %c does not match token letter %c, Invalid Match\n", current->letter, token[array_pos]);
+		return -2; // If the current letter does not match the token letter, return -1
 	}
 
+	//Prepare for next recursion
 	array_pos += 1; // Move to the next character in the token
 
 	char char_compare = toupper(token[array_pos]); // Convert to uppercase for case-insensitive comparison
 
+	//This can be streamlined
 	if(current->next_l == NULL && current->next_m == NULL && current->next_r == NULL) {
-		printf("Next nodes are NULL, returning -1\n");
-		return -1; // If any of the next nodes are NULL, return -1
+		printf("NULL NODES\n");
+		return -9; // If any of the next nodes are NULL, return -1
 	}
+	
 
-
-	if (current->next_l->letter == char_compare) {
+	if ((current->next_l != NULL) && (current->next_l->letter == char_compare)) {
 		return Recursive_Validate(token, current->next_l, array_pos);
 	}
-	else if (current->next_m->letter == char_compare) {
+	else if ((current->next_m != NULL) && (current->next_m->letter == char_compare)) {
 		return Recursive_Validate(token, current->next_m, array_pos);
 	}
-	else if (current->next_r->letter == char_compare) {
+	else if ((current->next_l != NULL) && (current->next_r->letter == char_compare)) {
 		return Recursive_Validate(token, current->next_r, array_pos);
 	}
 
-	return -1; // If we reach here, the token is invalid
+	//Safety catch
+	printf("Invalid search");
+	return -10; // If we reach here, the token is invalid
 }
 
 void Query_Transform(char* query_string) {
@@ -224,12 +237,13 @@ void Query_Transform(char* query_string) {
 	//TESTING ARRAY 
 
 	for (int l = 0; l < 8; l++) {
-		if (total[l] >= 0) {
-			printf("Command %d: %d\n", l, total[l]);
-		}
-		else {
-			printf("Command %d: Invalid\n", l);
-		}
+		//if (total[l] >= 0) {
+		//	printf("Command %d: %d\n", l, total[l]);
+		//}
+		//else {
+		//	printf("Command %d: Invalid\n", l);
+		//}
+		printf("Command %d: %d\n", l, total[l]);
 	}
 
 
