@@ -42,6 +42,14 @@ typedef struct {
 	int series_set_size;
 } DatabaseStructure;
 
+typedef struct TrieNode {
+	struct TrieNode* next_l;
+	struct TrieNode* next_m;
+	struct TrieNode* next_r;
+	char letter;
+	int switch_case;
+} TrieNode;
+
 DatabaseStructure* Construct_Database_Structure(size_t movie_count, size_t series_count);
 
 void Insert_Movie(DatabaseStructure* db_structure, const char* title, const char* description, TCHAR* dir_pos, __int64 video_size);
@@ -52,5 +60,10 @@ void Free_Database_Structure(DatabaseStructure* db_structure);
 void Print_Movie_Table(const MovieTable* movies);
 
 void Sort_Movie_Table(DatabaseStructure* db_structure);
+
+void Insert_String_Trie(TrieNode* trie, const char* str, int switch_val);
+
+void Print_Trie(TrieNode* root, int level);	
+
 #endif // !DATABASE_STRUCTURE_H
 

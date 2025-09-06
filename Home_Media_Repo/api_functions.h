@@ -17,22 +17,11 @@ enum WhatCommands {
 	CHANGE = 1,
 	REMOVE = 3,
 	SEARCH = 4,
+	TITLE = 5,
+	DESCRIPTION = 6,
+	GENRE = 7,
+	ALL = 8
 };
-
-enum WhereCommands {
-	TITLE = 0,
-	DESCRIPTION = 1,
-	GENRE = 2,
-	ALL = 3
-};
-
-enum WhichCommands {
-
-};
-
-
-
-
 
 enum DataBaseChoices {
 	MOVIE = 0,

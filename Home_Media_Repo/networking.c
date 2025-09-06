@@ -77,7 +77,6 @@ void media_write(cJSON* title, cJSON* description, cJSON* id, cJSON* genre_ids, 
 
 	if (file == NULL) {
 		perror("error opening file");
-		fclose(file);
 		return 0;
 	}
 
@@ -301,7 +300,6 @@ bool IpAddress_Validation(const char* ip_address) {
 
 	return end;
 }
-
 
 //====================================================================================
 ////This is the main API connection function that will be used to connect to the server

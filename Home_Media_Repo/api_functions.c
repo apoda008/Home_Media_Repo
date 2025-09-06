@@ -2,9 +2,44 @@
 
 
 //WE ARE BUILDING A TRIE BABY!!!
-//HASH TABLE WOULD BE EASIER BUT I HATE MYSELF
-Trie* Build_DB_Trie(){
-	return;
+//If more conditionals are needed, add them to the TrieNode root array
+//condsidering hash table for the first char of the string command
+static TrieNode Trie_Root[8] = { 
+	{ NULL, NULL, NULL, 'S', -1}, 
+	{ NULL, NULL, NULL, 'C', -1 }, 
+	{ NULL, NULL, NULL, 'R', -1 }, 
+	{ NULL, NULL, NULL, 'S', -1 }, 
+	{ NULL, NULL, NULL, 'T', -1 }, 
+	{ NULL, NULL, NULL, 'D', -1 }, 
+	{ NULL, NULL, NULL, 'G', -1 },
+	{ NULL, NULL, NULL, '*', 8 },
+}; // Initialize the root of the Trie for each command
+
+void Build_DB_Trie(){
+	Insert_String_Trie(Trie_Root, "SELECT", SELECT);
+	Insert_String_Trie(Trie_Root, "CHANGE", CHANGE);
+	Insert_String_Trie(Trie_Root, "REMOVE", REMOVE);
+	Insert_String_Trie(Trie_Root, "SEARCH", SEARCH);
+	Insert_String_Trie(Trie_Root, "TITLE", TITLE);
+	Insert_String_Trie(Trie_Root, "DESCRIPTION", DESCRIPTION);
+	Insert_String_Trie(Trie_Root, "GENRE", GENRE);
+	
+	//The last switch case if already made in intialization
+	//Insert_String_Trie(Trie_Root, "*", ALL);	
+
+	////TEST DELETE
+	//TrieNode* test = &Trie_Root[0];
+	//for (int i = 0; i < 6; i++) {
+	//	if (test == NULL) {
+	//		printf("test @ i:%d is NULL\n", i);
+	//		return;
+	//	}
+
+	//	printf("test Char: %c\n", test->letter);
+	//	printf("test Switch Case: %d\n", test->switch_case);
+	//	
+	//	test = test->next_l; // Move to the next left node
+	//}
 }
 
 //OLD FUNCTION
@@ -83,20 +118,144 @@ cJSON* Get_All_Media(MediaData** hash_table, const char* title, size_t array_siz
 
 }
 
-int* Query_Transform(const* query_string) {
+//DONT THINK I WILL USE THIS 
+//WILL DELETE
+int Validate(const char* token) {
+	/*
+	* This function will validate the token and return an int value
+	* that will be used in the switch statement later on
+	*/ 
+	int size = strlen(token);
+
+	for(int i = 0 ; i < 8; i++) {
+		if(Trie_Root[i].letter == token[0]) {
+			//DELETE
+			//printf("Token: %s\n", token);
+			//printf("Trie Root: %c\n", Trie_Root[i].letter);
+			TrieNode* current = &Trie_Root[i];
+			for (int j = 1; j < size; j++) {
+				if( (token[j] == current->letter) && (current->switch_case > 0) && (i == size - 1) ) {
+					return current->switch_case;
+				}
+				else if (token[j] == current->letter) {
+					current = current->next_l; // Move to the next left node
+				}
+				else {
+					return -1; // Invalid token
+				}
+			}
+		}
+	} 
+}
+
+int Recursive_Validate(const char* token, TrieNode* current, int array_pos) {
+	/*
+	* This function will validate the token and return an int value
+	* that will be used in the switch statement later on
+	*/ 
+	printf("Letter of Recursive: %c\n", current->letter);
+	printf("Array Pos: %d\n", array_pos);
+	printf("Token Length: %d\n", strlen(token));
+	printf("String entered: %s\n", token);	
+	
+	//BASE CASES
+	if (current == NULL) {
+			return -1; // If the current node is NULL, return -1
+		}
+	
+	if (current->switch_case >= 0) {
+		return current->switch_case; // Return the switch case if we reach the end of the token
+	}
+
+	if( array_pos >= strlen(token) - 1) {
+		printf("Reached end of token without match, Invalid Match\n");
+		return -8; // If we reach the end of the token without finding a match, return -1
+	}
+	if( current->letter != toupper(token[array_pos]) ) {
+		printf("Current letter %c does not match token letter %c, Invalid Match\n", current->letter, token[array_pos]);
+		return -2; // If the current letter does not match the token letter, return -1
+	}
+
+	//Prepare for next recursion
+	array_pos += 1; // Move to the next character in the token
+
+	char char_compare = toupper(token[array_pos]); // Convert to uppercase for case-insensitive comparison
+
+	//This can be streamlined
+	if(current->next_l == NULL && current->next_m == NULL && current->next_r == NULL) {
+		printf("NULL NODES\n");
+		return -9; // If any of the next nodes are NULL, return -1
+	}
+	
+
+	if ((current->next_l != NULL) && (current->next_l->letter == char_compare)) {
+		return Recursive_Validate(token, current->next_l, array_pos);
+	}
+	else if ((current->next_m != NULL) && (current->next_m->letter == char_compare)) {
+		return Recursive_Validate(token, current->next_m, array_pos);
+	}
+	else if ((current->next_l != NULL) && (current->next_r->letter == char_compare)) {
+		return Recursive_Validate(token, current->next_r, array_pos);
+	}
+
+	//Safety catch
+	printf("Invalid search");
+	return -10; // If we reach here, the token is invalid
+}
+
+void Query_Transform(char* query_string) {
 	/*TODO
 	* Tansforms the query string into an int array for use later in switches
 	* this will be a long segment of code since it will have to do a lot
+	* needs to account for the string input from user ex: "SELECT TITLE FROM MOVIES WHERE TITLE = '->Inception<-'"
+	* 
 	*/
-	return 0;
+	printf("Query Transform called with: %s\n", query_string);
+	int total[8] = { -1 };
+
+	char query_string2[256] = "SELECT % TITLE % WHERE % TITLE % some string";
+
+
+	char *context = NULL;
+	char *token = strtok_s(query_string2, "%", &context);
+	printf("First token: %s\n", token);
+	
+	char comparable = toupper(token[0]); // Convert to uppercase for case-insensitive comparison
+	for (int i = 0; token != NULL; i++) {
+		printf("Iteration %d: Token: %s\n", i, token);
+		for (int j = 0; j < 8; j++) {
+			if (Trie_Root[j].letter == comparable) {
+				TrieNode* current = &Trie_Root[j];
+				total[i] = Recursive_Validate(token, current, 0);
+				printf("Transformed token: %s to command %d\n", token, total[i]);
+				break;
+			}
+		}
+		token = strtok_s(NULL, "%", &context);
+	}
+
+	//TESTING ARRAY 
+
+	for (int l = 0; l < 8; l++) {
+		//if (total[l] >= 0) {
+		//	printf("Command %d: %d\n", l, total[l]);
+		//}
+		//else {
+		//	printf("Command %d: Invalid\n", l);
+		//}
+		printf("Command %d: %d\n", l, total[l]);
+	}
+
+
+	return;
 }
 
 
-void Parse_Stage_One(DatabaseStructure* db, const char* query_string) {
+/*id Parse_Stage_One(DatabaseStructure* db, const char* query_string) {
 	int* query_array = Query_Transform(query_string);
 
 	switch (query_array)
-}
+}*/
 
 
 //OLD FUNCTION
