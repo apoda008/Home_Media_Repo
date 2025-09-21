@@ -153,26 +153,18 @@ int Recursive_Validate(const char* token, TrieNode* current, int array_pos) {
 	* This function will validate the token and return an int value
 	* that will be used in the switch statement later on
 	*/ 
-	printf("Letter of Recursive: %c\n", current->letter);
-	printf("Array Pos: %d\n", array_pos);
-	printf("Token Length: %d\n", strlen(token));
-	printf("String entered: %s\n", token);	
-	
+
 	//BASE CASES
 	if (current == NULL) {
 			return -1; // If the current node is NULL, return -1
 		}
-	
 	if (current->switch_case >= 0) {
 		return current->switch_case; // Return the switch case if we reach the end of the token
 	}
-
 	if( array_pos >= strlen(token) - 1) {
-		printf("Reached end of token without match, Invalid Match\n");
 		return -8; // If we reach the end of the token without finding a match, return -1
 	}
 	if( current->letter != toupper(token[array_pos]) ) {
-		printf("Current letter %c does not match token letter %c, Invalid Match\n", current->letter, token[array_pos]);
 		return -2; // If the current letter does not match the token letter, return -1
 	}
 
@@ -187,16 +179,6 @@ int Recursive_Validate(const char* token, TrieNode* current, int array_pos) {
 		return -9; // If any of the next nodes are NULL, return -1
 	}
 	
-
-	/*if ((current->next_l != NULL) && (current->next_l->letter == char_compare)) {
-		return Recursive_Validate(token, current->next_l, array_pos);
-	}
-	if ((current->next_m != NULL) && (current->next_m->letter == char_compare)) {
-		return Recursive_Validate(token, current->next_m, array_pos);
-	}
-	else if ((current->next_l != NULL) && (current->next_r->letter == char_compare)) {
-		return Recursive_Validate(token, current->next_r, array_pos);
-	}*/
 	
 	if(current->next_l != NULL) {
 		if(current->next_l->letter == char_compare) {
@@ -215,7 +197,7 @@ int Recursive_Validate(const char* token, TrieNode* current, int array_pos) {
 	}
 
 	//Safety catch
-	printf("String placement");
+	printf("String placement\n");
 	return -10; // If we reach here, the token is invalid
 }
 
@@ -229,8 +211,18 @@ int* Query_Transform(char* query_string) {
 	//printf("Query Transform called with: %s\n", query_string);
 	//int total[8] = { -15, -15, -15, -15, -15, -15, -15, -15 };
 
-	int* total = malloc(8 * sizeof(int));
+	if(query_string == NULL ) {
+		fprintf(stderr, "Query string is NULL\n");
+		return NULL;
+	}
 
+	int* int_array = malloc(8 * sizeof(int));
+	if (int_array == NULL) {
+		fprintf(stderr, "Memory allocation failed for int_array\n");
+		return NULL;
+	}
+
+	//DELETE
 	char query_string2[256] = "SELECT%TITLE%WHERE%TITLE%some string";
 
 	char *context = NULL;
@@ -239,26 +231,26 @@ int* Query_Transform(char* query_string) {
 	
 	
 	for (int i = 0; token != NULL; i++) {
-		printf("Iteration %d: Token: %s\n", i, token);
+		
 		char comparable = toupper(token[0]); // Convert to uppercase for case-insensitive comparison
-		printf("Comparable char: %c\n", comparable);
-		printf("String first char : %c\n", token[0]);
+		
 		for (int j = 0; j < 8; j++) {
 			if (Trie_Root[j].letter == comparable) {
-				
+				printf("i = %d\n", i);
 				TrieNode* current = &Trie_Root[j];
-				total[i] = Recursive_Validate(token, current, 0);
-				printf("Transformed token: %s to command %d\n", token, total[i]);
-				//token = strtok_s(NULL, "%", &context);
+				int_array[i] = Recursive_Validate(token, current, 0);
+				printf("total[%d] = %d\n", i, int_array[i]);
 				break;
 			}
 		}
-		if (total[i] == -15) {
+
+		//this requires initialization of the array to -15
+		if (int_array[i] == -15) {
 			//at this point we could terminate the entire query since an invalid command was found
 			//but for now we will just set it to -1. And remember that this will catch "some string"
 			//or any input that is not a command. So catches will have to implemented to catch this 
 			//if this decides to terminate here. UPDATE
-			total[i] = -1; // If no match found, set to -1 (invalid)
+			int_array[i] = -1; // If no match found, set to -1 (invalid)
 		}
 		
 		token = strtok_s(NULL, "%", &context);
@@ -267,17 +259,11 @@ int* Query_Transform(char* query_string) {
 	//TESTING ARRAY 
 
 	for (int l = 0; l < 8; l++) {
-		//if (total[l] >= 0) {
-		//	printf("Command %d: %d\n", l, total[l]);
-		//}
-		//else {
-		//	printf("Command %d: Invalid\n", l);
-		//}
-		printf("Command %d: %d\n", l, total[l]);
+		printf("Command %d: %d\n", l, int_array[l]);
 	}
 
 
-	return total;
+	return int_array;
 }
 
 

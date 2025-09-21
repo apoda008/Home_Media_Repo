@@ -54,9 +54,11 @@ int main() {
 
     
 	int* test2 = Query_Transform("nothing");
-    
-    for (int i = 0; i < 8; i++) {
-        printf("MAIN Command %d: %d\n", i, test2[i]);
-	}
+    if (test2 != NULL) {
+		printf("Returned array pointer: %p\n", test2);
+        for (int i = 0; i < 8; i++) {
+            printf("MAIN Command %d: %d\n", i, test2[i]);
+	    }
+    }
     return 0;
 }
