@@ -53,7 +53,10 @@ int main() {
 	Build_DB_Trie();
 
     
-	Query_Transform("nothing");
+	int* test2 = Query_Transform("nothing");
     
+    for (int i = 0; i < 8; i++) {
+        printf("MAIN Command %d: %d\n", i, test2[i]);
+	}
     return 0;
 }

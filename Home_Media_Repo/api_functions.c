@@ -188,49 +188,79 @@ int Recursive_Validate(const char* token, TrieNode* current, int array_pos) {
 	}
 	
 
-	if ((current->next_l != NULL) && (current->next_l->letter == char_compare)) {
+	/*if ((current->next_l != NULL) && (current->next_l->letter == char_compare)) {
 		return Recursive_Validate(token, current->next_l, array_pos);
 	}
-	else if ((current->next_m != NULL) && (current->next_m->letter == char_compare)) {
+	if ((current->next_m != NULL) && (current->next_m->letter == char_compare)) {
 		return Recursive_Validate(token, current->next_m, array_pos);
 	}
 	else if ((current->next_l != NULL) && (current->next_r->letter == char_compare)) {
 		return Recursive_Validate(token, current->next_r, array_pos);
+	}*/
+	
+	if(current->next_l != NULL) {
+		if(current->next_l->letter == char_compare) {
+			return Recursive_Validate(token, current->next_l, array_pos);
+		}
+	}
+	if (current->next_m != NULL) {
+		if (current->next_m->letter == char_compare) {
+			return Recursive_Validate(token, current->next_m, array_pos);
+		}
+	}
+	if (current->next_r != NULL) {
+		if (current->next_r->letter == char_compare) {
+			return Recursive_Validate(token, current->next_r, array_pos);
+		}
 	}
 
 	//Safety catch
-	printf("Invalid search");
+	printf("String placement");
 	return -10; // If we reach here, the token is invalid
 }
 
-void Query_Transform(char* query_string) {
+int* Query_Transform(char* query_string) {
 	/*TODO
 	* Tansforms the query string into an int array for use later in switches
 	* this will be a long segment of code since it will have to do a lot
 	* needs to account for the string input from user ex: "SELECT TITLE FROM MOVIES WHERE TITLE = '->Inception<-'"
 	* 
 	*/
-	printf("Query Transform called with: %s\n", query_string);
-	int total[8] = { -1 };
+	//printf("Query Transform called with: %s\n", query_string);
+	//int total[8] = { -15, -15, -15, -15, -15, -15, -15, -15 };
 
-	char query_string2[256] = "SELECT % TITLE % WHERE % TITLE % some string";
+	int* total = malloc(8 * sizeof(int));
 
+	char query_string2[256] = "SELECT%TITLE%WHERE%TITLE%some string";
 
 	char *context = NULL;
 	char *token = strtok_s(query_string2, "%", &context);
 	printf("First token: %s\n", token);
 	
-	char comparable = toupper(token[0]); // Convert to uppercase for case-insensitive comparison
+	
 	for (int i = 0; token != NULL; i++) {
 		printf("Iteration %d: Token: %s\n", i, token);
+		char comparable = toupper(token[0]); // Convert to uppercase for case-insensitive comparison
+		printf("Comparable char: %c\n", comparable);
+		printf("String first char : %c\n", token[0]);
 		for (int j = 0; j < 8; j++) {
 			if (Trie_Root[j].letter == comparable) {
+				
 				TrieNode* current = &Trie_Root[j];
 				total[i] = Recursive_Validate(token, current, 0);
 				printf("Transformed token: %s to command %d\n", token, total[i]);
+				//token = strtok_s(NULL, "%", &context);
 				break;
 			}
 		}
+		if (total[i] == -15) {
+			//at this point we could terminate the entire query since an invalid command was found
+			//but for now we will just set it to -1. And remember that this will catch "some string"
+			//or any input that is not a command. So catches will have to implemented to catch this 
+			//if this decides to terminate here. UPDATE
+			total[i] = -1; // If no match found, set to -1 (invalid)
+		}
+		
 		token = strtok_s(NULL, "%", &context);
 	}
 
@@ -247,7 +277,7 @@ void Query_Transform(char* query_string) {
 	}
 
 
-	return;
+	return total;
 }
 
 
