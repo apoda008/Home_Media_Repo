@@ -4,6 +4,7 @@
 //WE ARE BUILDING A TRIE BABY!!!
 //If more conditionals are needed, add them to the TrieNode root array
 //condsidering hash table for the first char of the string command
+//remember to adjust the size of the root array if more commands are added
 static TrieNode Trie_Root[8] = { 
 	{ NULL, NULL, NULL, 'S', -1}, 
 	{ NULL, NULL, NULL, 'C', -1 }, 
@@ -16,6 +17,8 @@ static TrieNode Trie_Root[8] = {
 }; // Initialize the root of the Trie for each command
 
 void Build_DB_Trie(){
+	//Builds the trie structure for the commands with the corresponding switch case values
+	//this is where you will need to add more commands if needed
 	Insert_String_Trie(Trie_Root, "SELECT", SELECT);
 	Insert_String_Trie(Trie_Root, "CHANGE", CHANGE);
 	Insert_String_Trie(Trie_Root, "REMOVE", REMOVE);
@@ -27,6 +30,7 @@ void Build_DB_Trie(){
 }
 
 //OLD FUNCTION
+//deprecated now that this is essentially done when the files are imported
 TCHAR* Video_Transcode_Mp4(TCHAR* video_path) {
 	//This will be used to transcode the video into mp4 format
 	//which is supported by the C# app
@@ -62,6 +66,7 @@ TCHAR* Video_Transcode_Mp4(TCHAR* video_path) {
 }
 
 //OLD FUNCTION
+//deprecated now that we have moved from a hash table to a trie for command parsing
 cJSON* Get_All_Media(MediaData** hash_table, const char* title, size_t array_size) {
 
 	//deprecated DELETE
@@ -208,16 +213,24 @@ int* Query_Transform(char* query_string) {
 	}
 
 	//TESTING ARRAY 
-
-	for (int l = 0; l < 8; l++) {
-		printf("Command %d: %d\n", l, int_array[l]);
-	}
-
+	//for (int l = 0; l < 8; l++) {
+	//	printf("Command %d: %d\n", l, int_array[l]);
+	//}
 
 	return int_array;
 }
 
+void Request_Parsing() {
+	/*this will call the Query_Transform function to get the int array
+	then it will use that array accross an large switch statement to
+	do the required operations. It will return a Response struct that
+	will then be transformed into JSON and sent back to the requester
+	*/
+
+}
+
 //OLD FUNCTION
+//deprecated and moved to trie tree parsing. A new switch function will be created
 cJSON* Input_String_Parsing(MediaData** hash_table, char* user_input, size_t array_size) {
 	/*
 	TODO:
@@ -310,6 +323,7 @@ cJSON* Input_String_Parsing(MediaData** hash_table, char* user_input, size_t arr
 	}
 }
 
+//to be called when a video stream is requested
 int Stream_Video(SOCKET client_socket, MediaData** hash_table, size_t array_size, char* title) {
 	
 	//Needs to check if its a valid command
