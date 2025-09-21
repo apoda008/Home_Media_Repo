@@ -52,10 +52,11 @@ int main() {
 
 	Build_DB_Trie();
 
-    
+    //int* Query_Transform(char* query_string);
 	int* test2 = Query_Transform("nothing");
     if (test2 != NULL) {
 		printf("Returned array pointer: %p\n", test2);
+		printf("test2[0]: %d\n", test2[0]);
         for (int i = 0; i < 8; i++) {
             printf("MAIN Command %d: %d\n", i, test2[i]);
 	    }

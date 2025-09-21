@@ -266,13 +266,11 @@ int* Query_Transform(char* query_string) {
 	return int_array;
 }
 
-
-/*id Parse_Stage_One(DatabaseStructure* db, const char* query_string) {
-	int* query_array = Query_Transform(query_string);
-
-	switch (query_array)
-}*/
-
+int* Query_Transform2(const char* s) {
+	int* a = malloc(8 * sizeof(int));
+	for (int i = 0;i < 8;i++) a[i] = 1000 + i;
+	return a;
+}
 
 //OLD FUNCTION
 cJSON* Input_String_Parsing(MediaData** hash_table, char* user_input, size_t array_size) {
