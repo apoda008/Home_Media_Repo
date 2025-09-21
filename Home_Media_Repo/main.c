@@ -53,7 +53,7 @@ int main() {
 	Build_DB_Trie();
 
     //int* Query_Transform(char* query_string);
-	int* test2 = Query_Transform("nothing");
+	int* test2 = Query_Transform("SELECT%TITLE%WHERE%TITLE%some string");
     if (test2 != NULL) {
 		printf("Returned array pointer: %p\n", test2);
 		printf("test2[0]: %d\n", test2[0]);

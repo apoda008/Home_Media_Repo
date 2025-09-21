@@ -24,22 +24,6 @@ void Build_DB_Trie(){
 	Insert_String_Trie(Trie_Root, "DESCRIPTION", DESCRIPTION);
 	Insert_String_Trie(Trie_Root, "GENRE", GENRE);
 	
-	//The last switch case if already made in intialization
-	//Insert_String_Trie(Trie_Root, "*", ALL);	
-
-	////TEST DELETE
-	//TrieNode* test = &Trie_Root[0];
-	//for (int i = 0; i < 6; i++) {
-	//	if (test == NULL) {
-	//		printf("test @ i:%d is NULL\n", i);
-	//		return;
-	//	}
-
-	//	printf("test Char: %c\n", test->letter);
-	//	printf("test Switch Case: %d\n", test->switch_case);
-	//	
-	//	test = test->next_l; // Move to the next left node
-	//}
 }
 
 //OLD FUNCTION
@@ -118,36 +102,6 @@ cJSON* Get_All_Media(MediaData** hash_table, const char* title, size_t array_siz
 
 }
 
-//DONT THINK I WILL USE THIS 
-//WILL DELETE
-int Validate(const char* token) {
-	/*
-	* This function will validate the token and return an int value
-	* that will be used in the switch statement later on
-	*/ 
-	int size = strlen(token);
-
-	for(int i = 0 ; i < 8; i++) {
-		if(Trie_Root[i].letter == token[0]) {
-			//DELETE
-			//printf("Token: %s\n", token);
-			//printf("Trie Root: %c\n", Trie_Root[i].letter);
-			TrieNode* current = &Trie_Root[i];
-			for (int j = 1; j < size; j++) {
-				if( (token[j] == current->letter) && (current->switch_case > 0) && (i == size - 1) ) {
-					return current->switch_case;
-				}
-				else if (token[j] == current->letter) {
-					current = current->next_l; // Move to the next left node
-				}
-				else {
-					return -1; // Invalid token
-				}
-			}
-		}
-	} 
-}
-
 int Recursive_Validate(const char* token, TrieNode* current, int array_pos) {
 	/*
 	* This function will validate the token and return an int value
@@ -162,10 +116,10 @@ int Recursive_Validate(const char* token, TrieNode* current, int array_pos) {
 		return current->switch_case; // Return the switch case if we reach the end of the token
 	}
 	if( array_pos >= strlen(token) - 1) {
-		return -8; // If we reach the end of the token without finding a match, return -1
+		return -8; // If we reach the end of the token without finding a match, return -8
 	}
 	if( current->letter != toupper(token[array_pos]) ) {
-		return -2; // If the current letter does not match the token letter, return -1
+		return -2; // If the current letter does not match the token letter, return -2
 	}
 
 	//Prepare for next recursion
@@ -178,7 +132,6 @@ int Recursive_Validate(const char* token, TrieNode* current, int array_pos) {
 		printf("NULL NODES\n");
 		return -9; // If any of the next nodes are NULL, return -1
 	}
-	
 	
 	if(current->next_l != NULL) {
 		if(current->next_l->letter == char_compare) {
@@ -208,8 +161,6 @@ int* Query_Transform(char* query_string) {
 	* needs to account for the string input from user ex: "SELECT TITLE FROM MOVIES WHERE TITLE = '->Inception<-'"
 	* 
 	*/
-	//printf("Query Transform called with: %s\n", query_string);
-	//int total[8] = { -15, -15, -15, -15, -15, -15, -15, -15 };
 
 	if(query_string == NULL ) {
 		fprintf(stderr, "Query string is NULL\n");
@@ -222,8 +173,8 @@ int* Query_Transform(char* query_string) {
 		return NULL;
 	}
 
-	//DELETE
-	char query_string2[256] = "SELECT%TITLE%WHERE%TITLE%some string";
+	char query_string2[256];
+	memcpy_s(query_string2, sizeof(query_string2), query_string, strlen(query_string) + 1);
 
 	char *context = NULL;
 	char *token = strtok_s(query_string2, "%", &context);
@@ -264,12 +215,6 @@ int* Query_Transform(char* query_string) {
 
 
 	return int_array;
-}
-
-int* Query_Transform2(const char* s) {
-	int* a = malloc(8 * sizeof(int));
-	for (int i = 0;i < 8;i++) a[i] = 1000 + i;
-	return a;
 }
 
 //OLD FUNCTION
