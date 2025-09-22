@@ -353,8 +353,8 @@ void Api_Connection(MediaData** hash_table, size_t array_size) {
 
 	bool close = false;
 	while (1) {
-		//WTF IS IS EVEN SOMAXCONN
-		//WHY DOES WINDOWS SUCK ASS TO CODE IN???
+		//this function will need to be adjusted to allow for multiple connections
+
 		listen(database_socket, SOMAXCONN);
 
 		printf("Database Listening.. \n\n");

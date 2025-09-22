@@ -4,6 +4,7 @@
 //WE ARE BUILDING A TRIE BABY!!!
 //If more conditionals are needed, add them to the TrieNode root array
 //condsidering hash table for the first char of the string command
+//remember to adjust the size of the root array if more commands are added
 static TrieNode Trie_Root[8] = { 
 	{ NULL, NULL, NULL, 'S', -1}, 
 	{ NULL, NULL, NULL, 'C', -1 }, 
@@ -16,6 +17,8 @@ static TrieNode Trie_Root[8] = {
 }; // Initialize the root of the Trie for each command
 
 void Build_DB_Trie(){
+	//Builds the trie structure for the commands with the corresponding switch case values
+	//this is where you will need to add more commands if needed
 	Insert_String_Trie(Trie_Root, "SELECT", SELECT);
 	Insert_String_Trie(Trie_Root, "CHANGE", CHANGE);
 	Insert_String_Trie(Trie_Root, "REMOVE", REMOVE);
@@ -24,25 +27,10 @@ void Build_DB_Trie(){
 	Insert_String_Trie(Trie_Root, "DESCRIPTION", DESCRIPTION);
 	Insert_String_Trie(Trie_Root, "GENRE", GENRE);
 	
-	//The last switch case if already made in intialization
-	//Insert_String_Trie(Trie_Root, "*", ALL);	
-
-	////TEST DELETE
-	//TrieNode* test = &Trie_Root[0];
-	//for (int i = 0; i < 6; i++) {
-	//	if (test == NULL) {
-	//		printf("test @ i:%d is NULL\n", i);
-	//		return;
-	//	}
-
-	//	printf("test Char: %c\n", test->letter);
-	//	printf("test Switch Case: %d\n", test->switch_case);
-	//	
-	//	test = test->next_l; // Move to the next left node
-	//}
 }
 
 //OLD FUNCTION
+//deprecated now that this is essentially done when the files are imported
 TCHAR* Video_Transcode_Mp4(TCHAR* video_path) {
 	//This will be used to transcode the video into mp4 format
 	//which is supported by the C# app
@@ -78,6 +66,7 @@ TCHAR* Video_Transcode_Mp4(TCHAR* video_path) {
 }
 
 //OLD FUNCTION
+//deprecated now that we have moved from a hash table to a trie for command parsing
 cJSON* Get_All_Media(MediaData** hash_table, const char* title, size_t array_size) {
 
 	//deprecated DELETE
@@ -118,62 +107,24 @@ cJSON* Get_All_Media(MediaData** hash_table, const char* title, size_t array_siz
 
 }
 
-//DONT THINK I WILL USE THIS 
-//WILL DELETE
-int Validate(const char* token) {
-	/*
-	* This function will validate the token and return an int value
-	* that will be used in the switch statement later on
-	*/ 
-	int size = strlen(token);
-
-	for(int i = 0 ; i < 8; i++) {
-		if(Trie_Root[i].letter == token[0]) {
-			//DELETE
-			//printf("Token: %s\n", token);
-			//printf("Trie Root: %c\n", Trie_Root[i].letter);
-			TrieNode* current = &Trie_Root[i];
-			for (int j = 1; j < size; j++) {
-				if( (token[j] == current->letter) && (current->switch_case > 0) && (i == size - 1) ) {
-					return current->switch_case;
-				}
-				else if (token[j] == current->letter) {
-					current = current->next_l; // Move to the next left node
-				}
-				else {
-					return -1; // Invalid token
-				}
-			}
-		}
-	} 
-}
-
 int Recursive_Validate(const char* token, TrieNode* current, int array_pos) {
 	/*
 	* This function will validate the token and return an int value
 	* that will be used in the switch statement later on
 	*/ 
-	printf("Letter of Recursive: %c\n", current->letter);
-	printf("Array Pos: %d\n", array_pos);
-	printf("Token Length: %d\n", strlen(token));
-	printf("String entered: %s\n", token);	
-	
+
 	//BASE CASES
 	if (current == NULL) {
 			return -1; // If the current node is NULL, return -1
 		}
-	
 	if (current->switch_case >= 0) {
 		return current->switch_case; // Return the switch case if we reach the end of the token
 	}
-
 	if( array_pos >= strlen(token) - 1) {
-		printf("Reached end of token without match, Invalid Match\n");
-		return -8; // If we reach the end of the token without finding a match, return -1
+		return -8; // If we reach the end of the token without finding a match, return -8
 	}
 	if( current->letter != toupper(token[array_pos]) ) {
-		printf("Current letter %c does not match token letter %c, Invalid Match\n", current->letter, token[array_pos]);
-		return -2; // If the current letter does not match the token letter, return -1
+		return -2; // If the current letter does not match the token letter, return -2
 	}
 
 	//Prepare for next recursion
@@ -187,78 +138,122 @@ int Recursive_Validate(const char* token, TrieNode* current, int array_pos) {
 		return -9; // If any of the next nodes are NULL, return -1
 	}
 	
-
-	if ((current->next_l != NULL) && (current->next_l->letter == char_compare)) {
-		return Recursive_Validate(token, current->next_l, array_pos);
+	if(current->next_l != NULL) {
+		if(current->next_l->letter == char_compare) {
+			return Recursive_Validate(token, current->next_l, array_pos);
+		}
 	}
-	else if ((current->next_m != NULL) && (current->next_m->letter == char_compare)) {
-		return Recursive_Validate(token, current->next_m, array_pos);
+	if (current->next_m != NULL) {
+		if (current->next_m->letter == char_compare) {
+			return Recursive_Validate(token, current->next_m, array_pos);
+		}
 	}
-	else if ((current->next_l != NULL) && (current->next_r->letter == char_compare)) {
-		return Recursive_Validate(token, current->next_r, array_pos);
+	if (current->next_r != NULL) {
+		if (current->next_r->letter == char_compare) {
+			return Recursive_Validate(token, current->next_r, array_pos);
+		}
 	}
 
 	//Safety catch
-	printf("Invalid search");
+	printf("String placement\n");
 	return -10; // If we reach here, the token is invalid
 }
 
-void Query_Transform(char* query_string) {
+int* Query_Transform(char* query_string) {
 	/*TODO
 	* Tansforms the query string into an int array for use later in switches
 	* this will be a long segment of code since it will have to do a lot
 	* needs to account for the string input from user ex: "SELECT TITLE FROM MOVIES WHERE TITLE = '->Inception<-'"
 	* 
 	*/
-	printf("Query Transform called with: %s\n", query_string);
-	int total[8] = { -1 };
 
-	char query_string2[256] = "SELECT % TITLE % WHERE % TITLE % some string";
+	if(query_string == NULL ) {
+		fprintf(stderr, "Query string is NULL\n");
+		return NULL;
+	}
 
+	int* int_array = malloc(8 * sizeof(int));
+	if (int_array == NULL) {
+		fprintf(stderr, "Memory allocation failed for int_array\n");
+		return NULL;
+	}
+
+	char query_string2[256];
+	memcpy_s(query_string2, sizeof(query_string2), query_string, strlen(query_string) + 1);
 
 	char *context = NULL;
 	char *token = strtok_s(query_string2, "%", &context);
 	printf("First token: %s\n", token);
 	
-	char comparable = toupper(token[0]); // Convert to uppercase for case-insensitive comparison
+	
 	for (int i = 0; token != NULL; i++) {
-		printf("Iteration %d: Token: %s\n", i, token);
+		
+		char comparable = toupper(token[0]); // Convert to uppercase for case-insensitive comparison
+		
 		for (int j = 0; j < 8; j++) {
 			if (Trie_Root[j].letter == comparable) {
+				printf("i = %d\n", i);
 				TrieNode* current = &Trie_Root[j];
-				total[i] = Recursive_Validate(token, current, 0);
-				printf("Transformed token: %s to command %d\n", token, total[i]);
+				int_array[i] = Recursive_Validate(token, current, 0);
+				printf("total[%d] = %d\n", i, int_array[i]);
 				break;
 			}
 		}
+
+		//this requires initialization of the array to -15
+		if (int_array[i] == -15) {
+			//at this point we could terminate the entire query since an invalid command was found
+			//but for now we will just set it to -1. And remember that this will catch "some string"
+			//or any input that is not a command. So catches will have to implemented to catch this 
+			//if this decides to terminate here. UPDATE
+			int_array[i] = -1; // If no match found, set to -1 (invalid)
+		}
+		
 		token = strtok_s(NULL, "%", &context);
 	}
 
 	//TESTING ARRAY 
+	//for (int l = 0; l < 8; l++) {
+	//	printf("Command %d: %d\n", l, int_array[l]);
+	//}
 
-	for (int l = 0; l < 8; l++) {
-		//if (total[l] >= 0) {
-		//	printf("Command %d: %d\n", l, total[l]);
-		//}
-		//else {
-		//	printf("Command %d: Invalid\n", l);
-		//}
-		printf("Command %d: %d\n", l, total[l]);
+	return int_array;
+}
+
+void Request_Parsing(int* parsed_array) {
+	/*this will call the Query_Transform function to get the int array
+	then it will use that array accross an large switch statement to
+	do the required operations. It will return a Response struct that
+	will then be transformed into JSON and sent back to the requester
+	*/
+
+	//Stage one 
+	switch (parsed_array[0]) {
+	case SELECT:
+		//do thing
+		break;
+	case CHANGE:
+		//do thing
+		break;
+	case REMOVE:
+		//do thing
+		break;
+	case SEARCH:
+		//do thing
+		break;
+	case -1:
+		printf("Invalid command in query\n");
+		break;
+	default:
+		printf("Unhandled command in query\n");
+		break;
 	}
 
 
-	return;
 }
 
-
-/*id Parse_Stage_One(DatabaseStructure* db, const char* query_string) {
-	int* query_array = Query_Transform(query_string);
-
-	switch (query_array)
-}*/
-
-
 //OLD FUNCTION
+//deprecated and moved to trie tree parsing. A new switch function will be created
 cJSON* Input_String_Parsing(MediaData** hash_table, char* user_input, size_t array_size) {
 	/*
 	TODO:
@@ -351,6 +346,7 @@ cJSON* Input_String_Parsing(MediaData** hash_table, char* user_input, size_t arr
 	}
 }
 
+//to be called when a video stream is requested
 int Stream_Video(SOCKET client_socket, MediaData** hash_table, size_t array_size, char* title) {
 	
 	//Needs to check if its a valid command
