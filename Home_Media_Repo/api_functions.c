@@ -220,12 +220,35 @@ int* Query_Transform(char* query_string) {
 	return int_array;
 }
 
-void Request_Parsing() {
+void Request_Parsing(int* parsed_array) {
 	/*this will call the Query_Transform function to get the int array
 	then it will use that array accross an large switch statement to
 	do the required operations. It will return a Response struct that
 	will then be transformed into JSON and sent back to the requester
 	*/
+
+	//Stage one 
+	switch (parsed_array[0]) {
+	case SELECT:
+		//do thing
+		break;
+	case CHANGE:
+		//do thing
+		break;
+	case REMOVE:
+		//do thing
+		break;
+	case SEARCH:
+		//do thing
+		break;
+	case -1:
+		printf("Invalid command in query\n");
+		break;
+	default:
+		printf("Unhandled command in query\n");
+		break;
+	}
+
 
 }
 
