@@ -231,6 +231,18 @@ void Request_Parsing(int* parsed_array) {
 	switch (parsed_array[0]) {
 	case SELECT:
 		//do thing
+		switch (parsed_array[1]) {
+			case TITLE:
+				//do thing
+				break;
+			case DESCRIPTION:
+				//do thing
+				break;
+			case GENRE:
+				//do thing
+				break;
+		}
+
 		break;
 	case CHANGE:
 		//do thing
