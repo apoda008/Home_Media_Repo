@@ -5,7 +5,7 @@
 //If more conditionals are needed, add them to the TrieNode root array
 //condsidering hash table for the first char of the string command
 //remember to adjust the size of the root array if more commands are added
-static TrieNode Trie_Root[8] = { 
+static TrieNode Trie_Root[12] = { 
 	{ NULL, NULL, NULL, 'S', -1}, 
 	{ NULL, NULL, NULL, 'C', -1 }, 
 	{ NULL, NULL, NULL, 'R', -1 }, 
@@ -13,7 +13,11 @@ static TrieNode Trie_Root[8] = {
 	{ NULL, NULL, NULL, 'T', -1 }, 
 	{ NULL, NULL, NULL, 'D', -1 }, 
 	{ NULL, NULL, NULL, 'G', -1 },
-	{ NULL, NULL, NULL, '*', 8 },
+	{ NULL, NULL, NULL, '*',  8 },
+	{ NULL, NULL, NULL, 'W', -1 },
+	{ NULL, NULL, NULL, 'F', -1 },
+	{ NULL, NULL, NULL, 'E', -1 },
+	{ NULL, NULL, NULL, 'A', -1 }
 }; // Initialize the root of the Trie for each command
 
 void Build_DB_Trie(){
@@ -27,6 +31,10 @@ void Build_DB_Trie(){
 	Insert_String_Trie(Trie_Root, "DESCRIPTION", DESCRIPTION);
 	Insert_String_Trie(Trie_Root, "GENRE", GENRE);
 	
+	Insert_String_Trie(Trie_Root, "ALL", ALL);
+	Insert_String_Trie(Trie_Root, "WHERE", WHERE);
+	Insert_String_Trie(Trie_Root, "FROM", FROM);
+	Insert_String_Trie(Trie_Root, "EQUALS", EQUALS);
 }
 
 //OLD FUNCTION
@@ -204,8 +212,8 @@ int* Query_Transform(char* query_string) {
 		if (int_array[i] == -15) {
 			//at this point we could terminate the entire query since an invalid command was found
 			//but for now we will just set it to -1. And remember that this will catch "some string"
-			//or any input that is not a command. So catches will have to implemented to catch this 
-			//if this decides to terminate here. UPDATE
+			//or any input that is not a command. So catches will have to implemented to catch the  
+			//"some string" inputs if this decides to terminate here. UPDATE
 			int_array[i] = -1; // If no match found, set to -1 (invalid)
 		}
 		
@@ -226,11 +234,47 @@ void Request_Parsing(int* parsed_array) {
 	do the required operations. It will return a Response struct that
 	will then be transformed into JSON and sent back to the requester
 	*/
+	int* parsed_int_array = Query_Transform(parsed_array);
+
+	if (parsed_array == NULL) {
+		printf("Parsed array is NULL\n");
+		return; //return object will go here
+	}
 
 	//Stage one 
 	switch (parsed_array[0]) {
 	case SELECT:
 		//do thing
+		switch (parsed_array[1]) {
+			case TITLE:
+				switch(parsed_array[2]) {
+					case WHERE:
+						switch (parsed_array[3]) {
+							case TITLE:
+								//do thing
+								break;
+							case DESCRIPTION:
+								//do thing
+								break;
+							case GENRE:
+								//do thing
+								break;
+						}
+						break;
+					case ALL:
+						//do thing
+						break;
+				}
+				//do thing
+				break;
+			case DESCRIPTION:
+				//do thing
+				break;
+			case GENRE:
+				//do thing
+				break;
+		}
+
 		break;
 	case CHANGE:
 		//do thing

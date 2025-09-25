@@ -12,21 +12,75 @@ typedef struct {
 } Trie;
 
 
-enum WhatCommands {
+//enum WhatCommands {
+//	SELECT = 0,
+//	CHANGE = 1,
+//	REMOVE = 3,
+//	SEARCH = 4,
+//	TITLE = 5,
+//	DESCRIPTION = 6,
+//	GENRE = 7,
+//	ALL = 8
+//};
+
+//Command -> what you want to do
+enum Command {
 	SELECT = 0,
 	CHANGE = 1,
-	REMOVE = 3,
-	SEARCH = 4,
+	REMOVE = 2,
+	SEARCH = 3,
+	MOVIE = 4
+};
+
+enum Target {
 	TITLE = 5,
 	DESCRIPTION = 6,
 	GENRE = 7,
 	ALL = 8
 };
 
-enum DataBaseChoices {
-	MOVIE = 0,
-	SERIES = 1
+enum Source {
+	WHERE = 9,
+	//HAVING = 10, //maybe later
+	FROM = 11, //maybe later
+	//JOIN = 12, //maybe later
 };
+
+enum Options {
+	EQUALS = 13,
+	LESSTHAN = 14,
+	GREATERTHAN = 15,
+	LIKE = 16,
+	//BETWEEN = 17, //maybe later
+	//IN = 18, //maybe later
+	//ISNULL = 19, //maybe later
+	//ISNOTNULL = 20, //maybe later
+	ORDERBY = 21,
+	GROUPBY = 22,
+	ASCENDING = 23,
+	DESCENDING = 24
+};
+
+//Target -> what objects/tables/columns you want to affect
+//Source/Conditions -> Where the data comes from or rules applied
+//Options/Clauses -> Extra modifiers
+/*
+* 
+* Example SQL query:
+* SELECT column1, column2
+* FROM table_name
+* WHERE condition
+* GROUP BY column1
+* HAVING COUNT(*) > 1
+* ORDER BY column2 DESC;
+*
+*/
+
+
+//enum DataBaseChoices {
+//	//MOVIE = 0,
+//	//SERIES = 1
+//};
 
 //void VideoTest(SOCKET client_socket);
 
