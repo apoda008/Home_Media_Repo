@@ -77,10 +77,10 @@ enum Options {
 */
 
 
-enum DataBaseChoices {
-	//MOVIE = 0,
-	//SERIES = 1
-};
+//enum DataBaseChoices {
+//	//MOVIE = 0,
+//	//SERIES = 1
+//};
 
 //void VideoTest(SOCKET client_socket);
 

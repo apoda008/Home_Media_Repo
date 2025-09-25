@@ -234,7 +234,7 @@ void Request_Parsing(int* parsed_array) {
 	do the required operations. It will return a Response struct that
 	will then be transformed into JSON and sent back to the requester
 	*/
-	int* parsed_array = Query_Transform(parsed_array);
+	int* parsed_int_array = Query_Transform(parsed_array);
 
 	if (parsed_array == NULL) {
 		printf("Parsed array is NULL\n");
