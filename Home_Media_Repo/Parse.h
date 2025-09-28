@@ -3,9 +3,11 @@
 #define PARSE_H
 
 #include <ctype.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 typedef struct parse_node {
-	parse_node map_array[26];
+	parse_node* map_array;
 	int value;
 } parse_node;
 

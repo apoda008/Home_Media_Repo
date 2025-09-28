@@ -1,6 +1,10 @@
 #include "Parse.h"
 
-void Add_Parse_Word(parse_node* head, const char* str, int val) {
+void test_unit_initalize() {
+
+}
+
+parse_node* Add_Parse_Word(parse_node* head, const char* str, int val) {
 	parse_node* current = head;
 	
 	for (int i = 0; i < strlen(str); i++) {
@@ -22,7 +26,36 @@ void Add_Parse_Word(parse_node* head, const char* str, int val) {
 
 }
 
+parse_node* initialize_parse_tree() {
+	parse_node* head = calloc(1, sizeof(parse_node));
+	if (head == NULL) {
+		printf("error\n");
+		return NULL;
+	}
+	head->map_array = calloc(26, sizeof(parse_node)); // Allocate array for 26 letters
+	if (head->map_array == NULL) {
+		printf("error\n");
+		free(head);
+		return NULL;
+	}
+
+	Add_Parse_Node(head, "SELECT", 0);
+	Add_Parse_Node(head, "CHANGE", 1);
+	Add_Parse_Node(head, "REMOVE", 2);
+	Add_Parse_Node(head, "SEARCH", 3);
+	Add_Parse_Node(head, "TITLE", 4);
+	Add_Parse_Node(head, "DESCRIPTION", 5);
+	Add_Parse_Node(head, "GENRE", 6);
+	Add_Parse_Node(head, "ALL", 7);
+	Add_Parse_Node(head, "WHERE", 8);
+	Add_Parse_Node(head, "FROM", 9);
+	Add_Parse_Node(head, "EQUALS", 10);
+
+}
+
 
 //TEST REGION
-
-parse_node head = { -1 };
+void test_unit() {
+	initialize_parse_tree();
+	test_unit_initalize();
+}
