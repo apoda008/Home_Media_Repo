@@ -1,17 +1,13 @@
 #include "Parse.h"
 
-void test_unit_initalize(parse_node* test) {
-	int i = 0;
-	while (1) {
-		if (test->map_array[i].value != 0) {
-			printf("Index: %d, Value: %d\n", i, test->map_array[i].value);
-			i++;
+void test_unit_print(parse_node* test) {
+	for (int i = 0; i < 26; i++) {
+		if (test->map_array[i].value != NULL) {
+			printf("%s", (char*) i);
+			test_unit_initalize(&test->map_array[i]);
 		}
-		else {
-			break;
-		}
-
 	}
+	return;
 }
 
 void Add_Parse_Word(parse_node* head, const char* str, int val) {
@@ -41,7 +37,7 @@ void Add_Parse_Word(parse_node* head, const char* str, int val) {
 				return NULL;
 			}
 
-			current->map_array[index] = new_node;
+			current->map_array[index] = *new_node;
 
 			current->value = -1; // Intermediate node
 		}
@@ -60,7 +56,7 @@ parse_node* initialize_parse_tree() {
 		printf("error\n");
 		return NULL;
 	}
-	head->map_array = calloc(26, sizeof(parse_node)); // Allocate array for 26 letters
+	head->map_array = (parse_node*)calloc(26, sizeof(parse_node)); // Allocate array for 26 letters
 	if (head->map_array == NULL) {
 		printf("error\n");
 		free(head);
@@ -89,6 +85,6 @@ void test_unit() {
 		printf("error\n");
 		return;
 	}
-	test_unit_initalize(test);
+	test_unit_print(test);
 
 }
