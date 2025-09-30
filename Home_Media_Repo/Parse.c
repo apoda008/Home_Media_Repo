@@ -107,6 +107,17 @@ parse_node* initialize_parse_tree() {
 	return head;
 }
 
+void Free_Parse_Tree(parse_node* head) {
+	if (head == NULL) {
+		return;
+	}
+	for (int i = 0; i < 26; i++) {
+		if (head->map_array[i] != NULL) {
+			Free_Parse_Tree(head->map_array[i]);
+		}
+	}
+	free(head);
+}
 
 //TEST REGION
 void test_unit() {

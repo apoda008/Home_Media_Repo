@@ -70,4 +70,6 @@ parse_node* initialize_parse_tree();
 
 void test_unit();
 
+void Free_Parse_Tree(parse_node* head);
+
 #endif
