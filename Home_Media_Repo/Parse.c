@@ -1,51 +1,60 @@
 #include "Parse.h"
 
-void test_unit_print(parse_node* test) {
-	for (int i = 0; i < 26; i++) {
-		if (test->map_array[i].value != NULL) {
-			printf("%s", (char*) i);
-			test_unit_initalize(&test->map_array[i]);
+int Does_Command_Exist(parse_node* head, const char* str) {
+	parse_node* current = head;
+	for (int i = 0; i < strlen(str); i++) {
+		int index = toupper(str[i]); // Calculate index based on first character
+		if (index < 'A' || index > 'Z') {
+			printf("Char out of bounds error\n");
+			return -1; // Invalid character
 		}
+		index -= 65; // Normalize to 0-25
+		
+		if (current->map_array[index] == NULL) {
+			// If the node doesn't exist, the word is not in the tree
+			return -1;
+		}
+		if (i == strlen(str) - 1) {
+			// If it's the last character, return the value
+			return current->value;
+		}
+		current = current->map_array[index]; // Move to the next node
 	}
-	return;
+	return -1; // Word not found
 }
 
 void Add_Parse_Word(parse_node* head, const char* str, int val) {
 	parse_node* current = head;
 	
 	for (int i = 0; i < strlen(str); i++) {
-		if (str[i] < 'A' || str[i] > 'Z') {
-			printf("error\n");
-			return NULL; // Invalid character
-		}
 
-		int index = toupper(str[i]) - 65; // Calculate index based on character
+		int index = toupper(str[i]); // Calculate index based on first character
+
+		if (index < 'A' || index > 'Z') {
+			printf("Char out of bounds error\n");
+			return; // Invalid character
+		}
 		
-		if (current->map_array[index].value == 0 && current->map_array[index].map_array[0].value == 0) {
-			
+		index -= 65; // Normalize to 0-25
+
+		if (current->map_array[index] == NULL) {
 			// If the node doesn't exist, create it
 			parse_node* new_node = calloc(1, sizeof(parse_node));
 			if (new_node == NULL) {
-				printf("error\n");
-				return NULL;
+				printf("Node creation error\n");
+				return;
 			}
-			new_node->map_array = calloc(26, sizeof(parse_node)); // Allocate array for 26 letters
-			
-			if (new_node->map_array == NULL) {
-				printf("error\n");
-				free(new_node);
-				return NULL;
-			}
-
-			current->map_array[index] = *new_node;
-
+			current->map_array[index] = new_node;
 			current->value = -1; // Intermediate node
 		}
+
 		if (i == strlen(str) - 1) {
 			// If it's the last character, set the value
 			current->value = val;
-		}
-		current = &current->map_array[index]; // Move to the next node
+			printf("Set value %d for word %s\n", val, str);
+		}	
+
+		current = current->map_array[index]; // Move to the next node
 	}
 
 }
@@ -56,25 +65,46 @@ parse_node* initialize_parse_tree() {
 		printf("error\n");
 		return NULL;
 	}
-	head->map_array = (parse_node*)calloc(26, sizeof(parse_node)); // Allocate array for 26 letters
+
+	for (int i = 0; i < 26; i++) {
+		//head->map_array[i].value = -1;
+		head->map_array[i] = NULL;
+	}
+
+	head->value = -1; // Root node
+	
+	//head->map_array = (parse_node*)calloc(26, sizeof(parse_node)); // Allocate array for 26 letters
 	if (head->map_array == NULL) {
 		printf("error\n");
 		free(head);
 		return NULL;
 	}
 
-	Add_Parse_Node(head, "SELECT", 0);
-	Add_Parse_Node(head, "CHANGE", 1);
-	Add_Parse_Node(head, "REMOVE", 2);
-	Add_Parse_Node(head, "SEARCH", 3);
-	Add_Parse_Node(head, "TITLE", 4);
-	Add_Parse_Node(head, "DESCRIPTION", 5);
-	Add_Parse_Node(head, "GENRE", 6);
-	Add_Parse_Node(head, "ALL", 7);
-	Add_Parse_Node(head, "WHERE", 8);
-	Add_Parse_Node(head, "FROM", 9);
-	Add_Parse_Node(head, "EQUALS", 10);
+	Add_Parse_Word(head, "SELECT", SELECT);
+	Add_Parse_Word(head, "CHANGE", CHANGE);
+	Add_Parse_Word(head, "REMOVE", REMOVE);
+	Add_Parse_Word(head, "SEARCH", SEARCH);
+	Add_Parse_Word(head, "MOVIE", MOVIE);
 
+	Add_Parse_Word(head, "TITLE", TITLE);
+	Add_Parse_Word(head, "DESCRIPTION", DESCRIPTION);
+	Add_Parse_Word(head, "GENRE", GENRE);
+	Add_Parse_Word(head, "ALL", ALL);
+	
+	Add_Parse_Word(head, "WHERE", WHERE);
+	Add_Parse_Word(head, "FROM", FROM);
+	
+	Add_Parse_Word(head, "EQUALS", EQUALS);
+	Add_Parse_Word(head, "LESSTHAN", LESSTHAN);
+	Add_Parse_Word(head, "GREATERTHAN", GREATERTHAN);
+	Add_Parse_Word(head, "LIKE", LIKE);
+	Add_Parse_Word(head, "ORDERBY", ORDERBY);
+	Add_Parse_Word(head, "GROUPBY", GROUPBY);
+	Add_Parse_Word(head, "ASCENDING", ASCENDING);	
+	Add_Parse_Word(head, "DESCENDING", DESCENDING);
+	
+	printf("Parse tree initialized successfully.\n");
+	return head;
 }
 
 
@@ -85,6 +115,10 @@ void test_unit() {
 		printf("error\n");
 		return;
 	}
-	test_unit_print(test);
+	
+	int result = Does_Command_Exist(test, "from");
+	printf("Result for SELECT: %d\n", result);
+
+	
 
 }
