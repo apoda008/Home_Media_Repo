@@ -1,18 +1,46 @@
 #include "Parse.h"
 
-void test_unit_initalize() {
+void test_unit_initalize(parse_node* test) {
+	int i = 0;
+	while (1) {
+		if (test->map_array[i].value != 0) {
+			printf("Index: %d, Value: %d\n", i, test->map_array[i].value);
+			i++;
+		}
+		else {
+			break;
+		}
 
+	}
 }
 
-parse_node* Add_Parse_Word(parse_node* head, const char* str, int val) {
+void Add_Parse_Word(parse_node* head, const char* str, int val) {
 	parse_node* current = head;
 	
 	for (int i = 0; i < strlen(str); i++) {
+		if (str[i] < 'A' || str[i] > 'Z') {
+			printf("error\n");
+			return NULL; // Invalid character
+		}
+
 		int index = toupper(str[i]) - 65; // Calculate index based on character
+		
 		if (current->map_array[index].value == 0 && current->map_array[index].map_array[0].value == 0) {
 			
 			// If the node doesn't exist, create it
-			parse_node new_node = { 0 };
+			parse_node* new_node = calloc(1, sizeof(parse_node));
+			if (new_node == NULL) {
+				printf("error\n");
+				return NULL;
+			}
+			new_node->map_array = calloc(26, sizeof(parse_node)); // Allocate array for 26 letters
+			
+			if (new_node->map_array == NULL) {
+				printf("error\n");
+				free(new_node);
+				return NULL;
+			}
+
 			current->map_array[index] = new_node;
 
 			current->value = -1; // Intermediate node
@@ -56,6 +84,11 @@ parse_node* initialize_parse_tree() {
 
 //TEST REGION
 void test_unit() {
-	initialize_parse_tree();
-	test_unit_initalize();
+	parse_node* test = initialize_parse_tree();
+	if(test == NULL) {
+		printf("error\n");
+		return;
+	}
+	test_unit_initalize(test);
+
 }
