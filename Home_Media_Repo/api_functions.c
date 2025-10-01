@@ -2,27 +2,58 @@
 
 static char title_str[256];
 
-void Select(int enum_designation_obj, int enum_target) {
-	if(TITLE == enum_target) {
-		//do thing
-		printf("Selected title\n");
+void Grab_Item(MovieTable* movies_table, int enum_target) {
+	
+}
+
+void Select(MovieTable* movies_table, int enum_target, int enum_designation_obj, int source) {
+	switch (enum_target)
+	{
+	case TITLE:
+		switch (enum_designation_obj) 
+		{
+		case WHERE:
+			case EQUALS:
+				//Take movie/ID/GENRE and grab requested data
+				
+
+
+				//Will implement later
+				break;
+			case LIKE:
+				//do thing
+				//Will implement later
+				break;
+			case LESSTHAN:
+				//do thing
+				//Will implement later
+				break;
+			case GREATERTHAN:
+				//do thing
+				//Will implement later
+				break;
+				/*=======DEFAULTS//ERRORS============*/
+			case -1:
+				printf("Invalid command in query\n");
+				break;
+			default:
+				printf("Unhandled command in query\n");
+				break;
+		}
+			break;
+		case FROM:
+			//do thing
+			//Will implement later
+			break;
+			/*=======DEFAULTS//ERRORS============*/
+		case -1:
+			printf("Invalid command in query\n");
+			break;
+		default:
+			printf("Unhandled command in query\n");
+			break;
+	break;
 	}
-	else if (DESCRIPTION == enum_target) {
-		//do thing
-		printf("Selected description\n");
-	}
-	else if (GENRE == enum_target) {
-		//do thing
-		printf("Selected genre\n");
-	}
-	else if(ID == enum_target) {
-		printf("Selected ID\n");
-		//do thing
-	}
-	else {
-		printf("Invalid target for select\n");
-	}
-	return;
 }
 
 int* Query_Transform(parse_node* head, const char* query_string) {
@@ -94,96 +125,7 @@ void Request_Parsing(parse_node* head, const char* db_request) {
 	switch (parsed_array[0]) {
 	case SELECT:
 		//do thing
-		switch (parsed_array[1]) {
-			case TITLE:
-				switch(parsed_array[2]) {
-					case WHERE:
-						switch (parsed_array[3]) {
-						case TITLE:
-							switch (parsed_array[4]) {
-								case EQUALS:
-									//FOR MOST QUERIES AT THIS TIME, THIS IS WHERE IT WILL END
-									//parsed_array[5] will be the string to search for
-									printf("Got to equals with string: %s\n", title_str);
-
-									break;
-								case LESSTHAN:
-									//do thing
-									break;
-								case GREATERTHAN:
-									//do thing
-									break;
-								case LIKE:
-									//do thing
-									break;
-								case ORDERBY:
-									//do thing
-									break;
-								case GROUPBY:
-									//do thing
-									break;
-								case ASCENDING:
-									//do thing
-									break;
-								case DESCENDING:
-									//do thing
-									break;
-								/*=======DEFAULTS//ERRORS============*/
-								case -1:
-									printf("Invalid command in query\n");
-									break;
-								default:
-									printf("Unhandled command in query\n");
-									break;
-							
-							}
-
-								break;
-							case DESCRIPTION:
-								//do thing
-								break;
-							case GENRE:
-								//do thing
-								break;
-							/*=======DEFAULTS//ERRORS============*/
-							case -1:
-								printf("Invalid command in query\n");
-								break;
-							default:
-								printf("Unhandled command in query\n");
-								break;
-						}
-
-						break;
-					case ALL:
-						//do thing
-						break;
-					/*=======DEFAULTS//ERRORS============*/
-					case -1:
-						printf("Invalid command in query\n");
-						break;
-					default:
-						printf("Unhandled command in query\n");
-						break;
-				}
-
-				//do thing
-				break;
-			case DESCRIPTION:
-				//do thing
-				break;
-			case GENRE:
-				//do thing
-				break;
-			/*=======DEFAULTS//ERRORS============*/
-			case -1:
-				printf("Invalid command in query\n");
-				break;
-			default:
-				printf("Unhandled command in query\n");
-				break;
-		}
-
+		Select(parsed_array[1], parsed_array[2], 0);
 		break;
 	case CHANGE:
 		//do thing

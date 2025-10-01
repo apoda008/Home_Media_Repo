@@ -25,4 +25,7 @@ void Request_Parsing(parse_node* head, const char* db_request);
 
 int Stream_Video(SOCKET client_socket, MediaData** hash_table, size_t array_size, char* title);
 
+void Select(MovieTable* movies_table, int target, int source, int options);
+
+void Grab_Item(int enum_target);
 #endif // !API_FUNCTIONS_H
