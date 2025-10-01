@@ -77,8 +77,8 @@ int main() {
        return 0;
     */
 	parse_node* test = initialize_parse_tree();
-	int* query_string = Query_Transform(test, "SELECT%TITLE%WHERE%TITLE%EQUALS%some string");
-    for (int i = 0; i < 10; i++) {
-        printf("MAIN Command %d: %d\n", i, query_string[i]);
-	}
+	
+	Request_Parsing(test, "SELECT%TITLE%WHERE%TITLE%EQUALS%some string");
+
+	return 0;
 }

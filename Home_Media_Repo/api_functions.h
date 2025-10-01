@@ -13,11 +13,16 @@
 
 //void VideoTest(SOCKET client_socket);
 
-cJSON* Get_All_Media(MediaData** hash_table, char* title, size_t array_size);
-
-
-cJSON* Input_String_Parsing(MediaData** hash_table, char* user_input, size_t array_size);
+typedef struct Response {
+	int status_code;
+	char* message;
+	cJSON* data;
+} Response;
 
 int* Query_Transform(parse_node* head, char* query_string);
+
+void Request_Parsing(parse_node* head, const char* db_request);
+
+int Stream_Video(SOCKET client_socket, MediaData** hash_table, size_t array_size, char* title);
 
 #endif // !API_FUNCTIONS_H

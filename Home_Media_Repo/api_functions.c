@@ -1,10 +1,34 @@
 #include "api_functions.h"
 
+static char title_str[256];
+
+void Select(int enum_designation_obj, int enum_target) {
+	if(TITLE == enum_target) {
+		//do thing
+		printf("Selected title\n");
+	}
+	else if (DESCRIPTION == enum_target) {
+		//do thing
+		printf("Selected description\n");
+	}
+	else if (GENRE == enum_target) {
+		//do thing
+		printf("Selected genre\n");
+	}
+	else if(ID == enum_target) {
+		printf("Selected ID\n");
+		//do thing
+	}
+	else {
+		printf("Invalid target for select\n");
+	}
+	return;
+}
 
 int* Query_Transform(parse_node* head, const char* query_string) {
-	/*This will take the parsed array from the Request_Parsing function
+	/*This will take the query string from the Request_Parsing function
 	and convert it into an int array that can be used in a switch statement
-	to determine what the user wants to do. It will return the int array
+	to determine what the user wants to do. It will return the int array pointer
 	to the Request_Parsing function.
 	*/
 	if( head == NULL || query_string == NULL) {
@@ -28,7 +52,6 @@ int* Query_Transform(parse_node* head, const char* query_string) {
 
 	char* context = NULL;
 	char* token = strtok_s(query_string2, "%", &context);
-	printf("First token: %s\n", token);
 
 	int tracker = 0;
 	while(token != NULL) {
@@ -36,11 +59,19 @@ int* Query_Transform(parse_node* head, const char* query_string) {
 		//Will have to realloc if more than 10 tokens are found
 
 		int_array[tracker] = Does_Command_Exist(head, token);
-
 		token = strtok_s(NULL, "%", &context);
-		tracker += 1;
+		
+		//Special case for the titles name input
+		if (tracker == 4) {
 
-	
+			errno_t result = strcpy_s(title_str, sizeof(title_str), token);
+			if (result != 0) {
+				free(title_str);
+				return NULL;
+			}
+		}
+
+		tracker += 1;
 
 	}
 	return int_array;
@@ -48,7 +79,7 @@ int* Query_Transform(parse_node* head, const char* query_string) {
 
 void Request_Parsing(parse_node* head, const char* db_request) {
 	/*this will call the Query_Transform function to get the int array
-	then it will use that array accross an large switch statement to
+	then it will use that array accross a large switch statement to
 	do the required operations. It will return a Response struct that
 	will then be transformed into JSON and sent back to the requester
 	*/
@@ -68,8 +99,45 @@ void Request_Parsing(parse_node* head, const char* db_request) {
 				switch(parsed_array[2]) {
 					case WHERE:
 						switch (parsed_array[3]) {
-							case TITLE:
-								//do thing
+						case TITLE:
+							switch (parsed_array[4]) {
+								case EQUALS:
+									//FOR MOST QUERIES AT THIS TIME, THIS IS WHERE IT WILL END
+									//parsed_array[5] will be the string to search for
+									printf("Got to equals with string: %s\n", title_str);
+
+									break;
+								case LESSTHAN:
+									//do thing
+									break;
+								case GREATERTHAN:
+									//do thing
+									break;
+								case LIKE:
+									//do thing
+									break;
+								case ORDERBY:
+									//do thing
+									break;
+								case GROUPBY:
+									//do thing
+									break;
+								case ASCENDING:
+									//do thing
+									break;
+								case DESCENDING:
+									//do thing
+									break;
+								/*=======DEFAULTS//ERRORS============*/
+								case -1:
+									printf("Invalid command in query\n");
+									break;
+								default:
+									printf("Unhandled command in query\n");
+									break;
+							
+							}
+
 								break;
 							case DESCRIPTION:
 								//do thing
@@ -77,12 +145,28 @@ void Request_Parsing(parse_node* head, const char* db_request) {
 							case GENRE:
 								//do thing
 								break;
+							/*=======DEFAULTS//ERRORS============*/
+							case -1:
+								printf("Invalid command in query\n");
+								break;
+							default:
+								printf("Unhandled command in query\n");
+								break;
 						}
+
 						break;
 					case ALL:
 						//do thing
 						break;
+					/*=======DEFAULTS//ERRORS============*/
+					case -1:
+						printf("Invalid command in query\n");
+						break;
+					default:
+						printf("Unhandled command in query\n");
+						break;
 				}
+
 				//do thing
 				break;
 			case DESCRIPTION:
@@ -90,6 +174,13 @@ void Request_Parsing(parse_node* head, const char* db_request) {
 				break;
 			case GENRE:
 				//do thing
+				break;
+			/*=======DEFAULTS//ERRORS============*/
+			case -1:
+				printf("Invalid command in query\n");
+				break;
+			default:
+				printf("Unhandled command in query\n");
 				break;
 		}
 
@@ -104,6 +195,7 @@ void Request_Parsing(parse_node* head, const char* db_request) {
 		//do thing
 		break;
 	case -1:
+		/*=======DEFAULTS//ERRORS============*/
 		printf("Invalid command in query\n");
 		break;
 	default:

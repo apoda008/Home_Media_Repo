@@ -22,7 +22,8 @@ enum Target {
 	TITLE = 5,
 	DESCRIPTION = 6,
 	GENRE = 7,
-	ALL = 8
+	ALL = 8,
+	ID = 25
 };
 
 enum Source {
@@ -72,4 +73,4 @@ void test_unit();
 
 void Free_Parse_Tree(parse_node* head);
 
-#endif
+#endif // !PARSE_H
