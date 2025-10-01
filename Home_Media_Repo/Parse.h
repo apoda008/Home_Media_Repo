@@ -48,6 +48,10 @@ enum Options {
 	DESCENDING = 24
 };
 
+enum DataBaseChoices {
+	MOVIES = 26,
+	SERIES = 27
+};
 //Target -> what objects/tables/columns you want to affect
 //Source/Conditions -> Where the data comes from or rules applied
 //Options/Clauses -> Extra modifiers

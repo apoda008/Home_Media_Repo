@@ -78,7 +78,7 @@ int main() {
     */
 	parse_node* test = initialize_parse_tree();
 	
-	Request_Parsing(test, "SELECT%TITLE%WHERE%TITLE%EQUALS%some string");
+	Request_Parsing(test, "SELECT%TITLE%FROM%MOVIES%WHERE%TITLE%EQUALS%some string");
 
 	return 0;
 }

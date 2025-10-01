@@ -3,7 +3,23 @@
 static char title_str[256];
 
 void Grab_Item(MovieTable* movies_table, int enum_target) {
-	
+	if( movies_table == NULL) {
+		printf("Movie table is NULL\n");
+		return;
+	}
+	if (TITLE) {
+		//grab title from movie table
+
+	}
+	if (GENRE) {
+		//return a list of movies with a genre
+	}
+	if (ID) {
+		//Grab movie by ID
+	}
+	if (ALL) {
+		//return all movies 
+	}
 }
 
 void Select(MovieTable* movies_table, int enum_target, int enum_designation_obj, int source) {
@@ -124,8 +140,7 @@ void Request_Parsing(parse_node* head, const char* db_request) {
 	//Stage one 
 	switch (parsed_array[0]) {
 	case SELECT:
-		//do thing
-		Select(parsed_array[1], parsed_array[2], 0);
+		//SELECT FUNC
 		break;
 	case CHANGE:
 		//do thing
