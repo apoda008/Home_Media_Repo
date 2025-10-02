@@ -1,240 +1,136 @@
 #include "api_functions.h"
 
+static char title_str[256];
 
-//WE ARE BUILDING A TRIE BABY!!!
-//If more conditionals are needed, add them to the TrieNode root array
-//condsidering hash table for the first char of the string command
-//remember to adjust the size of the root array if more commands are added
-static TrieNode Trie_Root[12] = { 
-	{ NULL, NULL, NULL, 'S', -1}, 
-	{ NULL, NULL, NULL, 'C', -1 }, 
-	{ NULL, NULL, NULL, 'R', -1 }, 
-	{ NULL, NULL, NULL, 'S', -1 }, 
-	{ NULL, NULL, NULL, 'T', -1 }, 
-	{ NULL, NULL, NULL, 'D', -1 }, 
-	{ NULL, NULL, NULL, 'G', -1 },
-	{ NULL, NULL, NULL, '*',  8 },
-	{ NULL, NULL, NULL, 'W', -1 },
-	{ NULL, NULL, NULL, 'F', -1 },
-	{ NULL, NULL, NULL, 'E', -1 },
-	{ NULL, NULL, NULL, 'A', -1 }
-}; // Initialize the root of the Trie for each command
+void Grab_Item(MovieTable* movies_table, int enum_target) {
+	if( movies_table == NULL) {
+		printf("Movie table is NULL\n");
+		return;
+	}
+	if (TITLE) {
+		
 
-void Build_DB_Trie(){
-	//Builds the trie structure for the commands with the corresponding switch case values
-	//this is where you will need to add more commands if needed
-	Insert_String_Trie(Trie_Root, "SELECT", SELECT);
-	Insert_String_Trie(Trie_Root, "CHANGE", CHANGE);
-	Insert_String_Trie(Trie_Root, "REMOVE", REMOVE);
-	Insert_String_Trie(Trie_Root, "SEARCH", SEARCH);
-	Insert_String_Trie(Trie_Root, "TITLE", TITLE);
-	Insert_String_Trie(Trie_Root, "DESCRIPTION", DESCRIPTION);
-	Insert_String_Trie(Trie_Root, "GENRE", GENRE);
-	
-	Insert_String_Trie(Trie_Root, "ALL", ALL);
-	Insert_String_Trie(Trie_Root, "WHERE", WHERE);
-	Insert_String_Trie(Trie_Root, "FROM", FROM);
-	Insert_String_Trie(Trie_Root, "EQUALS", EQUALS);
+	}
+	if (GENRE) {
+		//return a list of movies with a genre
+	}
+	if (ID) {
+		//Grab movie by ID
+	}
+	if (ALL) {
+		//return all movies 
+	}
 }
 
-//OLD FUNCTION
-//deprecated now that this is essentially done when the files are imported
-TCHAR* Video_Transcode_Mp4(TCHAR* video_path) {
-	//This will be used to transcode the video into mp4 format
-	//which is supported by the C# app
-	//this will be a placeholder for now
-
-	//TODO:
-	//need to do this for every format that is in the Media Library 
-	//(i.e. avi, mkv, etc.)
-
-	//this needs to change the dir paths for both input and output. Then the
-	//Transcoded video needs to be moved to the Temp folder. and the TCHAR to 
-	//that new location passed out of this function. Meaning that the new TCHAR 
-	//will need to be MALLOC'ed and then free'd after the movie has been transfered
-	//to the C# app. Look into setting a timer for the transcoded video to be deleted
-	//or reformatting the entire video library to mp4 format which can probably be done 
-	//at the start of the program. 
-	const char* cmd = "ffmpeg -i \"C:\\Users\\Dan\\Videos\\input.mov\" -c:v libx264 -c:a aac -movflags +faststart \"C:\\Users\\Dan\\Videos\\output.mp4\"";
-	
-	int result = system(cmd);
-
-	if (result != 0) 
+void Select(MovieTable* movies_table, int enum_target, int enum_designation_obj, int source) {
+	switch (enum_target)
 	{
-		printf("Video transcoding failed\n");
-		return NULL;
+	case TITLE:
+		switch (enum_designation_obj) 
+		{
+		case WHERE:
+			case EQUALS:
+				//Take movie/ID/GENRE and grab requested data
+				
+
+
+				//Will implement later
+				break;
+			case LIKE:
+				//do thing
+				//Will implement later
+				break;
+			case LESSTHAN:
+				//do thing
+				//Will implement later
+				break;
+			case GREATERTHAN:
+				//do thing
+				//Will implement later
+				break;
+				/*=======DEFAULTS//ERRORS============*/
+			case -1:
+				printf("Invalid command in query\n");
+				break;
+			default:
+				printf("Unhandled command in query\n");
+				break;
+		}
+			break;
+		case FROM:
+			//do thing
+			//Will implement later
+			break;
+			/*=======DEFAULTS//ERRORS============*/
+		case -1:
+			printf("Invalid command in query\n");
+			break;
+		default:
+			printf("Unhandled command in query\n");
+			break;
+	break;
 	}
-	else {
-		printf("Video transcoding successful\n");
-		TCHAR* output_video = _T("output_video.mp4");
-		return output_video; //return the path to the transcoded video
-	}
-	
-	return NULL;
 }
 
-//OLD FUNCTION
-//deprecated now that we have moved from a hash table to a trie for command parsing
-cJSON* Get_All_Media(MediaData** hash_table, const char* title, size_t array_size) {
-
-	//deprecated DELETE
-	//MediaNode* new_node = search_linked_list_object(title);
-
-	MediaData* new_node = Search_Hash_Table(hash_table, title, array_size);
-	
-	if (!new_node) {
-		printf("Media not found\n");
-		return NULL;
-	}
-	
-	cJSON* json_node = cJSON_CreateObject();
-	if (!json_node) {
-		printf("JSON initialization failed\n");
-		return NULL;
-	}
-	cJSON_AddNumberToObject(json_node, "db_position", new_node->db_position);
-	cJSON_AddStringToObject(json_node, "title", new_node->title);
-	cJSON_AddNumberToObject(json_node, "tmdb_id", new_node->tmdb_id);
-	cJSON_AddBoolToObject(json_node, "media_type", new_node->media_type);
-
-	cJSON* genre_array = cJSON_CreateIntArray(new_node->genre_types, 19);
-	if (!genre_array) {
-		printf("Array generation failed\n");
-		cJSON_Delete(json_node);
-		return NULL;
-	}
-	cJSON_AddItemToObject(json_node, "genre_types", genre_array);
-	cJSON_AddStringToObject(json_node, "description", new_node->description);
-	//cJSON_AddStringToObject(json_node, "dir_position_media", new_node->dir_position_media);
-
-	//DELETE
-	//char* j_print = cJSON_Print(json_node);
-	//printf("JSON: %s", j_print);
-
-	return json_node;
-
-}
-
-int Recursive_Validate(const char* token, TrieNode* current, int array_pos) {
-	/*
-	* This function will validate the token and return an int value
-	* that will be used in the switch statement later on
-	*/ 
-
-	//BASE CASES
-	if (current == NULL) {
-			return -1; // If the current node is NULL, return -1
-		}
-	if (current->switch_case >= 0) {
-		return current->switch_case; // Return the switch case if we reach the end of the token
-	}
-	if( array_pos >= strlen(token) - 1) {
-		return -8; // If we reach the end of the token without finding a match, return -8
-	}
-	if( current->letter != toupper(token[array_pos]) ) {
-		return -2; // If the current letter does not match the token letter, return -2
-	}
-
-	//Prepare for next recursion
-	array_pos += 1; // Move to the next character in the token
-
-	char char_compare = toupper(token[array_pos]); // Convert to uppercase for case-insensitive comparison
-
-	//This can be streamlined
-	if(current->next_l == NULL && current->next_m == NULL && current->next_r == NULL) {
-		printf("NULL NODES\n");
-		return -9; // If any of the next nodes are NULL, return -1
-	}
-	
-	if(current->next_l != NULL) {
-		if(current->next_l->letter == char_compare) {
-			return Recursive_Validate(token, current->next_l, array_pos);
-		}
-	}
-	if (current->next_m != NULL) {
-		if (current->next_m->letter == char_compare) {
-			return Recursive_Validate(token, current->next_m, array_pos);
-		}
-	}
-	if (current->next_r != NULL) {
-		if (current->next_r->letter == char_compare) {
-			return Recursive_Validate(token, current->next_r, array_pos);
-		}
-	}
-
-	//Safety catch
-	printf("String placement\n");
-	return -10; // If we reach here, the token is invalid
-}
-
-int* Query_Transform(char* query_string) {
-	/*TODO
-	* Tansforms the query string into an int array for use later in switches
-	* this will be a long segment of code since it will have to do a lot
-	* needs to account for the string input from user ex: "SELECT TITLE FROM MOVIES WHERE TITLE = '->Inception<-'"
-	* 
+int* Query_Transform(parse_node* head, const char* query_string) {
+	/*This will take the query string from the Request_Parsing function
+	and convert it into an int array that can be used in a switch statement
+	to determine what the user wants to do. It will return the int array pointer
+	to the Request_Parsing function.
 	*/
-
-	if(query_string == NULL ) {
-		fprintf(stderr, "Query string is NULL\n");
+	if( head == NULL || query_string == NULL) {
+		printf("Parse tree or tokenized DB is NULL\n");
 		return NULL;
 	}
 
-	int* int_array = malloc(8 * sizeof(int));
+	int* int_array = malloc(10 * sizeof(int)); //arbitrary size for now	
+
+	for (int i = 0; i < 10; i++) {
+		int_array[i] = -1; //initialize to -1
+	}
+
 	if (int_array == NULL) {
-		fprintf(stderr, "Memory allocation failed for int_array\n");
+		printf("Memory allocation failed for int_array\n");
 		return NULL;
-	}
+	}	
 
 	char query_string2[256];
 	memcpy_s(query_string2, sizeof(query_string2), query_string, strlen(query_string) + 1);
 
-	char *context = NULL;
-	char *token = strtok_s(query_string2, "%", &context);
-	printf("First token: %s\n", token);
-	
-	
-	for (int i = 0; token != NULL; i++) {
+	char* context = NULL;
+	char* token = strtok_s(query_string2, "%", &context);
+
+	int tracker = 0;
+	while(token != NULL) {
 		
-		char comparable = toupper(token[0]); // Convert to uppercase for case-insensitive comparison
+		//Will have to realloc if more than 10 tokens are found
+
+		int_array[tracker] = Does_Command_Exist(head, token);
+		token = strtok_s(NULL, "%", &context);
 		
-		for (int j = 0; j < 8; j++) {
-			if (Trie_Root[j].letter == comparable) {
-				printf("i = %d\n", i);
-				TrieNode* current = &Trie_Root[j];
-				int_array[i] = Recursive_Validate(token, current, 0);
-				printf("total[%d] = %d\n", i, int_array[i]);
-				break;
+		//Special case for the titles name input
+		if (tracker == 4) {
+
+			errno_t result = strcpy_s(title_str, sizeof(title_str), token);
+			if (result != 0) {
+				free(title_str);
+				return NULL;
 			}
 		}
 
-		//this requires initialization of the array to -15
-		if (int_array[i] == -15) {
-			//at this point we could terminate the entire query since an invalid command was found
-			//but for now we will just set it to -1. And remember that this will catch "some string"
-			//or any input that is not a command. So catches will have to implemented to catch the  
-			//"some string" inputs if this decides to terminate here. UPDATE
-			int_array[i] = -1; // If no match found, set to -1 (invalid)
-		}
-		
-		token = strtok_s(NULL, "%", &context);
+		tracker += 1;
+
 	}
-
-	//TESTING ARRAY 
-	//for (int l = 0; l < 8; l++) {
-	//	printf("Command %d: %d\n", l, int_array[l]);
-	//}
-
 	return int_array;
 }
 
-void Request_Parsing(int* parsed_array) {
+void Request_Parsing(parse_node* head, const char* db_request) {
 	/*this will call the Query_Transform function to get the int array
-	then it will use that array accross an large switch statement to
+	then it will use that array accross a large switch statement to
 	do the required operations. It will return a Response struct that
 	will then be transformed into JSON and sent back to the requester
 	*/
-	int* parsed_int_array = Query_Transform(parsed_array);
+	int* parsed_array = Query_Transform(head, db_request);
 
 	if (parsed_array == NULL) {
 		printf("Parsed array is NULL\n");
@@ -244,37 +140,7 @@ void Request_Parsing(int* parsed_array) {
 	//Stage one 
 	switch (parsed_array[0]) {
 	case SELECT:
-		//do thing
-		switch (parsed_array[1]) {
-			case TITLE:
-				switch(parsed_array[2]) {
-					case WHERE:
-						switch (parsed_array[3]) {
-							case TITLE:
-								//do thing
-								break;
-							case DESCRIPTION:
-								//do thing
-								break;
-							case GENRE:
-								//do thing
-								break;
-						}
-						break;
-					case ALL:
-						//do thing
-						break;
-				}
-				//do thing
-				break;
-			case DESCRIPTION:
-				//do thing
-				break;
-			case GENRE:
-				//do thing
-				break;
-		}
-
+		//SELECT FUNC
 		break;
 	case CHANGE:
 		//do thing
@@ -286,6 +152,7 @@ void Request_Parsing(int* parsed_array) {
 		//do thing
 		break;
 	case -1:
+		/*=======DEFAULTS//ERRORS============*/
 		printf("Invalid command in query\n");
 		break;
 	default:
@@ -294,100 +161,6 @@ void Request_Parsing(int* parsed_array) {
 	}
 
 
-}
-
-//OLD FUNCTION
-//deprecated and moved to trie tree parsing. A new switch function will be created
-cJSON* Input_String_Parsing(MediaData** hash_table, char* user_input, size_t array_size) {
-	/*
-	TODO:
-	This will be the focus of work for the coming days. So what needs to happen is to figure out 
-	how to format the incoming command string. The primary first commands 
-
-	GET, ADD, CHANGE, DELETE 
-
-	string input format will be PRIMARY%MAJOR%IDENTIFIER%MINOR%EQUALITY%VALUE%. This helps with 
-	tokenization and prevents mix up with the spaces that are naturally in string information
-
-	In essence, SQL statements are built from a small set of keywords and clauses that you string 
-	together in a defined order. You tell the database:
-
-	What you want (SELECT, INSERT, etc.)
-
-	Where to get it (FROM)
-
-	Which rows to include (WHERE, HAVING)
-
-	How to group or sort the results (GROUP BY, ORDER BY)
-
-	and—with this consistent pattern—you can express virtually any relational operation.
-
-
-
-	*/
-
-
-	char* context;
-	char* token = strtok_s(user_input, " ", &context);
-
-	//DELETE
-	printf("1st token: %s\n", token);
-
-	int tracker = 0;
-	while (token != NULL) {
-		if (strcmp(token, "ADD") == 0) {
-			//TODO  
-			break;
-		}
-		if (strcmp(token, "CHANGE") == 0) {
-			token = strtok_s(NULL, " ", &context);
-			if (strcmp(token, "DESCRIPTION") == 0) {
-				//TODO
-				break;
-			}
-			if (strcmp(token, "TITLE") == 0) {
-				break;
-				//TODO
-			}
-			if (strcmp(token, "GENRE") == 0) {
-				break;
-				//TODO
-			}
-		}
-		if (strcmp(token, "DELETE") == 0) {
-			//TODO
-		}
-		if (strcmp(token, "GET") == 0) {
-			/*Next token should be "Title, description, genre
-			* type, etc.
-			*/
-			token = strtok_s(NULL, " ", &context);
-
-			//DELETE
-			printf("2nd Token %s\n", token);
-
-			if (strcmp(token, "TITLE") == 0) {
-				//This will be the title
-				//token = strtok_s(NULL, " ", &context);
-
-				//DELETE
-				//Problem: This will sometimes return with a break when 
-				//coming from C# server
-				printf("Remaining token: %s\n", context);
-
-				cJSON* parsed_to_json = Get_All_Media(hash_table, context, array_size);
-
-
-
-				return parsed_to_json;
-			}
-			if (strcmp(token, "VIDEO") == 0) {
-				//this will open and start a video stream to the requeser (C# app)
-			}
-		}
-		tracker += 1;
-		token = strtok_s(NULL, " ", &context);
-	}
 }
 
 //to be called when a video stream is requested

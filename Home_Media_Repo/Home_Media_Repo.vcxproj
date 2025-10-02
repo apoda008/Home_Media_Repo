@@ -139,6 +139,7 @@
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsC</CompileAs>
     </ClCompile>
     <ClCompile Include="networking.c" />
+    <ClCompile Include="Parse.c" />
     <ClCompile Include="program_functions.h" />
     <ClCompile Include="program_functions.c" />
   </ItemGroup>
@@ -150,6 +151,7 @@
     <ClInclude Include="Function_Test.h" />
     <ClInclude Include="master.h" />
     <ClInclude Include="networking.h" />
+    <ClInclude Include="Parse.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,9 +2,14 @@
 #include "api_functions.h"
 #include "networking.h"
 #include "program_functions.h"
+#include "Parse.h"
+////Test Headers/////
 
+
+/// /////////////////
 
 int main() {
+    /*
     printf("Starting up Media Repository\n\n");
     
     static struct Master_Directory master_pathing;
@@ -41,25 +46,39 @@ int main() {
 
     //para needs to be num of files 
 	DatabaseStructure* test = Construct_Database_Structure(10, 10);
+    */
 
-    Fill_Table_Movies(test, dir_struct_ptr);
-    printf("\nBefore sorting:\n");
-    Print_Movie_Table(test->movies);
 	
-	//Sort_Movie_Table(test);
-	//printf("After sorting:\n");
-    //Print_Movie_Table(test->movies);
+	//////////////////////////////////////////TEST ZONE//////////////////////////////////////////
+	/*
+    test_unit();
+	return 0;
 
-	Build_DB_Trie();
 
-    //int* Query_Transform(char* query_string);
-	int* test2 = Query_Transform("SELECT%TITLE%WHERE%TITLE%EQUALS%some string");
-    if (test2 != NULL) {
-		printf("Returned array pointer: %p\n", test2);
-		printf("test2[0]: %d\n", test2[0]);
-        for (int i = 0; i < 8; i++) {
-            printf("MAIN Command %d: %d\n", i, test2[i]);
-	    }
-    }
-    return 0;
+    //   Fill_Table_Movies(test, dir_struct_ptr);
+    //   printf("\nBefore sorting:\n");
+    //   Print_Movie_Table(test->movies);
+       //
+       ////Sort_Movie_Table(test);
+       ////printf("After sorting:\n");
+       //Print_Movie_Table(test->movies);
+
+       //Build_DB_Trie();
+
+       //int* Query_Transform(char* query_string);
+       //int* test2 = Query_Transform("SELECT%TITLE%WHERE%TITLE%EQUALS%some string");
+       /*if (test2 != NULL) {
+           printf("Returned array pointer: %p\n", test2);
+           printf("test2[0]: %d\n", test2[0]);
+           for (int i = 0; i < 8; i++) {
+               printf("MAIN Command %d: %d\n", i, test2[i]);
+           }
+       }
+       return 0;
+    */
+	parse_node* test = initialize_parse_tree();
+	
+	Request_Parsing(test, "SELECT%TITLE%FROM%MOVIES%WHERE%TITLE%EQUALS%some string");
+
+	return 0;
 }
