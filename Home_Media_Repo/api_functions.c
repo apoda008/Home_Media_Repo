@@ -22,20 +22,29 @@ void Grab_Item(MovieTable* movies_table, int enum_target) {
 	}
 }
 
-void Select(MovieTable* movies_table, int enum_target, int enum_designation_obj, int source) {
-	switch (enum_target)
+void Select(MovieTable* movies_table, int* int_array) {
+	switch (int_array[1])
 	{
 	case TITLE:
-		switch (source)
+		switch (int_array[2])
 		{
 		case FROM:
-			switch (enum_designation_obj)
+			switch (int_array[3])
 			{
-			case TITLE:
-				switch (enum_designation_obj)
+			case MOVIES:
+				switch (int_array[4])
 				{
-
+				case WHERE:
+					switch (int_array[5])
+					{
+					default:
+						break;
+					}
+					break;
 				}
+				break;
+			case: SERIES:
+				//do thing
 				break;
 			}
 			break;
@@ -117,7 +126,7 @@ void Request_Parsing(parse_node* head, const char* db_request) {
 	//Stage one 
 	switch (parsed_array[0]) {
 	case SELECT:
-		//SELECT FUNC
+		Select(NULL, parsed_array);
 		break;
 	case CHANGE:
 		//do thing
