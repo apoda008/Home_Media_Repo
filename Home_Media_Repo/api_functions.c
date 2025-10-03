@@ -26,48 +26,25 @@ void Select(MovieTable* movies_table, int enum_target, int enum_designation_obj,
 	switch (enum_target)
 	{
 	case TITLE:
-		switch (enum_designation_obj) 
+		switch (source)
 		{
-		case WHERE:
-			case EQUALS:
-				//Take movie/ID/GENRE and grab requested data
-				
-
-
-				//Will implement later
-				break;
-			case LIKE:
-				//do thing
-				//Will implement later
-				break;
-			case LESSTHAN:
-				//do thing
-				//Will implement later
-				break;
-			case GREATERTHAN:
-				//do thing
-				//Will implement later
-				break;
-				/*=======DEFAULTS//ERRORS============*/
-			case -1:
-				printf("Invalid command in query\n");
-				break;
-			default:
-				printf("Unhandled command in query\n");
-				break;
-		}
-			break;
 		case FROM:
+			switch (enum_designation_obj)
+			{
+			case TITLE:
+				switch (enum_designation_obj)
+				{
+
+				}
+				break;
+			}
+			break;
+		case WHERE:
 			//do thing
-			//Will implement later
+			//conditionals to made later
 			break;
-			/*=======DEFAULTS//ERRORS============*/
-		case -1:
-			printf("Invalid command in query\n");
-			break;
-		default:
-			printf("Unhandled command in query\n");
-			break;
+
+		}
 	break;
 	}
 }
