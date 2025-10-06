@@ -2,59 +2,144 @@
 
 static char title_str[256];
 
-void Grab_Item(MovieTable* movies_table, int enum_target) {
+void Select_Response(MovieTable* movies_table, int enum_target /*int_array[1]*/, bool all, bool title, bool des, bool id, bool genre) {
 	if( movies_table == NULL) {
 		printf("Movie table is NULL\n");
 		return;
 	}
-	if (TITLE) {
-		
 
-	}
-	if (GENRE) {
-		//return a list of movies with a genre
-	}
-	if (ID) {
-		//Grab movie by ID
-	}
-	if (ALL) {
-		//return all movies 
-	}
+	
 }
 
 void Select(MovieTable* movies_table, int* int_array) {
-	switch (int_array[1])
-	{
-	case TITLE:
-		switch (int_array[2])
-		{
-		case FROM:
-			switch (int_array[3])
-			{
-			case MOVIES:
-				switch (int_array[4])
-				{
-				case WHERE:
-					switch (int_array[5])
-					{
-					default:
-						break;
+	if(movies_table == NULL || int_array == NULL) {
+		printf("Movie table or int array is NULL\n");
+		return;
+	}
+
+
+	switch (int_array[3]) {
+		case MOVIE:
+			switch (int_array[1]) {
+			
+				case ALL:
+					if( int_array[4] != -1 ) {
+						switch (int_array[5]) {
+							case TITLE:
+								switch (int_array[6])
+								{
+									case EQUALS:
+										//return all data for a specific title
+								}
+								break;
+							case ID:
+								switch (int_array[6]) {
+									case EQUALS:
+										//return all data for a specific ID
+						
+								}
+								break;
+						}
+					} else {
+						//return entire table
 					}
 					break;
-				}
-				break;
-			case: SERIES:
-				//do thing
-				break;
+			
+				case TITLE:
+					if (int_array[4] != -1) {
+						switch (int_array[5]) {
+							case TITLE:
+								switch (int_array[6]) {
+									case EQUALS:
+										//return title that matches the title string
+								}
+								break;
+							case ID:
+								switch (int_array[6]) {
+									case EQUALS:
+										//return title that matches the ID int
+									break;
+								}
+								break;			
+						}
+					} else {
+						//return all titles in the table
+					}
+					break;
+			
+				case DESCRIPTION:
+					if (int_array[4] != -1) {
+						switch (int_array[5]) {
+							case TITLE:
+								switch (int_array[6]) {
+								case EQUALS:
+									//return description that matches the title string
+								}
+								break;
+							case ID:
+								switch (int_array[6]) {
+								case EQUALS:
+									//return description that matches the ID int
+									break;
+								}
+								break;
+						}
+					}
+					else {
+						//return all descriptions in the table
+					}
+					break;
+		
+				case GENRE:
+					if (int_array[4] != -1) {
+						switch (int_array[5]) {
+						case TITLE:
+							switch (int_array[6]) {
+							case EQUALS:
+								//return genres that matches the title string
+							}
+							break;
+						case ID:
+							switch (int_array[6]) {
+							case EQUALS:
+								//return genres that matches the ID int
+								break;
+							}
+							break;
+						}
+					}
+					else {
+						//return all genres in the table
+					}
+					break;
+
+				case ID:
+					if (int_array[4] != -1) {
+						switch (int_array[5]) {
+						case TITLE:
+							switch (int_array[6]) {
+							case EQUALS:
+								//return ID that matches the title string
+							}
+							break;
+						case ID:
+							switch (int_array[6]) {
+							case EQUALS:
+								//return ID that matches the ID int
+								break;
+							}
+							break;
+						}
+					}
+					else {
+						//return all IDs in the table
+					}
+					break;
 			}
 			break;
-		case WHERE:
-			//do thing
-			//conditionals to made later
+		case SERIES:
+			//do series thing
 			break;
-
-		}
-	break;
 	}
 }
 
