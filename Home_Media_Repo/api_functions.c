@@ -2,16 +2,7 @@
 
 static char title_str[256];
 
-void Select_Response(MovieTable* movies_table, int enum_target /*int_array[1]*/, bool all, bool title, bool des, bool id, bool genre) {
-	if( movies_table == NULL) {
-		printf("Movie table is NULL\n");
-		return;
-	}
-
-	
-}
-
-void Select(MovieTable* movies_table, int* int_array) {
+MovieTable* Select(const MovieTable* movies_table, int* int_array) {
 	if(movies_table == NULL || int_array == NULL) {
 		printf("Movie table or int array is NULL\n");
 		return;
@@ -30,13 +21,17 @@ void Select(MovieTable* movies_table, int* int_array) {
 								{
 									case EQUALS:
 										//return all data for a specific title
+										//needs to find title in the table
+
+										break;
+
 								}
 								break;
 							case ID:
 								switch (int_array[6]) {
 									case EQUALS:
 										//return all data for a specific ID
-						
+										break;
 								}
 								break;
 						}
@@ -207,6 +202,9 @@ void Request_Parsing(parse_node* head, const char* db_request) {
 		printf("Parsed array is NULL\n");
 		return; //return object will go here
 	}
+
+	//if a remake is not done of the DB structure this will have to be passed in
+	MovieTable* movies_table_response;
 
 	//Stage one 
 	switch (parsed_array[0]) {

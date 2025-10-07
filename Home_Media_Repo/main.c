@@ -76,6 +76,7 @@ int main() {
        }
        return 0;
     */
+    static struct Master_Directory master_pathing;
 	parse_node* test = initialize_parse_tree();
 	
 	Request_Parsing(test, "SELECT%TITLE%FROM%MOVIES%WHERE%TITLE%EQUALS%some string");
