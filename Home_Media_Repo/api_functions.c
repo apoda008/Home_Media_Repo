@@ -2,73 +2,139 @@
 
 static char title_str[256];
 
-void Grab_Item(MovieTable* movies_table, int enum_target) {
-	if( movies_table == NULL) {
-		printf("Movie table is NULL\n");
+MovieTable* Select(const MovieTable* movies_table, int* int_array) {
+	if(movies_table == NULL || int_array == NULL) {
+		printf("Movie table or int array is NULL\n");
 		return;
 	}
-	if (TITLE) {
+
+
+	switch (int_array[3]) {
+		case MOVIE:
+			switch (int_array[1]) {
+			
+				case ALL:
+					if( int_array[4] != -1 ) {
+						switch (int_array[5]) {
+							case TITLE:
+								switch (int_array[6])
+								{
+									case EQUALS:
+										//return all data for a specific title
+										//needs to find title in the table
+
+										break;
+
+								}
+								break;
+							case ID:
+								switch (int_array[6]) {
+									case EQUALS:
+										//return all data for a specific ID
+										break;
+								}
+								break;
+						}
+					} else {
+						//return entire table
+					}
+					break;
+			
+				case TITLE:
+					if (int_array[4] != -1) {
+						switch (int_array[5]) {
+							case TITLE:
+								switch (int_array[6]) {
+									case EQUALS:
+										//return title that matches the title string
+								}
+								break;
+							case ID:
+								switch (int_array[6]) {
+									case EQUALS:
+										//return title that matches the ID int
+									break;
+								}
+								break;			
+						}
+					} else {
+						//return all titles in the table
+					}
+					break;
+			
+				case DESCRIPTION:
+					if (int_array[4] != -1) {
+						switch (int_array[5]) {
+							case TITLE:
+								switch (int_array[6]) {
+								case EQUALS:
+									//return description that matches the title string
+								}
+								break;
+							case ID:
+								switch (int_array[6]) {
+								case EQUALS:
+									//return description that matches the ID int
+									break;
+								}
+								break;
+						}
+					}
+					else {
+						//return all descriptions in the table
+					}
+					break;
 		
+				case GENRE:
+					if (int_array[4] != -1) {
+						switch (int_array[5]) {
+						case TITLE:
+							switch (int_array[6]) {
+							case EQUALS:
+								//return genres that matches the title string
+							}
+							break;
+						case ID:
+							switch (int_array[6]) {
+							case EQUALS:
+								//return genres that matches the ID int
+								break;
+							}
+							break;
+						}
+					}
+					else {
+						//return all genres in the table
+					}
+					break;
 
-	}
-	if (GENRE) {
-		//return a list of movies with a genre
-	}
-	if (ID) {
-		//Grab movie by ID
-	}
-	if (ALL) {
-		//return all movies 
-	}
-}
-
-void Select(MovieTable* movies_table, int enum_target, int enum_designation_obj, int source) {
-	switch (enum_target)
-	{
-	case TITLE:
-		switch (enum_designation_obj) 
-		{
-		case WHERE:
-			case EQUALS:
-				//Take movie/ID/GENRE and grab requested data
-				
-
-
-				//Will implement later
-				break;
-			case LIKE:
-				//do thing
-				//Will implement later
-				break;
-			case LESSTHAN:
-				//do thing
-				//Will implement later
-				break;
-			case GREATERTHAN:
-				//do thing
-				//Will implement later
-				break;
-				/*=======DEFAULTS//ERRORS============*/
-			case -1:
-				printf("Invalid command in query\n");
-				break;
-			default:
-				printf("Unhandled command in query\n");
-				break;
-		}
+				case ID:
+					if (int_array[4] != -1) {
+						switch (int_array[5]) {
+						case TITLE:
+							switch (int_array[6]) {
+							case EQUALS:
+								//return ID that matches the title string
+							}
+							break;
+						case ID:
+							switch (int_array[6]) {
+							case EQUALS:
+								//return ID that matches the ID int
+								break;
+							}
+							break;
+						}
+					}
+					else {
+						//return all IDs in the table
+					}
+					break;
+			}
 			break;
-		case FROM:
-			//do thing
-			//Will implement later
+		case SERIES:
+			//do series thing
 			break;
-			/*=======DEFAULTS//ERRORS============*/
-		case -1:
-			printf("Invalid command in query\n");
-			break;
-		default:
-			printf("Unhandled command in query\n");
-			break;
-	break;
 	}
 }
 
@@ -137,10 +203,13 @@ void Request_Parsing(parse_node* head, const char* db_request) {
 		return; //return object will go here
 	}
 
+	//if a remake is not done of the DB structure this will have to be passed in
+	MovieTable* movies_table_response;
+
 	//Stage one 
 	switch (parsed_array[0]) {
 	case SELECT:
-		//SELECT FUNC
+		Select(NULL, parsed_array);
 		break;
 	case CHANGE:
 		//do thing
