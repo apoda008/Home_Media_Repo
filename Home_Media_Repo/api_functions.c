@@ -3,139 +3,169 @@
 static char title_str[256];
 
 MovieTable* Select(const MovieTable* movies_table, int* int_array) {
-	if(movies_table == NULL || int_array == NULL) {
+	if (movies_table == NULL || int_array == NULL) {
 		printf("Movie table or int array is NULL\n");
 		return;
 	}
 
+	MovieTable* result_table = malloc(sizeof(MovieTable));
+	if (result_table == NULL) {
+		printf("Memory allocation failed for result_table\n");
+		return;
+	}
+	//initialize result table
+	result_table->id = NULL;
+	result_table->title = NULL;
+	result_table->description = NULL;
+	result_table->dir_position = NULL;
+	result_table->video_size = NULL;
+	result_table->num_elements_MV = 0;
 
 	switch (int_array[3]) {
-		case MOVIE:
-			switch (int_array[1]) {
-			
-				case ALL:
-					if( int_array[4] != -1 ) {
-						switch (int_array[5]) {
-							case TITLE:
-								switch (int_array[6])
-								{
-									case EQUALS:
-										//return all data for a specific title
-										//needs to find title in the table
+	case MOVIE:
+		switch (int_array[1]) {
 
-										break;
-
-								}
-								break;
-							case ID:
-								switch (int_array[6]) {
-									case EQUALS:
-										//return all data for a specific ID
-										break;
-								}
-								break;
-						}
-					} else {
-						//return entire table
-					}
-					break;
-			
+		case ALL:
+			if (int_array[4] != -1) {
+				switch (int_array[5]) { //WHERE
 				case TITLE:
-					if (int_array[4] != -1) {
-						switch (int_array[5]) {
-							case TITLE:
-								switch (int_array[6]) {
-									case EQUALS:
-										//return title that matches the title string
-								}
-								break;
-							case ID:
-								switch (int_array[6]) {
-									case EQUALS:
-										//return title that matches the ID int
-									break;
-								}
-								break;			
-						}
-					} else {
-						//return all titles in the table
-					}
-					break;
-			
-				case DESCRIPTION:
-					if (int_array[4] != -1) {
-						switch (int_array[5]) {
-							case TITLE:
-								switch (int_array[6]) {
-								case EQUALS:
-									//return description that matches the title string
-								}
-								break;
-							case ID:
-								switch (int_array[6]) {
-								case EQUALS:
-									//return description that matches the ID int
-									break;
-								}
-								break;
-						}
-					}
-					else {
-						//return all descriptions in the table
-					}
-					break;
-		
-				case GENRE:
-					if (int_array[4] != -1) {
-						switch (int_array[5]) {
-						case TITLE:
-							switch (int_array[6]) {
-							case EQUALS:
-								//return genres that matches the title string
+					switch (int_array[6])
+					{
+					case EQUALS:
+						//return all data for a specific title
+						//needs to find title in the table
+						//array should be sorted so binary search should be used but idk for sure so hard search it is 
+						for (int i = 0; i < movies_table->num_elements_MV; i++) {
+							if (strcmp(movies_table->title[i], title_str) == 0) {
+								//found it
+								//return data, no need for malloc since its just pointers to existing data
+								//and its one item returns
+								printf("Found title: %s\n", movies_table->title[i]);
+								result_table->id = &movies_table->id[i];
+								result_table->title = &movies_table->title[i];
+								result_table->description = &movies_table->description[i];
+								//result_table->dir_position = &movies_table->dir_position[i];
+								return result_table; //return object will go here
 							}
-							break;
-						case ID:
-							switch (int_array[6]) {
-							case EQUALS:
-								//return genres that matches the ID int
-								break;
-							}
-							break;
 						}
-					}
-					else {
-						//return all genres in the table
-					}
-					break;
+						break;
 
-				case ID:
-					if (int_array[4] != -1) {
-						switch (int_array[5]) {
-						case TITLE:
-							switch (int_array[6]) {
-							case EQUALS:
-								//return ID that matches the title string
-							}
-							break;
-						case ID:
-							switch (int_array[6]) {
-							case EQUALS:
-								//return ID that matches the ID int
-								break;
-							}
-							break;
-						}
-					}
-					else {
-						//return all IDs in the table
 					}
 					break;
+				case ID:
+					switch (int_array[6]) {
+					case EQUALS:
+						//return all data for a specific ID
+						break;
+					}
+					break;
+				}
+			}
+			else {
+				//return entire table
+				result_table = movies_table;
+				return result_table;
+				break;
+
+		case TITLE:
+			if (int_array[4] != -1) {
+				switch (int_array[5]) {
+				case TITLE:
+					switch (int_array[6]) {
+					case EQUALS:
+						//return title that matches the title string
+					}
+					break;
+				case ID:
+					switch (int_array[6]) {
+					case EQUALS:
+						//return title that matches the ID int
+						break;
+					}
+					break;
+				}
+			}
+			else {
+				//return all titles in the table
+			}
+			break;
+
+		case DESCRIPTION:
+			if (int_array[4] != -1) {
+				switch (int_array[5]) {
+				case TITLE:
+					switch (int_array[6]) {
+					case EQUALS:
+						//return description that matches the title string
+					}
+					break;
+				case ID:
+					switch (int_array[6]) {
+					case EQUALS:
+						//return description that matches the ID int
+						break;
+					}
+					break;
+				}
+			}
+			else {
+				//return all descriptions in the table
+			}
+			break;
+
+		case GENRE:
+			if (int_array[4] != -1) {
+				switch (int_array[5]) {
+				case TITLE:
+					switch (int_array[6]) {
+					case EQUALS:
+						//return genres that matches the title string
+					}
+					break;
+				case ID:
+					switch (int_array[6]) {
+					case EQUALS:
+						//return genres that matches the ID int
+						break;
+					}
+					break;
+				}
+			}
+			else {
+				//return all genres in the table
+			}
+			break;
+
+		case ID:
+			if (int_array[4] != -1) {
+				switch (int_array[5]) {
+				case TITLE:
+					switch (int_array[6]) {
+					case EQUALS:
+						//return ID that matches the title string
+					}
+					break;
+				case ID:
+					switch (int_array[6]) {
+					case EQUALS:
+						//return ID that matches the ID int
+						break;
+					}
+					break;
+				}
+			}
+			else {
+				//return all IDs in the table
+			}
+			break;
 			}
 			break;
 		case SERIES:
 			//do series thing
 			break;
+		}
 	}
+
 }
 
 int* Query_Transform(parse_node* head, const char* query_string) {
@@ -209,7 +239,7 @@ void Request_Parsing(parse_node* head, const char* db_request) {
 	//Stage one 
 	switch (parsed_array[0]) {
 	case SELECT:
-		Select(NULL, parsed_array);
+		Select(movies_table_response, parsed_array);
 		break;
 	case CHANGE:
 		//do thing

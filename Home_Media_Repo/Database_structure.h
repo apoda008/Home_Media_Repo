@@ -50,19 +50,28 @@ typedef struct TrieNode {
 	int switch_case;
 } TrieNode;
 
+//constructions the tables
 DatabaseStructure* Construct_Database_Structure(size_t movie_count, size_t series_count);
 
+//inserts a movie into the movie table
 void Insert_Movie(DatabaseStructure* db_structure, const char* title, const char* description, TCHAR* dir_pos, __int64 video_size);
 
-//Worry about it last 
+//Frees the entire db structure, movies and series tables
 void Free_Database_Structure(DatabaseStructure* db_structure);
 
+//Frees just the movie table
+void Free_Movies(MovieTable* movies);
+
+//prints the movie table to the console
 void Print_Movie_Table(const MovieTable* movies);
 
+//sorts movie table alphabetically by title
 void Sort_Movie_Table(DatabaseStructure* db_structure);
 
+//debrecated
 void Insert_String_Trie(TrieNode* trie, const char* str, int switch_val);
 
+//debrecated
 void Print_Trie(TrieNode* root, int level);	
 
 #endif // !DATABASE_STRUCTURE_H

@@ -304,6 +304,9 @@ bool IpAddress_Validation(const char* ip_address) {
 //====================================================================================
 ////This is the main API connection function that will be used to connect to the server
 void Api_Connection(MediaData** hash_table, size_t array_size) {
+	parse_node* head = initialize_parse_tree();
+
+
 	//Start of connection
 	WSADATA wsaData;
 	SOCKET database_socket, client_socket;
