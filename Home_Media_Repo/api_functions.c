@@ -50,6 +50,8 @@ MovieTable* Select_Movies(const MovieTable* movies_table, int* int_array) {
 								//found it
 								//return data, no need for malloc since its just pointers to existing data
 								//and its one item returns
+								//So for proper printing all fields need to be filled. Cannot have nulls
+
 								printf("Found title: %s\n", movies_table->title[i]);
 								result_table->id = &movies_table->id[i];
 								result_table->video_size = &movies_table->video_size[i];
@@ -69,6 +71,7 @@ MovieTable* Select_Movies(const MovieTable* movies_table, int* int_array) {
 					switch (int_array[6]) {
 					case EQUALS:
 						//return all data for a specific ID
+
 						break;
 					}
 					break;
