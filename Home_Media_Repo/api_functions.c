@@ -2,7 +2,8 @@
 
 static char title_str[256];
 
-MovieTable* Select(const MovieTable* movies_table, int* int_array) {
+MovieTable* Select_Movies(const MovieTable* movies_table, int* int_array) {
+	
 	if (movies_table == NULL || int_array == NULL) {
 		printf("Movie table or int array is NULL\n");
 		return;
@@ -20,30 +21,42 @@ MovieTable* Select(const MovieTable* movies_table, int* int_array) {
 	result_table->dir_position = NULL;
 	result_table->video_size = NULL;
 	result_table->num_elements_MV = 0;
-
+	
 	switch (int_array[3]) {
-	case MOVIE:
+		printf("Selecting from table: %d\n", int_array[3]);
+	case MOVIES:
+		printf("Selecting from MOVIE table\n");
 		switch (int_array[1]) {
-
+			printf("Selecting fields: %d\n", int_array[1]);
 		case ALL:
+			printf("Selecting ALL fields\n");
 			if (int_array[4] != -1) {
+				printf("WHERE clause detected\n");
 				switch (int_array[5]) { //WHERE
 				case TITLE:
+					printf("WHERE TITLE detected\n");
 					switch (int_array[6])
 					{
 					case EQUALS:
+						
 						//return all data for a specific title
 						//needs to find title in the table
 						//array should be sorted so binary search should be used but idk for sure so hard search it is 
+
+						printf("Searching for title: %s\n", title_str);
 						for (int i = 0; i < movies_table->num_elements_MV; i++) {
+							printf("Checking title: %s\n", movies_table->title[i]);
 							if (strcmp(movies_table->title[i], title_str) == 0) {
 								//found it
 								//return data, no need for malloc since its just pointers to existing data
 								//and its one item returns
 								printf("Found title: %s\n", movies_table->title[i]);
 								result_table->id = &movies_table->id[i];
+								result_table->video_size = &movies_table->video_size[i];
+								result_table->dir_position = &movies_table->dir_position[i];
 								result_table->title = &movies_table->title[i];
 								result_table->description = &movies_table->description[i];
+								result_table->num_elements_MV = 1;
 								//result_table->dir_position = &movies_table->dir_position[i];
 								return result_table; //return object will go here
 							}
@@ -74,6 +87,7 @@ MovieTable* Select(const MovieTable* movies_table, int* int_array) {
 					switch (int_array[6]) {
 					case EQUALS:
 						//return title that matches the title string
+						break;
 					}
 					break;
 				case ID:
@@ -97,6 +111,7 @@ MovieTable* Select(const MovieTable* movies_table, int* int_array) {
 					switch (int_array[6]) {
 					case EQUALS:
 						//return description that matches the title string
+						break;
 					}
 					break;
 				case ID:
@@ -120,6 +135,7 @@ MovieTable* Select(const MovieTable* movies_table, int* int_array) {
 					switch (int_array[6]) {
 					case EQUALS:
 						//return genres that matches the title string
+						break;
 					}
 					break;
 				case ID:
@@ -143,6 +159,7 @@ MovieTable* Select(const MovieTable* movies_table, int* int_array) {
 					switch (int_array[6]) {
 					case EQUALS:
 						//return ID that matches the title string
+						break;
 					}
 					break;
 				case ID:
@@ -164,9 +181,10 @@ MovieTable* Select(const MovieTable* movies_table, int* int_array) {
 			//do series thing
 			break;
 		}
+		break;
 	}
 
-}
+}//end of Select_Movies
 
 int* Query_Transform(parse_node* head, const char* query_string) {
 	/*This will take the query string from the Request_Parsing function
@@ -200,12 +218,18 @@ int* Query_Transform(parse_node* head, const char* query_string) {
 	while(token != NULL) {
 		
 		//Will have to realloc if more than 10 tokens are found
-
 		int_array[tracker] = Does_Command_Exist(head, token);
 		token = strtok_s(NULL, "%", &context);
 		
 		//Special case for the titles name input
-		if (tracker == 4) {
+		if (tracker == 6) {
+			
+			//needs null protection
+			if(token == NULL) {
+				printf("Token is NULL when trying to copy title\n");
+				free(int_array);
+				return NULL;
+			}
 
 			errno_t result = strcpy_s(title_str, sizeof(title_str), token);
 			if (result != 0) {
@@ -220,7 +244,7 @@ int* Query_Transform(parse_node* head, const char* query_string) {
 	return int_array;
 }
 
-void Request_Parsing(parse_node* head, const char* db_request) {
+void Request_Parsing(const DatabaseStructure* database_table, parse_node* head, const char* db_request) {
 	/*this will call the Query_Transform function to get the int array
 	then it will use that array accross a large switch statement to
 	do the required operations. It will return a Response struct that
@@ -233,13 +257,19 @@ void Request_Parsing(parse_node* head, const char* db_request) {
 		return; //return object will go here
 	}
 
+	//test
+	for(int i = 0; i < 10; i++) {
+		printf("parsed_array[%d] = %d\n", i, parsed_array[i]);
+	}
+
 	//if a remake is not done of the DB structure this will have to be passed in
-	MovieTable* movies_table_response;
+	MovieTable* movies_table_response = NULL;
 
 	//Stage one 
 	switch (parsed_array[0]) {
 	case SELECT:
-		Select(movies_table_response, parsed_array);
+		printf("SELECT command recognized\n");
+		movies_table_response = Select_Movies(database_table->movies, parsed_array);
 		break;
 	case CHANGE:
 		//do thing
@@ -259,7 +289,9 @@ void Request_Parsing(parse_node* head, const char* db_request) {
 		break;
 	}
 
-
+	//TEST PURPOSES ONLY
+	Print_Movie_Table(movies_table_response);
+	return;
 }
 
 //to be called when a video stream is requested

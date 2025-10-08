@@ -61,6 +61,6 @@ int main() {
     //in full implementation this will be initialized in the Api_Connection() function
     parse_node* root_test = initialize_parse_tree();
 
-
+	Request_Parsing(test, root_test, "SELECT%ALL%FROM%MOVIES%WHERE%TITLE%EQUALS%U-571");
 	return 0;
 }
