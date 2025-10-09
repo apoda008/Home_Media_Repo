@@ -65,6 +65,8 @@ void Free_Movies(MovieTable* movies);
 //prints the movie table to the console
 void Print_Movie_Table(const MovieTable* movies);
 
+void Better_Print_Table(const MovieTable* movies);
+
 //sorts movie table alphabetically by title
 void Sort_Movie_Table(DatabaseStructure* db_structure);
 

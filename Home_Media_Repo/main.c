@@ -61,7 +61,37 @@ int main() {
     //in full implementation this will be initialized in the Api_Connection() function
     parse_node* root_test = initialize_parse_tree();
 
+	printf("\n\n\n");
+	printf("//////////TEST ZONE//////////\n\n");
+    printf("Test ALL\n");
 	Request_Parsing(test, root_test, "SELECT%ALL%FROM%MOVIES%WHERE%TITLE%EQUALS%U-571");
 	Request_Parsing(test, root_test, "SELECT%ALL%FROM%MOVIES");
+	Request_Parsing(test, root_test, "SELECT%ALL%FROM%MOVIES%WHERE%ID%EQUALS%10");
+
+	printf("\nTest TITLE\n");
+    Request_Parsing(test, root_test, "SELECT%TITLE%FROM%MOVIES%WHERE%TITLE%EQUALS%U-571");
+    Request_Parsing(test, root_test, "SELECT%TITLE%FROM%MOVIES%WHERE%ID%EQUALS%10"); 
+    Request_Parsing(test, root_test, "SELECT%TITLE%FROM%MOVIES");
+
+	printf("\nTest ID\n");
+    Request_Parsing(test, root_test, "SELECT%ID%FROM%MOVIES%WHERE%TITLE%EQUALS%U-571");
+    Request_Parsing(test, root_test, "SELECT%ID%FROM%MOVIES%WHERE%TITLE%EQUALS%10");
+    Request_Parsing(test, root_test, "SELECT%ID%FROM%MOVIES%");
+
+	//cant test description yet as its not filled in the DB structure
     return 0;
 }
+
+/*
+* End of main.c
+* NOTES 
+* int_array[0] = SELECT
+* int_array[1] = TITLE
+* int_array[2] = FROM
+* int_array[3] = MOVIES
+* int_array[4] = WHERE
+* int_array[5] = TITLE
+* int_array[6] = EQUALS
+* int_array[7] = -1
+
+*/

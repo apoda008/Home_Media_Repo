@@ -203,6 +203,46 @@ void Print_Movie_Table(const MovieTable* movies) {
 	return;
 }
 
+void Better_Print_Table(const MovieTable* movies) {
+	if (movies == NULL) {
+		fprintf(stderr, "MovieTable is NULL\n");
+		return;
+	}
+	if( movies->num_elements_MV == 0) {
+		printf("Movie table is empty.\n");
+		return;
+	}
+
+	printf("Movie Table:\n");
+	printf("--------------------------------------------------------------------------------------------------------------------------------------------------\n");
+	printf("| %6s | %-50s | %-5s | %-50s | %20s |\n",
+		"ID", "Title", "Desc", "Dir Position", "Size");
+	printf("--------------------------------------------------------------------------------------------------------------------------------------------------\n");
+	for (int i = 0; i < movies->num_elements_MV; i++) {
+		if( (movies->id[i] == -1) || (movies->id[i] == NULL)) {
+			printf("| %6s |", "(null)");
+		}
+		else { printf(" %6d |", movies->id[i]); }
+		
+		if( movies->title[i] == NULL || movies->title[i][0] == '\0') {
+			printf(" %-50s |", "(null)");
+		}
+		else { printf(" %-50s |", movies->title[i]); }
+		
+		if ( movies->dir_position[i] == NULL || movies->dir_position[i][0] == '\0') {
+			printf(" %-50s |", "(null)");
+		}
+		else { printf(" %-50s |", movies->dir_position[i]); }
+		
+		if (movies->video_size[i] == NULL) {
+			printf(" %20s |\n", "(null)");
+		}
+		else { printf(" %20I64d |\n", movies->video_size[i]); }
+	}
+	printf("------------------------------------------------------------------------------------------------------------------------------------------------\n");
+	return;
+}
+
 void Sort_Movie_Table(DatabaseStructure* db_structure) {
 	if (db_structure == NULL || db_structure->movies == NULL) {
 		fprintf(stderr, "Database structure or MovieTable is NULL\n");
