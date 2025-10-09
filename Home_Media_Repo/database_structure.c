@@ -219,22 +219,23 @@ void Better_Print_Table(const MovieTable* movies) {
 		"ID", "Title", "Desc", "Dir Position", "Size");
 	printf("--------------------------------------------------------------------------------------------------------------------------------------------------\n");
 	for (int i = 0; i < movies->num_elements_MV; i++) {
-		if( (movies->id[i] == -1) || (movies->id[i] == NULL)) {
-			printf("| %6s |", "(null)");
-		}
-		else { printf(" %6d |", movies->id[i]); }
 		
-		if( movies->title[i] == NULL || movies->title[i][0] == '\0') {
+		if( movies->id != NULL) {
+			printf("| %6d |", movies->id[i]);
+		}
+		else { printf("| %6s |", "(null)"); }
+		
+		if( movies->title == NULL) {
 			printf(" %-50s |", "(null)");
 		}
 		else { printf(" %-50s |", movies->title[i]); }
 		
-		if ( movies->dir_position[i] == NULL || movies->dir_position[i][0] == '\0') {
+		if ( movies->dir_position == NULL || movies->dir_position[i][0] == '\0') {
 			printf(" %-50s |", "(null)");
 		}
-		else { printf(" %-50s |", movies->dir_position[i]); }
+		else { printf(" %-50s |", /*movies->dir_position[i])*/ "Nothing"); }
 		
-		if (movies->video_size[i] == NULL) {
+		if (movies->video_size == NULL) {
 			printf(" %20s |\n", "(null)");
 		}
 		else { printf(" %20I64d |\n", movies->video_size[i]); }

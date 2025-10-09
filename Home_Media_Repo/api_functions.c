@@ -273,6 +273,7 @@ MovieTable* Select_Movies(const MovieTable* movies_table, int* int_array) {
 							return NULL;
 							break;
 					}
+					break;
 
 				case ID:
 
@@ -281,19 +282,20 @@ MovieTable* Select_Movies(const MovieTable* movies_table, int* int_array) {
 
 					case EQUALS:
 						//return ID that matches the ID int
-					{
+						{
 						int i = atoi(title_str);
 						result_table->id = &movies_table->id[i];
 						result_table->num_elements_MV = 1;
 						return result_table;
-					}
-					break;
+						}
+						break;
 
 					default:
 						printf("Invalid target in WHERE clause of SELECT command\n");
 						return NULL;
 						break;
 					}
+					break;
 
 				}
 			}
@@ -433,10 +435,13 @@ void Request_Parsing(const DatabaseStructure* database_table, parse_node* head, 
 		return; 
 	}
 
-	//TEST PURPOSES ONLY
+	//TEST PURPOSES ONLY DELETE
 	//quick print of the returned movie table
-	printf("Returning: \n");
-	Better_Print_Table(movies_table_response);
+	//printf("Returning: \n");
+	//Better_Print_Table(movies_table_response);
+
+
+
 	return;
 }
 

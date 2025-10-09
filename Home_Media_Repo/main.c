@@ -75,7 +75,9 @@ int main() {
 
 	printf("\nTest ID\n");
     Request_Parsing(test, root_test, "SELECT%ID%FROM%MOVIES%WHERE%TITLE%EQUALS%U-571");
-    Request_Parsing(test, root_test, "SELECT%ID%FROM%MOVIES%WHERE%TITLE%EQUALS%10");
+    
+	//failed test case, returned a negative int when title was used instead of ID
+    Request_Parsing(test, root_test, "SELECT%ID%FROM%MOVIES%WHERE%ID%EQUALS%10");
     Request_Parsing(test, root_test, "SELECT%ID%FROM%MOVIES%");
 
 	//cant test description yet as its not filled in the DB structure
@@ -93,5 +95,7 @@ int main() {
 * int_array[5] = TITLE
 * int_array[6] = EQUALS
 * int_array[7] = -1
+
+need error protection when calling Table_Look_Up_Title
 
 */
