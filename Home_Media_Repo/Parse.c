@@ -104,6 +104,9 @@ parse_node* initialize_parse_tree() {
 	Add_Parse_Word(head, "ASCENDING", ASCENDING);	
 	Add_Parse_Word(head, "DESCENDING", DESCENDING);
 	
+	Add_Parse_Word(head, "MOVIES", MOVIES);
+	Add_Parse_Word(head, "SERIES", SERIES);
+
 	printf("Parse tree initialized successfully.\n");
 	return head;
 }

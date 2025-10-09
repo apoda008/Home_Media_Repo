@@ -2,141 +2,327 @@
 
 static char title_str[256];
 
-MovieTable* Select(const MovieTable* movies_table, int* int_array) {
-	if(movies_table == NULL || int_array == NULL) {
+int Table_Look_Up_Title(const MovieTable* movies_table, const char* title) {
+	if (movies_table == NULL) {
+		return -2; //error
+	}
+
+	int table_pos = -1;
+	if (title != NULL) {
+		//if the table is organized by title, a binary search can be implemented here
+
+		//since its currently not organized, a linear search will be used
+		for (int i = 0; i < movies_table->num_elements_MV; i++) {
+			if (strcmp(movies_table->title[i], title_str) == 0) {
+				table_pos = i;
+				return table_pos; //return object will go here
+			}
+		}
+		return table_pos; //not found
+	}
+	return -2; //title was NULL
+}
+
+MovieTable* Select_Movies(const MovieTable* movies_table, int* int_array) {
+	
+	if (movies_table == NULL || int_array == NULL) {
 		printf("Movie table or int array is NULL\n");
 		return;
 	}
 
+	MovieTable* result_table = malloc(sizeof(MovieTable));
+	if (result_table == NULL) {
+		printf("Memory allocation failed for result_table\n");
+		return;
+	}
 
+	//initialize result table
+	result_table->id = NULL;
+	result_table->title = NULL;
+	result_table->description = NULL;
+	result_table->dir_position = NULL;
+	result_table->video_size = NULL;
+	result_table->num_elements_MV = 0;
+	
 	switch (int_array[3]) {
-		case MOVIE:
-			switch (int_array[1]) {
-			
-				case ALL:
-					if( int_array[4] != -1 ) {
-						switch (int_array[5]) {
-							case TITLE:
-								switch (int_array[6])
-								{
-									case EQUALS:
-										//return all data for a specific title
-										//needs to find title in the table
+	case MOVIES:
+		switch (int_array[1])
+		{
+		case ALL:
 
-										break;
+			if (int_array[4] != -1) {
 
-								}
-								break;
-							case ID:
-								switch (int_array[6]) {
-									case EQUALS:
-										//return all data for a specific ID
-										break;
-								}
-								break;
-						}
-					} else {
-						//return entire table
-					}
-					break;
-			
+				switch (int_array[5])
+				{ //WHERE
 				case TITLE:
-					if (int_array[4] != -1) {
-						switch (int_array[5]) {
-							case TITLE:
-								switch (int_array[6]) {
-									case EQUALS:
-										//return title that matches the title string
-								}
-								break;
-							case ID:
-								switch (int_array[6]) {
-									case EQUALS:
-										//return title that matches the ID int
-									break;
-								}
-								break;			
-						}
-					} else {
-						//return all titles in the table
+
+					switch (int_array[6])
+					{
+					case EQUALS:
+					{
+						//return all data for a specific title
+						int i = Table_Look_Up_Title(movies_table, title_str);
+						result_table->id = &movies_table->id[i];
+						result_table->video_size = &movies_table->video_size[i];
+						result_table->dir_position = &movies_table->dir_position[i];
+						result_table->title = &movies_table->title[i];
+						result_table->description = &movies_table->description[i];
+						result_table->num_elements_MV = 1;
+						//I don't plan on dir position being used so commenting out for now
+						//result_table->dir_position = &movies_table->dir_position[i];
+						return result_table; //return object will go here
+					} //EQUALS
+					break;
+
+					default:
+						printf("Invalid target in WHERE clause of SELECT command\n");
+						return NULL;
+					}
+
+				case ID:
+
+					switch (int_array[6])
+					{
+					case EQUALS:
+					{
+						//return all data for a specific ID
+						//this function is not entirely safe. Consider making your own str to int function
+						int value = atoi(title_str);
+						result_table->num_elements_MV = 1;
+						result_table->id = &movies_table->id[value];
+						result_table->video_size = &movies_table->video_size[value];
+						result_table->dir_position = &movies_table->dir_position[value];
+						result_table->title = &movies_table->title[value];
+						result_table->description = &movies_table->description[value];
+
+						return result_table;
 					}
 					break;
-			
-				case DESCRIPTION:
-					if (int_array[4] != -1) {
-						switch (int_array[5]) {
-							case TITLE:
-								switch (int_array[6]) {
-								case EQUALS:
-									//return description that matches the title string
-								}
-								break;
-							case ID:
-								switch (int_array[6]) {
-								case EQUALS:
-									//return description that matches the ID int
-									break;
-								}
-								break;
-						}
+
+					default:
+						printf("Invalid target in WHERE clause of SELECT command\n");
+						return NULL; //return object will go here
+						break;
 					}
-					else {
-						//return all descriptions in the table
+				
+				default:
+					printf("Invalid target in WHERE clause of SELECT command\n");
+					return NULL;
+					break;
+				}
+
+				
+			}
+			else {
+				//return entire table
+				result_table = movies_table;
+				return result_table;
+			}
+			break;
+
+
+		case TITLE:
+			if (int_array[4] != -1) {
+				switch (int_array[5])
+				{//WHERE
+
+				case TITLE:
+
+					switch (int_array[6])
+					{
+
+					case EQUALS:
+						//return title that matches the title string
+					{
+						int i = Table_Look_Up_Title(movies_table, title_str);
+						result_table->title = &movies_table->title[i];
+						result_table->num_elements_MV = 1;
+
+						return result_table;
 					}
 					break;
-		
-				case GENRE:
-					if (int_array[4] != -1) {
-						switch (int_array[5]) {
-						case TITLE:
-							switch (int_array[6]) {
-							case EQUALS:
-								//return genres that matches the title string
-							}
-							break;
-						case ID:
-							switch (int_array[6]) {
-							case EQUALS:
-								//return genres that matches the ID int
-								break;
-							}
-							break;
-						}
+
+					default:
+						printf("Invalid target in WHERE clause of SELECT command\n");
+						return NULL;
+						break;
 					}
-					else {
-						//return all genres in the table
+
+				case ID:
+					switch (int_array[6])
+					{
+					case EQUALS:
+						//return title that matches the ID int
+					{
+						int i = atoi(title_str);
+						result_table->title = &movies_table->title[i];
+						result_table->num_elements_MV = 1;
+
+						return result_table;
+					}
+					break;
+					default:
+						printf("Invalid target in WHERE clause of SELECT command\n");
+						return NULL;
+						break;
+					}
+
+				default:
+					printf("Invalid target in WHERE clause of SELECT command\n");
+					return NULL;
+					break;
+				}
+			}
+			else {
+				//return all titles in the table
+				result_table->title = movies_table->title;
+				result_table->num_elements_MV = movies_table->num_elements_MV;
+				return result_table;
+			}
+			break;
+
+		case DESCRIPTION:
+			if (int_array[4] != -1) {
+				switch (int_array[5]) {
+				case TITLE:
+					switch (int_array[6]) {
+					case EQUALS:
+						//return description that matches the title string
+					{
+						int i = Table_Look_Up_Title(movies_table, title_str);
+						result_table->description = &movies_table->description[i];
+						result_table->num_elements_MV = 1;
+						return result_table;
+					}
+					break;
+					}
+					break;
+				case ID:
+					switch (int_array[6]) {
+					case EQUALS:
+					{
+						//return description that matches the ID int
+						int i = atoi(title_str);
+						result_table->description = &movies_table->description[i];
+						result_table->num_elements_MV = 1;
+
+					}
+					break;
+					}
+					break;
+				}
+			}
+			else {
+				//return all descriptions in the table
+				result_table->description = movies_table->description;
+				result_table->num_elements_MV = movies_table->num_elements_MV;
+				return result_table;
+			}
+			break;
+
+		case GENRE:
+
+			if (int_array[4] != -1) {
+				switch (int_array[5])
+				{
+
+				case TITLE:
+
+					switch (int_array[6])
+					{
+					case EQUALS:
+						//return genres that matches the title string
+						break;
+					}
+					break;
+				case ID:
+					switch (int_array[6]) {
+					case EQUALS:
+						//return genres that matches the ID int
+						break;
+					}
+					break;
+				}
+			}
+			else {
+				//return all genres in the table
+			}
+			break;
+
+		case ID:
+			if (int_array[4] != -1) {
+				switch (int_array[5])
+				{
+				case TITLE:
+
+					switch (int_array[6])
+					{
+
+						case EQUALS:
+						//return ID that matches the title string
+						{
+						int i = Table_Look_Up_Title(movies_table, title_str);
+						result_table->id = &movies_table->id[i];
+						result_table->num_elements_MV = 1;
+						return result_table;
+						}
+						break;
+
+						default:
+							printf("Invalid target in WHERE clause of SELECT command\n");
+							return NULL;
+							break;
 					}
 					break;
 
 				case ID:
-					if (int_array[4] != -1) {
-						switch (int_array[5]) {
-						case TITLE:
-							switch (int_array[6]) {
-							case EQUALS:
-								//return ID that matches the title string
-							}
-							break;
-						case ID:
-							switch (int_array[6]) {
-							case EQUALS:
-								//return ID that matches the ID int
-								break;
-							}
-							break;
+
+					switch (int_array[6])
+					{
+
+					case EQUALS:
+						//return ID that matches the ID int
+						{
+						int i = atoi(title_str);
+						result_table->id = &movies_table->id[i];
+						result_table->num_elements_MV = 1;
+						return result_table;
 						}
-					}
-					else {
-						//return all IDs in the table
+						break;
+
+					default:
+						printf("Invalid target in WHERE clause of SELECT command\n");
+						return NULL;
+						break;
 					}
 					break;
+
+				}
+			}
+			else {
+				//return all IDs in the table
+				result_table->id = movies_table->id;
+				result_table->num_elements_MV = movies_table->num_elements_MV;
+				return result_table;
 			}
 			break;
-		case SERIES:
+	
+		}//end of switch target
+		break; //END OF MOVIES
+	
+
+	//IMPLEMENT LATER
+	case SERIES:
 			//do series thing
 			break;
+			
+	default:
+		printf("Invalid source in SELECT command\n");
+		return NULL;
+		break;
 	}
-}
+
+}//end of Select_Movies
 
 int* Query_Transform(parse_node* head, const char* query_string) {
 	/*This will take the query string from the Request_Parsing function
@@ -170,12 +356,22 @@ int* Query_Transform(parse_node* head, const char* query_string) {
 	while(token != NULL) {
 		
 		//Will have to realloc if more than 10 tokens are found
-
 		int_array[tracker] = Does_Command_Exist(head, token);
+		if (int_array[tracker] == -1) {
+			printf("Parsing error at index: %d\n", tracker);
+		}
+
 		token = strtok_s(NULL, "%", &context);
 		
 		//Special case for the titles name input
-		if (tracker == 4) {
+		if (tracker == 6) {
+			
+			//needs null protection
+			if(token == NULL) {
+				printf("Token is NULL when trying to copy title\n");
+				free(int_array);
+				return NULL;
+			}
 
 			errno_t result = strcpy_s(title_str, sizeof(title_str), token);
 			if (result != 0) {
@@ -190,7 +386,7 @@ int* Query_Transform(parse_node* head, const char* query_string) {
 	return int_array;
 }
 
-void Request_Parsing(parse_node* head, const char* db_request) {
+void Request_Parsing(const DatabaseStructure* database_table, parse_node* head, const char* db_request) {
 	/*this will call the Query_Transform function to get the int array
 	then it will use that array accross a large switch statement to
 	do the required operations. It will return a Response struct that
@@ -203,13 +399,18 @@ void Request_Parsing(parse_node* head, const char* db_request) {
 		return; //return object will go here
 	}
 
+	//test
+	//for(int i = 0; i < 10; i++) {
+	//	printf("parsed_array[%d] = %d\n", i, parsed_array[i]);
+	//}
+
 	//if a remake is not done of the DB structure this will have to be passed in
-	MovieTable* movies_table_response;
+	MovieTable* movies_table_response = NULL;
 
 	//Stage one 
 	switch (parsed_array[0]) {
 	case SELECT:
-		Select(NULL, parsed_array);
+		movies_table_response = Select_Movies(database_table->movies, parsed_array);
 		break;
 	case CHANGE:
 		//do thing
@@ -229,7 +430,19 @@ void Request_Parsing(parse_node* head, const char* db_request) {
 		break;
 	}
 
+	if (movies_table_response == NULL) {
+		printf("Invalid Input for request\n");
+		return; 
+	}
 
+	//TEST PURPOSES ONLY DELETE
+	//quick print of the returned movie table
+	//printf("Returning: \n");
+	//Better_Print_Table(movies_table_response);
+
+
+
+	return;
 }
 
 //to be called when a video stream is requested

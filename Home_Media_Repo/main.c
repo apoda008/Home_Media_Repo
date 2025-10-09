@@ -9,7 +9,7 @@
 /// /////////////////
 
 int main() {
-    /*
+    
     printf("Starting up Media Repository\n\n");
     
     static struct Master_Directory master_pathing;
@@ -45,41 +45,57 @@ int main() {
     //..
 
     //para needs to be num of files 
-	DatabaseStructure* test = Construct_Database_Structure(10, 10);
-    */
+	DatabaseStructure* test = Construct_Database_Structure(master_pathing.num_of_files, 10);
+    
+	//fill constrcuted DB structure with movies from bin files
+    Fill_Table_Movies(test, dir_struct_ptr);
+    
+    //print constructed movie table
+    Print_Movie_Table(test->movies);
+    
+	//Needs restructuring to include the new tables instead of MediaData
+    //Api_Connection();
 
-	
 	//////////////////////////////////////////TEST ZONE//////////////////////////////////////////
-	/*
-    test_unit();
-	return 0;
-
-
-    //   Fill_Table_Movies(test, dir_struct_ptr);
-    //   printf("\nBefore sorting:\n");
-    //   Print_Movie_Table(test->movies);
-       //
-       ////Sort_Movie_Table(test);
-       ////printf("After sorting:\n");
-       //Print_Movie_Table(test->movies);
-
-       //Build_DB_Trie();
-
-       //int* Query_Transform(char* query_string);
-       //int* test2 = Query_Transform("SELECT%TITLE%WHERE%TITLE%EQUALS%some string");
-       /*if (test2 != NULL) {
-           printf("Returned array pointer: %p\n", test2);
-           printf("test2[0]: %d\n", test2[0]);
-           for (int i = 0; i < 8; i++) {
-               printf("MAIN Command %d: %d\n", i, test2[i]);
-           }
-       }
-       return 0;
-    */
-    static struct Master_Directory master_pathing;
-	parse_node* test = initialize_parse_tree();
 	
-	Request_Parsing(test, "SELECT%TITLE%FROM%MOVIES%WHERE%TITLE%EQUALS%some string");
+    //in full implementation this will be initialized in the Api_Connection() function
+    parse_node* root_test = initialize_parse_tree();
 
-	return 0;
+	printf("\n\n\n");
+	printf("//////////TEST ZONE//////////\n\n");
+    printf("Test ALL\n");
+	Request_Parsing(test, root_test, "SELECT%ALL%FROM%MOVIES%WHERE%TITLE%EQUALS%U-571");
+	Request_Parsing(test, root_test, "SELECT%ALL%FROM%MOVIES");
+	Request_Parsing(test, root_test, "SELECT%ALL%FROM%MOVIES%WHERE%ID%EQUALS%10");
+
+	printf("\nTest TITLE\n");
+    Request_Parsing(test, root_test, "SELECT%TITLE%FROM%MOVIES%WHERE%TITLE%EQUALS%U-571");
+    Request_Parsing(test, root_test, "SELECT%TITLE%FROM%MOVIES%WHERE%ID%EQUALS%10"); 
+    Request_Parsing(test, root_test, "SELECT%TITLE%FROM%MOVIES");
+
+	printf("\nTest ID\n");
+    Request_Parsing(test, root_test, "SELECT%ID%FROM%MOVIES%WHERE%TITLE%EQUALS%U-571");
+    
+	//failed test case, returned a negative int when title was used instead of ID
+    Request_Parsing(test, root_test, "SELECT%ID%FROM%MOVIES%WHERE%ID%EQUALS%10");
+    Request_Parsing(test, root_test, "SELECT%ID%FROM%MOVIES%");
+
+	//cant test description yet as its not filled in the DB structure
+    return 0;
 }
+
+/*
+* End of main.c
+* NOTES 
+* int_array[0] = SELECT
+* int_array[1] = TITLE
+* int_array[2] = FROM
+* int_array[3] = MOVIES
+* int_array[4] = WHERE
+* int_array[5] = TITLE
+* int_array[6] = EQUALS
+* int_array[7] = -1
+
+need error protection when calling Table_Look_Up_Title
+
+*/
