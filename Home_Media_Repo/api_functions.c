@@ -2,6 +2,34 @@
 
 static char title_str[256];
 
+cJSON* Parse_To_JSON(MovieTable* result_table) {
+	if (result_table == NULL) {
+		return NULL;
+	}
+	cJSON* json_array = cJSON_CreateArray();
+	if (json_array == NULL) {
+		printf("Failed to create JSON array\n");
+		return NULL;
+	}
+	for (int i = 0; i < result_table->num_elements_MV; i++) {
+		cJSON* movie_obj = cJSON_CreateObject();
+		if (movie_obj == NULL) {
+			printf("Failed to create JSON object for movie\n");
+			cJSON_Delete(json_array);
+			return NULL;
+		}
+		//THIS NEEDS SO MUCH ERROR CHECKING. LOOK FOR INSTANCES WHERE IT IS ONLY RETURNING A SINGLE ITEM OR NULL
+		cJSON_AddNumberToObject(movie_obj, "id", result_table->id[i]);
+		cJSON_AddStringToObject(movie_obj, "title", result_table->title[i]);
+		cJSON_AddStringToObject(movie_obj, "description", result_table->description[i]);
+		// Note: dir_position is TCHAR, conversion may be needed
+		cJSON_AddStringToObject(movie_obj, "dir_position", result_table->dir_position[i]);
+		cJSON_AddNumberToObject(movie_obj, "video_size", result_table->video_size[i]);
+		cJSON_AddItemToArray(json_array, movie_obj);
+	}
+	return json_array;
+}
+
 int Table_Look_Up_Title(const MovieTable* movies_table, const char* title) {
 	if (movies_table == NULL) {
 		return -2; //error
