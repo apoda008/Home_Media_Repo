@@ -31,28 +31,37 @@ cJSON* Parse_To_JSON(MovieTable* result_table) {
 		cJSON_AddItemToArray(json_array, movie_obj);
 		return json_array;
 	}
-
+	cJSON_Delete(movie_obj); // Delete the single object as we will create new ones in the loop
 	
 	for (int i = 0; i < result_table->num_elements_MV; i++) {	
 		//THIS NEEDS SO MUCH ERROR CHECKING. LOOK FOR INSTANCES WHERE IT IS ONLY RETURNING A SINGLE ITEM OR NULL
-		printf("Processing movie %d\n", i);
+		
+		cJSON* movie_obj = cJSON_CreateObject();
 
 		if (result_table->id != NULL) {
 			cJSON_AddNumberToObject(movie_obj, "id", result_table->id[i]);
 		} 
+		//printf("1\n");
 		if (result_table->title != NULL) {
 			cJSON_AddStringToObject(movie_obj, "title", result_table->title[i]);
 		}
+		//printf("2\n");
+		//I don't plan on dir position being used so commenting out for now
 		if (result_table->description != NULL) {
 			cJSON_AddStringToObject(movie_obj, "description", result_table->description[i]);
 		}
+		//printf("3\n");
+		//I don't plan on dir position being used so commenting out for now
 		if (result_table->dir_position != NULL) {
 			// Note: dir_position is TCHAR, conversion may be needed
 			//cJSON_AddStringToObject(movie_obj, "dir_position", result_table->dir_position[i]);
 		}
+		//printf("4\n");	
 		if (result_table->video_size != NULL) {
 			cJSON_AddNumberToObject(movie_obj, "video_size", result_table->video_size[i]);
 		}
+		//printf("5\n");
+		
 		
 		//cJSON_AddNumberToObject(movie_obj, "id", result_table->id[i]);
 		//cJSON_AddStringToObject(movie_obj, "title", result_table->title[i]);
@@ -61,6 +70,7 @@ cJSON* Parse_To_JSON(MovieTable* result_table) {
 		//cJSON_AddStringToObject(movie_obj, "dir_position", result_table->dir_position[i]);
 		//cJSON_AddNumberToObject(movie_obj, "video_size", result_table->video_size[i]);
 		cJSON_AddItemToArray(json_array, movie_obj);
+
 	}
 	return json_array;
 }
@@ -151,6 +161,12 @@ MovieTable* Select_Movies(const MovieTable* movies_table, int* int_array) {
 						//return all data for a specific ID
 						//this function is not entirely safe. Consider making your own str to int function
 						int value = atoi(title_str);
+						
+						if (value < 0 || value >= movies_table->num_elements_MV) {
+							printf("ID out of range: %d\n", value);
+							printf("Max ID: %d\n", movies_table->num_elements_MV - 1);
+							return NULL; //return object will go here
+						}
 						result_table->num_elements_MV = 1;
 						result_table->id = &movies_table->id[value];
 						result_table->video_size = &movies_table->video_size[value];
@@ -218,6 +234,10 @@ MovieTable* Select_Movies(const MovieTable* movies_table, int* int_array) {
 						//return title that matches the ID int
 					{
 						int i = atoi(title_str);
+						if( i < 0 || i >= movies_table->num_elements_MV) {
+							printf("ID out of range\n");
+							return NULL; //return object will go here
+						}
 						result_table->title = &movies_table->title[i];
 						result_table->num_elements_MV = 1;
 
@@ -266,6 +286,10 @@ MovieTable* Select_Movies(const MovieTable* movies_table, int* int_array) {
 					{
 						//return description that matches the ID int
 						int i = atoi(title_str);
+						if (i < 0 || i >= movies_table->num_elements_MV) {
+							printf("ID out of range\n");
+							return NULL; //return object will go here
+						}
 						result_table->description = &movies_table->description[i];
 						result_table->num_elements_MV = 1;
 
@@ -347,6 +371,10 @@ MovieTable* Select_Movies(const MovieTable* movies_table, int* int_array) {
 						//return ID that matches the ID int
 						{
 						int i = atoi(title_str);
+						if (i < 0 || i >= movies_table->num_elements_MV) {
+							printf("ID out of range\n");
+							return NULL; //return object will go here
+						}
 						result_table->id = &movies_table->id[i];
 						result_table->num_elements_MV = 1;
 						return result_table;
