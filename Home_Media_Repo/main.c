@@ -81,6 +81,9 @@ int main() {
     Request_Parsing(test, root_test, "SELECT%ID%FROM%MOVIES%");
 
 	//cant test description yet as its not filled in the DB structure
+    
+	Free_Database_Structure(test);
+	free(root_test);    
     return 0;
 }
 
