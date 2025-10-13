@@ -11,6 +11,13 @@ struct Memory {
     size_t size;
 };
 
+//respose structure for api calls
+typedef struct Response {
+    int status_code;
+    char* message;
+    cJSON* data;
+} Response;
+
 void ConvertTCHARtoUTF8(const TCHAR* input, char* output, size_t outputSize);
 
 size_t write_chunk(void* data, size_t size, size_t nmemb, void* user_data);

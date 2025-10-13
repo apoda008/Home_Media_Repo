@@ -5,20 +5,8 @@
 #include "data_structures.h"
 #include "Parse.h"
 
-
-//enum DataBaseChoices {
-//	//MOVIE = 0,
-//	//SERIES = 1
-//};
-
 //void VideoTest(SOCKET client_socket);
-
-typedef struct Response {
-	int status_code;
-	char* message;
-	cJSON* data;
-} Response;
-
+// 
 //transforms the parse tree into an int array for easier processing
 int* Query_Transform(parse_node* head, char* query_string);
 
