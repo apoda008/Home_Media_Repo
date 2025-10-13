@@ -75,10 +75,16 @@ int main() {
     Request_Parsing(test, root_test, "SELECT%ALL%FROM%MOVIES%WHERE%ID%EQUALS%10");
 
 	printf("\nTest TITLE\n");
+	printf("Testing 1\n");
     Request_Parsing(test, root_test, "SELECT%TITLE%FROM%MOVIES%WHERE%TITLE%EQUALS%U-571");
+	printf("\n");
+	printf("Testing 2\n");
     Request_Parsing(test, root_test, "SELECT%TITLE%FROM%MOVIES%WHERE%ID%EQUALS%10"); 
+	printf("\n");
+	printf("Testing 3\n");
     Request_Parsing(test, root_test, "SELECT%TITLE%FROM%MOVIES");
-
+	printf("\n");
+	printf("Testing 4\n");
 	printf("\nTest ID\n");
     Request_Parsing(test, root_test, "SELECT%ID%FROM%MOVIES%WHERE%TITLE%EQUALS%U-571");
     
