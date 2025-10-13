@@ -53,6 +53,7 @@ int main() {
     //print constructed movie table
     Print_Movie_Table(test->movies);
     
+	printf("NUM OF ELEMENTS: %d\n", test->movies->num_elements_MV);
 	//Needs restructuring to include the new tables instead of MediaData
     //Api_Connection();
 
@@ -64,9 +65,14 @@ int main() {
 	printf("\n\n\n");
 	printf("//////////TEST ZONE//////////\n\n");
     printf("Test ALL\n");
-	Request_Parsing(test, root_test, "SELECT%ALL%FROM%MOVIES%WHERE%TITLE%EQUALS%U-571");
-	Request_Parsing(test, root_test, "SELECT%ALL%FROM%MOVIES");
-	Request_Parsing(test, root_test, "SELECT%ALL%FROM%MOVIES%WHERE%ID%EQUALS%10");
+	printf("Testing 1\n");
+    Request_Parsing(test, root_test, "SELECT%ALL%FROM%MOVIES%WHERE%TITLE%EQUALS%U-571");
+	printf("\n");
+	printf("Testing 2\n");
+    Request_Parsing(test, root_test, "SELECT%ALL%FROM%MOVIES");
+	printf("\n");
+	printf("Testing 3\n");
+    Request_Parsing(test, root_test, "SELECT%ALL%FROM%MOVIES%WHERE%ID%EQUALS%10");
 
 	printf("\nTest TITLE\n");
     Request_Parsing(test, root_test, "SELECT%TITLE%FROM%MOVIES%WHERE%TITLE%EQUALS%U-571");

@@ -2,7 +2,7 @@
 
 static char title_str[256];
 
-cJSON* Parse_To_JSON(MovieTable* result_table) {
+cJSON* Parse_To_JSON(const MovieTable* result_table) {
 	if (result_table == NULL) {
 		return NULL;
 	}
@@ -160,6 +160,7 @@ MovieTable* Select_Movies(const MovieTable* movies_table, int* int_array) {
 					{
 						//return all data for a specific ID
 						//this function is not entirely safe. Consider making your own str to int function
+						printf("num elements before atoi %d\n", movies_table->num_elements_MV);
 						int value = atoi(title_str);
 						
 						if (value < 0 || value >= movies_table->num_elements_MV) {
@@ -194,7 +195,7 @@ MovieTable* Select_Movies(const MovieTable* movies_table, int* int_array) {
 			}
 			else {
 				//return entire table
-				result_table = movies_table;
+				Movie_Table_Copy(movies_table, result_table);
 				return result_table;
 			}
 			break;
@@ -484,6 +485,8 @@ void Request_Parsing(const DatabaseStructure* database_table, parse_node* head, 
 	will then be transformed into JSON and sent back to the requester
 	*/
 	int* parsed_array = Query_Transform(head, db_request);
+
+	printf("Num of elements in database: %d\n", database_table->movies->num_elements_MV);
 
 	if (parsed_array == NULL) {
 		printf("Parsed array is NULL\n");
