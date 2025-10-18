@@ -40,6 +40,12 @@ cJSON* Parse_To_JSON(const MovieTable* result_table) {
 		//THIS NEEDS SO MUCH ERROR CHECKING. LOOK FOR INSTANCES WHERE IT IS ONLY RETURNING A SINGLE ITEM OR NULL
 		
 		cJSON* movie_obj = cJSON_CreateObject();
+		if (movie_obj == NULL) {
+			printf("Failed to create JSON object for movie at index %d\n", i);
+			cJSON_Delete(json_array);
+			return NULL;
+		}
+
 
 		if (result_table->id != NULL) {
 			cJSON_AddNumberToObject(movie_obj, "id", result_table->id[i]);
@@ -472,7 +478,7 @@ int* Query_Transform(parse_node* head, const char* query_string) {
 	return int_array;
 }
 
-void Request_Parsing(const DatabaseStructure* database_table, parse_node* head, const char* db_request) {
+cJSON* Request_Parsing(const DatabaseStructure* database_table, parse_node* head, const char* db_request) {
 	/*this will call the Query_Transform function to get the int array
 	then it will use that array accross a large switch statement to
 	do the required operations. It will return a Response struct that
@@ -548,7 +554,7 @@ void Request_Parsing(const DatabaseStructure* database_table, parse_node* head, 
 	free(movies_table_response);
 	movies_table_response = NULL;
 
-	return;
+	return json_response;
 }
 
 //to be called when a video stream is requested
