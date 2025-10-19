@@ -548,9 +548,6 @@ cJSON* Request_Parsing(const DatabaseStructure* database_table, parse_node* head
 
 	}
 
-	char* json_string = cJSON_Print(json_response);
-	printf("JSON Response:\n%s\n", json_string);
-
 	free(movies_table_response);
 	movies_table_response = NULL;
 

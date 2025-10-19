@@ -376,7 +376,7 @@ void Api_Connection(DatabaseStructure* db_table, parse_node* head) {
 			closesocket(client_socket);
 		}
 		
-		while (1) {
+		
 			int bytes_received = recv(client_socket, buffer, sizeof(buffer) - 1, 0);
 			if (bytes_received > 0) {
 				//this is where i will need to call the input parsing  
@@ -403,13 +403,18 @@ void Api_Connection(DatabaseStructure* db_table, parse_node* head) {
 
 				send(client_socket, j_print, strlen(j_print), 0);
 				printf("Response sent to client.\n");
+				cJSON_Delete(req);
+				//break; //break to wait for new client
+			} else if (bytes_received == 0) {
+				printf("Connection closed by client.\n");
+				//break;
 			}
-		}
-
-
-		//THIS IS TEST==============================================================
-
-		//VideoTest(client_socket);
+			else {
+				printf("recv failed: %d\n", WSAGetLastError());
+				//break;
+			}
+		
+		//PRETTY SURE ERROR IS FROM NOT BEING ABLE TO PROPERLY RESET AND AWAIT A NEW REQUEST
 		
 
 		//END TEST REGION===========================================================
