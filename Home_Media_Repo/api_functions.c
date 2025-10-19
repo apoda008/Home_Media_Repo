@@ -2,7 +2,7 @@
 
 static char title_str[256];
 
-cJSON* Parse_To_JSON(MovieTable* result_table) {
+cJSON* Parse_To_JSON(const MovieTable* result_table) {
 	if (result_table == NULL) {
 		return NULL;
 	}
@@ -22,12 +22,15 @@ cJSON* Parse_To_JSON(MovieTable* result_table) {
 	printf("Number of elements in result_table: %d\n", result_table->num_elements_MV);
 	
 	if (result_table->num_elements_MV == 1) {
-		cJSON_AddNumberToObject(movie_obj, "id", *(result_table->id));
-		cJSON_AddStringToObject(movie_obj, "title", *(result_table->title));
-		cJSON_AddStringToObject(movie_obj, "description", *(result_table->description));
-		// Note: dir_position is TCHAR, conversion may be needed
-		//cJSON_AddStringToObject(movie_obj, "dir_position", *(result_table->dir_position));
-		cJSON_AddNumberToObject(movie_obj, "video_size", *(result_table->video_size));
+		if (result_table->id != NULL) {cJSON_AddNumberToObject(movie_obj, "id", *(result_table->id));}
+		if (result_table->title != NULL) { cJSON_AddStringToObject(movie_obj, "title", *(result_table->title)); }
+		if (result_table->description != NULL) { cJSON_AddStringToObject(movie_obj, "description", *(result_table->description)); }
+		if( result_table->dir_position != NULL) {
+			// Note: dir_position is TCHAR, conversion may be needed
+			//cJSON_AddStringToObject(movie_obj, "dir_position", *(result_table->dir_position));
+		}
+		if (result_table->video_size != NULL) { cJSON_AddNumberToObject(movie_obj, "video_size", *(result_table->video_size)); }
+
 		cJSON_AddItemToArray(json_array, movie_obj);
 		return json_array;
 	}
@@ -37,38 +40,36 @@ cJSON* Parse_To_JSON(MovieTable* result_table) {
 		//THIS NEEDS SO MUCH ERROR CHECKING. LOOK FOR INSTANCES WHERE IT IS ONLY RETURNING A SINGLE ITEM OR NULL
 		
 		cJSON* movie_obj = cJSON_CreateObject();
+		if (movie_obj == NULL) {
+			printf("Failed to create JSON object for movie at index %d\n", i);
+			cJSON_Delete(json_array);
+			return NULL;
+		}
+
 
 		if (result_table->id != NULL) {
 			cJSON_AddNumberToObject(movie_obj, "id", result_table->id[i]);
 		} 
-		//printf("1\n");
+
 		if (result_table->title != NULL) {
 			cJSON_AddStringToObject(movie_obj, "title", result_table->title[i]);
 		}
-		//printf("2\n");
+
 		//I don't plan on dir position being used so commenting out for now
 		if (result_table->description != NULL) {
 			cJSON_AddStringToObject(movie_obj, "description", result_table->description[i]);
 		}
-		//printf("3\n");
+		
 		//I don't plan on dir position being used so commenting out for now
 		if (result_table->dir_position != NULL) {
 			// Note: dir_position is TCHAR, conversion may be needed
 			//cJSON_AddStringToObject(movie_obj, "dir_position", result_table->dir_position[i]);
 		}
-		//printf("4\n");	
+		
 		if (result_table->video_size != NULL) {
 			cJSON_AddNumberToObject(movie_obj, "video_size", result_table->video_size[i]);
-		}
-		//printf("5\n");
-		
-		
-		//cJSON_AddNumberToObject(movie_obj, "id", result_table->id[i]);
-		//cJSON_AddStringToObject(movie_obj, "title", result_table->title[i]);
-		//cJSON_AddStringToObject(movie_obj, "description", result_table->description[i]);
-		//// Note: dir_position is TCHAR, conversion may be needed
-		//cJSON_AddStringToObject(movie_obj, "dir_position", result_table->dir_position[i]);
-		//cJSON_AddNumberToObject(movie_obj, "video_size", result_table->video_size[i]);
+		}	
+
 		cJSON_AddItemToArray(json_array, movie_obj);
 
 	}
@@ -164,7 +165,6 @@ MovieTable* Select_Movies(const MovieTable* movies_table, int* int_array) {
 						
 						if (value < 0 || value >= movies_table->num_elements_MV) {
 							printf("ID out of range: %d\n", value);
-							printf("Max ID: %d\n", movies_table->num_elements_MV - 1);
 							return NULL; //return object will go here
 						}
 						result_table->num_elements_MV = 1;
@@ -194,7 +194,7 @@ MovieTable* Select_Movies(const MovieTable* movies_table, int* int_array) {
 			}
 			else {
 				//return entire table
-				result_table = movies_table;
+				Movie_Table_Copy(movies_table, result_table);
 				return result_table;
 			}
 			break;
@@ -258,6 +258,7 @@ MovieTable* Select_Movies(const MovieTable* movies_table, int* int_array) {
 			}
 			else {
 				//return all titles in the table
+				
 				result_table->title = movies_table->title;
 				result_table->num_elements_MV = movies_table->num_elements_MV;
 				return result_table;
@@ -477,13 +478,15 @@ int* Query_Transform(parse_node* head, const char* query_string) {
 	return int_array;
 }
 
-void Request_Parsing(const DatabaseStructure* database_table, parse_node* head, const char* db_request) {
+cJSON* Request_Parsing(const DatabaseStructure* database_table, parse_node* head, const char* db_request) {
 	/*this will call the Query_Transform function to get the int array
 	then it will use that array accross a large switch statement to
 	do the required operations. It will return a Response struct that
 	will then be transformed into JSON and sent back to the requester
 	*/
 	int* parsed_array = Query_Transform(head, db_request);
+
+	printf("Num of elements in database: %d\n", database_table->movies->num_elements_MV);
 
 	if (parsed_array == NULL) {
 		printf("Parsed array is NULL\n");
@@ -537,16 +540,18 @@ void Request_Parsing(const DatabaseStructure* database_table, parse_node* head, 
 
 	if (json_response == NULL) {
 		printf("Failed to convert response to JSON\n");
-		return; //return object will go here
+		//404 0r 500 error response can be constructed here
+		return; 
 	}
+	else {
+		//200 OK response can be constructed here
 
-	char* json_string = cJSON_Print(json_response);
-	printf("JSON Response:\n%s\n", json_string);
+	}
 
 	free(movies_table_response);
 	movies_table_response = NULL;
 
-	return;
+	return json_response;
 }
 
 //to be called when a video stream is requested

@@ -303,9 +303,7 @@ bool IpAddress_Validation(const char* ip_address) {
 
 //====================================================================================
 ////This is the main API connection function that will be used to connect to the server
-void Api_Connection(MediaData** hash_table, size_t array_size) {
-	parse_node* head = initialize_parse_tree();
-
+void Api_Connection(DatabaseStructure* db_table, parse_node* head) {
 
 	//Start of connection
 	WSADATA wsaData;
@@ -328,8 +326,6 @@ void Api_Connection(MediaData** hash_table, size_t array_size) {
 		return 1;
 	}
 
-	
-
 	database_addr.sin_family = AF_INET;
 	database_addr.sin_port = htons(5001);
 	//database_addr.sin_addr.s_addr = INADDR_ANY;
@@ -350,8 +346,6 @@ void Api_Connection(MediaData** hash_table, size_t array_size) {
 		closesocket(database_socket);
 		return 1;
 	}
-
-
 
 
 	bool close = false;
@@ -381,9 +375,8 @@ void Api_Connection(MediaData** hash_table, size_t array_size) {
 			printf("Invalid address\n");
 			closesocket(client_socket);
 		}
-		//COMMENTED OUT FOR TESTING
 		
-		while (1) {
+		
 			int bytes_received = recv(client_socket, buffer, sizeof(buffer) - 1, 0);
 			if (bytes_received > 0) {
 				//this is where i will need to call the input parsing  
@@ -392,45 +385,45 @@ void Api_Connection(MediaData** hash_table, size_t array_size) {
 				buffer[bytes_received] = "\0";
 				printf("Received: %s\n", buffer);
 
-				char* context;
-				char* title_partitioned = strtok_s(buffer, " ", &context);
+				
 
-				if (strcmp(title_partitioned, "EXIT") == 0) {
-					break;
+				//THIS CURRENTLY INFINITELY LOOPS WHEN IT GETS A BAD REQUEST
+				cJSON* req = Request_Parsing(db_table, head, buffer);
+				
+				if(req == NULL) {
+					printf("Request parsing failed or returned NULL\n");
+					//send error response to client
+					const char* error_response = "{\"status_code\":400,\"message\":\"Bad Request\",\"data\":null}";
+					send(client_socket, error_response, strlen(error_response), 0);
+					break; // break and wait for new client
 				}
-				//this will fail
-			
-				/*
-				* This is probably going to be transformed into a void function
-				* that will take in the hash table and the buffer and client_socket
-				* We ill let the handling/parsing to be done all in the api_functions.c
-				* file. For now this will remain until the refactored function is created
-				*/
-				//cJSON* result = Input_String_Parsing(hash_table, buffer, array_size);
-
-				if (result == NULL) {
-					send(client_socket, "null", 5, 0);
-				}
-				char* j_print = cJSON_Print(result);
+				
+				char* j_print = cJSON_Print(req);
 				printf("sending (as JSON) %s\n", j_print);
 
 				send(client_socket, j_print, strlen(j_print), 0);
+				printf("Response sent to client.\n");
+				cJSON_Delete(req);
+				//break; //break to wait for new client
+			} else if (bytes_received == 0) {
+				printf("Connection closed by client.\n");
+				//break;
 			}
-		}
-
-
-		//THIS IS TEST==============================================================
-
-		//VideoTest(client_socket);
+			else {
+				printf("recv failed: %d\n", WSAGetLastError());
+				//break;
+			}
+		
+		//PRETTY SURE ERROR IS FROM NOT BEING ABLE TO PROPERLY RESET AND AWAIT A NEW REQUEST
 		
 
 		//END TEST REGION===========================================================
 
 		//this will be the var to use to shut down listening and close all connections
-		
+		printf("Closing connection with client...\n");
 		close = true;
 		closesocket(client_socket);
-		printf("Client disconnected.\n");
+		
 	}
 	closesocket(database_socket);
 	WSACleanup();

@@ -137,6 +137,7 @@ void Insert_Movie(DatabaseStructure* db_structure, const char* title, const char
 
 	//LOG
 	printf("Inserted movie: %s with ID: %d\n", title, db_structure->movies->id[db_structure->movies->num_elements_MV - 1]);
+	printf("Total movies in table: %d\n", db_structure->movies->num_elements_MV);
 }
 
 void Free_Database_Structure(DatabaseStructure* db_structure) {
@@ -420,6 +421,37 @@ void Print_Trie(TrieNode* trie) {
 			printf("Root %d: %c\n", i, trie[i].letter);
 			// You can add more logic to traverse and print the entire trie structure
 		}
+	}
+}
+
+void Movie_Table_Copy(const MovieTable* source, MovieTable* dest) {
+	if (source == NULL || dest == NULL) {
+		fprintf(stderr, "Source or destination MovieTable is NULL\n");
+		return;
+	}
+	dest->num_elements_MV = source->num_elements_MV;
+	// Allocate memory for destination arrays
+	dest->id = (int*)malloc(source->num_elements_MV * sizeof(int));
+	dest->title = (char(*)[256])malloc(source->num_elements_MV * sizeof(char[256]));
+	dest->description = (char(*)[2000])malloc(source->num_elements_MV * sizeof(char[2000]));
+	dest->dir_position = (TCHAR(*)[256])malloc(source->num_elements_MV * sizeof(TCHAR[256]));
+	dest->video_size = (long*)malloc(source->num_elements_MV * sizeof(__int64));
+	if (!dest->id || !dest->title || !dest->description || !dest->dir_position || !dest->video_size) {
+		fprintf(stderr, "Memory allocation failed for one or more fields in destination MovieTable\n");
+		free(dest->id);
+		free(dest->title);
+		free(dest->description);
+		free(dest->dir_position);
+		free(dest->video_size);
+		return;
+	}
+	// Copy data from source to destination
+	for (int i = 0; i < source->num_elements_MV; i++) {
+		dest->id[i] = source->id[i];
+		strcpy_s(dest->title[i], 256, source->title[i]);
+		strcpy_s(dest->description[i], 2000, source->description[i]);
+		_tcscpy_s(dest->dir_position[i], 256, source->dir_position[i]);
+		dest->video_size[i] = source->video_size[i];
 	}
 }
 
