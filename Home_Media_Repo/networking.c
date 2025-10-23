@@ -375,8 +375,7 @@ void Api_Connection(DatabaseStructure* db_table, parse_node* head) {
 			printf("Invalid address\n");
 			closesocket(client_socket);
 		}
-		
-		
+			
 			int bytes_received = recv(client_socket, buffer, sizeof(buffer) - 1, 0);
 			if (bytes_received > 0) {
 				
@@ -409,14 +408,11 @@ void Api_Connection(DatabaseStructure* db_table, parse_node* head) {
 					break; // break and wait for new client
 				}
 
-
 				memcpy_s(req_struct.request, 256, buffer + 77, req_length);
 				req_struct.request[req_length] = '\0'; //null terminate
 				
-				
 				//THIS IS REQUIRED FOR OLD WAY OF PROCESSING REQUESTS
 				//buffer[bytes_received] = "\0";
-				
 				
 				//printf("Received: %s\n", buffer);
 				printf("Received Authorization: %s\n", req_struct.authorization);
@@ -425,7 +421,6 @@ void Api_Connection(DatabaseStructure* db_table, parse_node* head) {
 				printf("Received Request Length: %d\n", req_length);
 				printf("Received Request: %s\n", req_struct.request);
 
-				//THIS CURRENTLY INFINITELY LOOPS WHEN IT GETS A BAD REQUEST
 				//OLD REQUEST PROCESSING WAY 
 				//cJSON* req = Request_Parsing(db_table, head, buffer);
 
