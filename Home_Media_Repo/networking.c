@@ -285,11 +285,7 @@ bool IpAddress_Validation(const char* ip_address) {
 	char* token = strtok_s(ip_address, ".", &context);
 
 	if (strcmp(token, "192") == 0){
-		//DELETE
-		//printf("Toekn1: %s\n", token);
 		token = strtok_s(NULL, ".", &context);
-		//DELETE
-		//printf("Toekn2: %s\n", token);
 		if (strcmp(token, "168") == 0) {
 			token = strtok_s(NULL, ".", &context);
 			end = true; //Valid Network Address
@@ -411,39 +407,43 @@ void Api_Connection(DatabaseStructure* db_table, parse_node* head) {
 				memcpy_s(req_struct.request, 256, buffer + 77, req_length);
 				req_struct.request[req_length] = '\0'; //null terminate
 				
-				//THIS IS REQUIRED FOR OLD WAY OF PROCESSING REQUESTS
-				//buffer[bytes_received] = "\0";
-				
-				//printf("Received: %s\n", buffer);
 				printf("Received Authorization: %s\n", req_struct.authorization);
 				printf("Received Stream or Request Flag: %d\n", req_struct.stream_or_request);
 				printf("Received Video Position: %lld\n", req_struct.video_position);
 				printf("Received Request Length: %d\n", req_length);
 				printf("Received Request: %s\n", req_struct.request);
 
-				//OLD REQUEST PROCESSING WAY 
-				//cJSON* req = Request_Parsing(db_table, head, buffer);
-
-				//NEW REQUEST PROCESSING WAY
-				cJSON* req = Request_Parsing(db_table, head, req_struct.request);
+				if(!req_struct.stream_or_request) {
+					//REQUEST PROCESSING==========================================
+					printf("Request processing selected.\n");
 				
-				free(req_struct.request); //free the allocated memory for request
+					//NEW REQUEST PROCESSING WAY
+					cJSON* req = Request_Parsing(db_table, head, req_struct.request);
+				
+					free(req_struct.request); //free the allocated memory for request
 
-				if(req == NULL) {
-					printf("Request parsing failed or returned NULL\n");
-					//send error response to client
-					const char* error_response = "{\"status_code\":400,\"message\":\"Bad Request\",\"data\":null}";
-					send(client_socket, error_response, strlen(error_response), 0);
-					break; // break and wait for new client
+					if(req == NULL) {
+						printf("Request parsing failed or returned NULL\n");
+						//send error response to client
+						const char* error_response = "{\"status_code\":400,\"message\":\"Bad Request\",\"data\":null}";
+						send(client_socket, error_response, strlen(error_response), 0);
+						break; // break and wait for new client
+					}
+				
+					char* j_print = cJSON_Print(req);
+					printf("sending (as JSON) %s\n", j_print);
+
+					send(client_socket, j_print, strlen(j_print), 0);
+					printf("Response sent to client.\n");
+					cJSON_Delete(req);
+					//break; //break to wait for new client
 				}
-				
-				char* j_print = cJSON_Print(req);
-				printf("sending (as JSON) %s\n", j_print);
+				else {
+					//STREAM PROCESSING==========================================
+					printf("Stream processing selected. (Not yet implemented)\n");
+				}
 
-				send(client_socket, j_print, strlen(j_print), 0);
-				printf("Response sent to client.\n");
-				cJSON_Delete(req);
-				//break; //break to wait for new client
+
 			} else if (bytes_received == 0) {
 				printf("Connection closed by client.\n");
 				//break;
@@ -476,7 +476,7 @@ So to make it so that the server can talk over a network that doesnt know it exi
 is to set server.sin_addr.s_addr = INADDR_ANY, 
 
 ERROR handling here is fucked. It will crash the program if a bad request is sent 
-more specifically, the switch statements arent catching it and returning properly.
+more specifically, the switch statements are not catching it and returning properly.
 
 */
 
