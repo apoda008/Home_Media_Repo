@@ -17,5 +17,7 @@ int Stream_Video(SOCKET client_socket, MediaData** hash_table, size_t array_size
 //returns a MovieTable or SeriesTable based on the target parameter with the requested information
 MovieTable* Select_Movies(const MovieTable* movies_table, int* switch_array);
 
+void* Stream_Video_V2(int vid_rang, char* request, const DatabaseStructure* database_table, parse_node* head);
+
 
 #endif // !API_FUNCTIONS_H

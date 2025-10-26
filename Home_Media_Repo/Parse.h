@@ -23,7 +23,8 @@ enum Target {
 	DESCRIPTION = 6,
 	GENRE = 7,
 	ALL = 8,
-	ID = 25
+	ID = 25,
+	DIRPATH = 28
 };
 
 enum Source {

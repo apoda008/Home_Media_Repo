@@ -120,6 +120,7 @@ MovieTable* Select_Movies(const MovieTable* movies_table, int* int_array) {
 	
 	switch (int_array[3]) {
 	case MOVIES:
+		
 		switch (int_array[1])
 		{
 		case ALL:
@@ -292,6 +293,7 @@ MovieTable* Select_Movies(const MovieTable* movies_table, int* int_array) {
 							return NULL; //return object will go here
 						}
 						result_table->description = &movies_table->description[i];
+						
 						result_table->num_elements_MV = 1;
 
 					}
@@ -398,20 +400,62 @@ MovieTable* Select_Movies(const MovieTable* movies_table, int* int_array) {
 				return result_table;
 			}
 			break;
-	
+			
+		case DIRPATH:
+			
+			if (int_array[4] != -1) {
+				
+				switch (int_array[5])
+				{
+					
+				case ID:
+					switch (int_array[6])
+					{
+						
+					case EQUALS:
+					{
+				
+						//return dir path that matches the ID int
+						int i = atoi(title_str);
+						if (i < 0 || i >= movies_table->num_elements_MV) {
+							printf("ID out of range\n");
+							return NULL; //return object will go here
+						}
+						result_table->dir_position = &movies_table->dir_position[i];
+						_tprintf(_T("Dir Position: %s\n"), *(result_table->dir_position));
+						result_table->num_elements_MV = 1;
+						return result_table;
+					}
+					break;
+					default:
+						printf("Invalid target in WHERE clause of SELECT command\n");
+						return NULL;
+						break;
+					}
+				default:
+					printf("Invalid target in WHERE clause of SELECT command\n");
+					return NULL;
+					break;
+
+				}
+
+
 		}//end of switch target
 		break; //END OF MOVIES
-	
+
+		//HERE ===========================================================
+		
+		default:
+			printf("Invalid target in SELECT command\n");
+			}
+			break;
 
 	//IMPLEMENT LATER
 	case SERIES:
 			//do series thing
 			break;
 			
-	default:
-		printf("Invalid source in SELECT command\n");
-		return NULL;
-		break;
+
 	}
 
 }//end of Select_Movies
@@ -602,4 +646,85 @@ int Stream_Video(SOCKET client_socket, MediaData** hash_table, size_t array_size
 
 	return 0;
 	
+}
+
+void* Stream_Video_V2(int vid_rang, char* request, const DatabaseStructure* database_table, parse_node* head) {
+	
+	int* parsed_array = Query_Transform(head, request);
+
+	printf("Num of elements in database: %d\n", database_table->movies->num_elements_MV);
+
+	if (parsed_array == NULL) {
+		printf("Parsed array is NULL\n");
+		return; //return object will go here
+	}
+
+	//test
+	for(int i = 0; i < 10; i++) {
+		printf("parsed_array[%d] = %d\n", i, parsed_array[i]);
+	}
+
+	//if a remake is not done of the DB structure this will have to be passed in
+	MovieTable* movies_table_response = NULL;
+
+	//Stage one 
+	switch (parsed_array[0]) {
+	case SELECT:
+		movies_table_response = Select_Movies(database_table->movies, parsed_array);
+		break;
+	case CHANGE:
+		//do thing
+		break;
+	case REMOVE:
+		//do thing
+		break;
+	case SEARCH:
+		//do thing
+		break;
+	case -1:
+		/*=======DEFAULTS//ERRORS============*/
+		printf("Invalid command in query\n");
+		break;
+	default:
+		printf("Unhandled command in query\n");
+		break;
+	}
+
+	if (movies_table_response == NULL) {
+		printf("Invalid Input for request\n");
+		return;
+	}
+
+	//DELETE
+	//===============================================
+	printf("made it out of swtich hell\n");
+	
+	if (movies_table_response->dir_position == NULL) {
+		printf("Dir position is NULL\n");
+		return;
+	}
+	else {
+		_tprintf(_T("Dir Position: %s\n"), movies_table_response->dir_position);
+	
+	}
+	//===============================================
+	
+	void* omega_buffer = malloc(1024*1024); //1mb
+	if(omega_buffer == NULL) {
+		printf("Memory allocation failed for omega buffer\n");
+		return NULL;
+	}
+
+	FILE* video_file = _tfopen(movies_table_response->dir_position, _T("rb"));
+	int read = 0;
+	while (read = fread(omega_buffer, 1, 1024*1024, video_file) > 0) {
+		//do thing with buffer
+		printf("Moving into buffer loop\n");
+		printf("read bytes = %d\n", read);
+	}
+	
+	fclose(video_file);
+	return omega_buffer;
+
+	//Request_Parsing(database_table, head, request );
 }

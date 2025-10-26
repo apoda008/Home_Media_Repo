@@ -91,6 +91,7 @@ parse_node* initialize_parse_tree() {
 	Add_Parse_Word(head, "GENRE", GENRE);
 	Add_Parse_Word(head, "ALL", ALL);
 	Add_Parse_Word(head, "ID", ID);
+	Add_Parse_Word(head, "DIRPATH", DIRPATH);
 	
 	Add_Parse_Word(head, "WHERE", WHERE);
 	Add_Parse_Word(head, "FROM", FROM);

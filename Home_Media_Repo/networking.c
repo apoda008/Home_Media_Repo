@@ -441,6 +441,10 @@ void Api_Connection(DatabaseStructure* db_table, parse_node* head) {
 				else {
 					//STREAM PROCESSING==========================================
 					printf("Stream processing selected. (Not yet implemented)\n");
+					void* vid_response = Stream_Video_V2(req_struct.video_position, req_struct.request, db_table, head);
+					printf("Size of response %d\n", sizeof(&vid_response));
+					send(client_socket, vid_response, 1024 * 1024, 0);
+					free(vid_response);
 				}
 
 
