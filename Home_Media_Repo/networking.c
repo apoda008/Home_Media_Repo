@@ -382,18 +382,30 @@ void Api_Connection(DatabaseStructure* db_table, parse_node* head) {
 				//copies the first 64 bytes into the authorization field
 				memcpy_s(req_struct.authorization, 64, buffer, 64);
 				req_struct.authorization[63] = '\0'; //null terminate
+				printf("Authorization received: %s\n", req_struct.authorization);
 
 				//copies the 65th byte into the stream_or_request field
 				memcpy_s(&req_struct.stream_or_request, sizeof(bool), buffer + 64, sizeof(bool));
+				printf("Stream or Request flag received: %d\n", req_struct.stream_or_request);
 
 				//copies the next 8 bytes into the video_position field
 				memcpy_s(&req_struct.video_position, sizeof(__int64), buffer + 65, sizeof(__int64));
 				req_struct.video_position = _byteswap_uint64(req_struct.video_position); //convert from network to host byte order
-				
+				printf("Video position received: %lld\n", req_struct.video_position);
+
+				//copies the next 8 bytes into the request_length field
+				memcpy_s(&req_struct.request_vid_size, sizeof(__int64), buffer + 73, sizeof(__int64));
+				req_struct.request_vid_size = _byteswap_uint64(req_struct.request_vid_size); //convert from network to host byte order
+				printf("Request length received: %lld\n", req_struct.request_vid_size);
+
+				//copies 4 bytes into req_length
 				int req_length = 0;
-				memcpy_s(&req_length, sizeof(int), buffer + 73, sizeof(int));
+				memcpy_s(&req_struct.req_string_length, sizeof(int), buffer + 81, sizeof(int));
+				req_length = _byteswap_ulong(req_struct.req_string_length); //convert from network to host byte order
+				printf("Request string length received: %d\n", req_length);
+
 				//copies the rest into the request field
-				req_length = _byteswap_ulong(req_length); //convert from network to host byte order
+				
 
 				req_struct.request = (char*)malloc(req_length + 1); //allocate memory for request
 				if(req_struct.request == NULL) {
@@ -404,14 +416,15 @@ void Api_Connection(DatabaseStructure* db_table, parse_node* head) {
 					break; // break and wait for new client
 				}
 
-				memcpy_s(req_struct.request, 256, buffer + 77, req_length);
+				memcpy_s(req_struct.request, 256, buffer + 85, req_length);
 				req_struct.request[req_length] = '\0'; //null terminate
+				printf("Request String received: %s\n", req_struct.request);
 				
-				printf("Received Authorization: %s\n", req_struct.authorization);
-				printf("Received Stream or Request Flag: %d\n", req_struct.stream_or_request);
-				printf("Received Video Position: %lld\n", req_struct.video_position);
-				printf("Received Request Length: %d\n", req_length);
-				printf("Received Request: %s\n", req_struct.request);
+				//printf("Received Authorization: %s\n", req_struct.authorization);
+				//printf("Received Stream or Request Flag: %d\n", req_struct.stream_or_request);
+				//printf("Received Video Position: %lld\n", req_struct.video_position);
+				//printf("Received Request Length: %d\n", req_length);
+				//printf("Received Request: %s\n", req_struct.request);
 
 				if(!req_struct.stream_or_request) {
 					//REQUEST PROCESSING==========================================
