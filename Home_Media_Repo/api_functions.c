@@ -686,20 +686,13 @@ int Stream_Video(SOCKET client_socket, MediaData** hash_table, size_t array_size
 	
 }
 
-void* Stream_Video_V2(int vid_rang, char* request, const DatabaseStructure* database_table, parse_node* head) {
+int Stream_Video_V2(const VideoStream vid_obj) {
 	
-	int* parsed_array = Query_Transform(head, request);
-
-	printf("Num of elements in database: %d\n", database_table->movies->num_elements_MV);
+	int* parsed_array = Query_Transform(vid_obj.head, vid_obj.request);
 
 	if (parsed_array == NULL) {
 		printf("Parsed array is NULL\n");
 		return; //return object will go here
-	}
-
-	//test
-	for(int i = 0; i < 10; i++) {
-		printf("parsed_array[%d] = %d\n", i, parsed_array[i]);
 	}
 
 	//if a remake is not done of the DB structure this will have to be passed in
@@ -708,7 +701,7 @@ void* Stream_Video_V2(int vid_rang, char* request, const DatabaseStructure* data
 	//Stage one 
 	switch (parsed_array[0]) {
 	case SELECT:
-		movies_table_response = Select_Movies(database_table->movies, parsed_array);
+		movies_table_response = Select_Movies(vid_obj.database_table->movies, parsed_array);
 		break;
 	case CHANGE:
 		//do thing
@@ -735,7 +728,7 @@ void* Stream_Video_V2(int vid_rang, char* request, const DatabaseStructure* data
 
 	//DELETE
 	//===============================================
-	printf("made it out of swtich hell\n");
+	printf("made it out of switch hell\n");
 	
 	if (movies_table_response->dir_position == NULL) {
 		printf("Dir position is NULL\n");
@@ -747,22 +740,37 @@ void* Stream_Video_V2(int vid_rang, char* request, const DatabaseStructure* data
 	}
 	//===============================================
 	
-	void* omega_buffer = malloc(1024*1024); //1mb
+	void* omega_buffer = malloc(PKT_SIZE); 
 	if(omega_buffer == NULL) {
 		printf("Memory allocation failed for omega buffer\n");
 		return NULL;
 	}
 
 	FILE* video_file = _tfopen(movies_table_response->dir_position, _T("rb"));
-	int read = 0;
-	while (read = fread(omega_buffer, 1, 1024*1024, video_file) > 0) {
-		//do thing with buffer
-		printf("Moving into buffer loop\n");
-		printf("read bytes = %d\n", read);
-	}
+
+	//move to requested position. This is to allow scrubbing functionality
+	fseek(video_file, vid_obj.vid_position, SEEK_SET); //move to requested position
 	
+	
+	int read = 0;
+	while (read < vid_obj.vid_size) {
+		read += fread(omega_buffer, 1, 1024 * 1024, video_file);
+
+		int vid_byte_sent = send(vid_obj.client_socket, omega_buffer, read, 0);
+		if (vid_byte_sent == SOCKET_ERROR) {
+			printf("Failed to send video data: %d\n", WSAGetLastError());
+			free(omega_buffer);
+			fclose(video_file);
+			return -1;
+		}
+		memset(omega_buffer, 0, PKT_SIZE);
+		printf("Sent %d bytes to client\n", vid_byte_sent);
+		printf("Bytes read from file %d\n", read);
+	}
+
+	free(omega_buffer);
 	fclose(video_file);
-	return omega_buffer;
+	return 0;
 
 	//Request_Parsing(database_table, head, request );
 }
