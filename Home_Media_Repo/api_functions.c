@@ -439,6 +439,44 @@ MovieTable* Select_Movies(const MovieTable* movies_table, int* int_array) {
 
 				}
 
+		case VIDLEN:
+			if (int_array[4] != -1) {
+				switch (int_array[5])
+				{
+				case ID:
+					switch (int_array[6])
+					{
+					case EQUALS:
+					{
+						//return video length that matches the ID int
+						int i = atoi(title_str);
+						if (i < 0 || i >= movies_table->num_elements_MV) {
+							printf("ID out of range\n");
+							return NULL; //return object will go here
+						}
+						result_table->video_size = &movies_table->video_size[i];
+						result_table->num_elements_MV = 1;
+						return result_table;
+					}
+					break;
+					default:
+						printf("Invalid target in WHERE clause of SELECT command\n");
+						return NULL;
+						break;
+					}
+				default:
+					printf("Invalid target in WHERE clause of SELECT command\n");
+					return NULL;
+					break;
+				}
+			}
+			else {
+				//return all video lengths in the table
+				result_table->video_size = movies_table->video_size;
+				result_table->num_elements_MV = movies_table->num_elements_MV;
+				return result_table;
+			}
+			break;
 
 		}//end of switch target
 		break; //END OF MOVIES

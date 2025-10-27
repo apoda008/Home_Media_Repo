@@ -24,7 +24,8 @@ enum Target {
 	GENRE = 7,
 	ALL = 8,
 	ID = 25,
-	DIRPATH = 28
+	DIRPATH = 28,
+	VIDLEN = 29
 };
 
 enum Source {
