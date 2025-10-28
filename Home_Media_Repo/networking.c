@@ -285,11 +285,7 @@ bool IpAddress_Validation(const char* ip_address) {
 	char* token = strtok_s(ip_address, ".", &context);
 
 	if (strcmp(token, "192") == 0){
-		//DELETE
-		//printf("Toekn1: %s\n", token);
 		token = strtok_s(NULL, ".", &context);
-		//DELETE
-		//printf("Toekn2: %s\n", token);
 		if (strcmp(token, "168") == 0) {
 			token = strtok_s(NULL, ".", &context);
 			end = true; //Valid Network Address
@@ -375,36 +371,98 @@ void Api_Connection(DatabaseStructure* db_table, parse_node* head) {
 			printf("Invalid address\n");
 			closesocket(client_socket);
 		}
-		
-		
+			
 			int bytes_received = recv(client_socket, buffer, sizeof(buffer) - 1, 0);
 			if (bytes_received > 0) {
-				//this is where i will need to call the input parsing  
-				//which will take in the request for whatever media info 
-				//it wants
-				buffer[bytes_received] = "\0";
-				printf("Received: %s\n", buffer);
+				
+				//might want to wait on this one
+				
+				Request req_struct;
 
+				//copies the first 64 bytes into the authorization field
+				memcpy_s(req_struct.authorization, 64, buffer, 64);
+				req_struct.authorization[63] = '\0'; //null terminate
+				printf("Authorization received: %s\n", req_struct.authorization);
+
+				//copies the 65th byte into the stream_or_request field
+				memcpy_s(&req_struct.stream_or_request, sizeof(bool), buffer + 64, sizeof(bool));
+				printf("Stream or Request flag received: %d\n", req_struct.stream_or_request);
+
+				//copies the next 8 bytes into the video_position field
+				memcpy_s(&req_struct.video_position, sizeof(__int64), buffer + 65, sizeof(__int64));
+				req_struct.video_position = _byteswap_uint64(req_struct.video_position); //convert from network to host byte order
+				printf("Video position received: %lld\n", req_struct.video_position);
+
+				//copies the next 8 bytes into the request_length field
+				memcpy_s(&req_struct.request_vid_size, sizeof(__int64), buffer + 73, sizeof(__int64));
+				req_struct.request_vid_size = _byteswap_uint64(req_struct.request_vid_size); //convert from network to host byte order
+				printf("Request length received: %lld\n", req_struct.request_vid_size);
+
+				//copies 4 bytes into req_length
+				int req_length = 0;
+				memcpy_s(&req_struct.req_string_length, sizeof(int), buffer + 81, sizeof(int));
+				req_length = _byteswap_ulong(req_struct.req_string_length); //convert from network to host byte order
+				printf("Request string length received: %d\n", req_length);
+
+				//copies the rest into the request field
 				
 
-				//THIS CURRENTLY INFINITELY LOOPS WHEN IT GETS A BAD REQUEST
-				cJSON* req = Request_Parsing(db_table, head, buffer);
-				
-				if(req == NULL) {
-					printf("Request parsing failed or returned NULL\n");
+				req_struct.request = (char*)malloc(req_length + 1); //allocate memory for request
+				if(req_struct.request == NULL) {
+					printf("Memory allocation for request failed\n");
 					//send error response to client
-					const char* error_response = "{\"status_code\":400,\"message\":\"Bad Request\",\"data\":null}";
+					const char* error_response = "{\"status_code\":500,\"message\":\"Internal Server Error\",\"data\":null}";
 					send(client_socket, error_response, strlen(error_response), 0);
 					break; // break and wait for new client
 				}
-				
-				char* j_print = cJSON_Print(req);
-				printf("sending (as JSON) %s\n", j_print);
 
-				send(client_socket, j_print, strlen(j_print), 0);
-				printf("Response sent to client.\n");
-				cJSON_Delete(req);
-				//break; //break to wait for new client
+				memcpy_s(req_struct.request, 256, buffer + 85, req_length);
+				req_struct.request[req_length] = '\0'; //null terminate
+				printf("Request String received: %s\n", req_struct.request);
+				
+				//printf("Received Authorization: %s\n", req_struct.authorization);
+				//printf("Received Stream or Request Flag: %d\n", req_struct.stream_or_request);
+				//printf("Received Video Position: %lld\n", req_struct.video_position);
+				//printf("Received Request Length: %d\n", req_length);
+				//printf("Received Request: %s\n", req_struct.request);
+
+				if(!req_struct.stream_or_request) {
+					//REQUEST PROCESSING==========================================
+					printf("Request processing selected.\n");
+				
+					//NEW REQUEST PROCESSING WAY
+					cJSON* req = Request_Parsing(db_table, head, req_struct.request);
+				
+					free(req_struct.request); //free the allocated memory for request
+
+					if(req == NULL) {
+						printf("Request parsing failed or returned NULL\n");
+						//send error response to client
+						const char* error_response = "{\"status_code\":400,\"message\":\"Bad Request\",\"data\":null}";
+						send(client_socket, error_response, strlen(error_response), 0);
+						break; // break and wait for new client
+					}
+				
+					char* j_print = cJSON_Print(req);
+					printf("sending (as JSON) %s\n", j_print);
+
+					send(client_socket, j_print, strlen(j_print), 0);
+					printf("Response sent to client.\n");
+					cJSON_Delete(req);
+					//break; //break to wait for new client
+				}
+				else {
+					//STREAM PROCESSING==========================================
+					printf("Stream processing selected.\n");
+					VideoStream vid_obj = { req_struct.video_position, req_struct.request_vid_size, req_struct.request, db_table, head, client_socket };
+
+					Stream_Video_V2(vid_obj);
+					//printf("Size of response %d\n", sizeof(&vid_response));
+					//send(client_socket, vid_response, 1024 * 1024, 0);
+					//free(vid_response);
+				}
+
+
 			} else if (bytes_received == 0) {
 				printf("Connection closed by client.\n");
 				//break;
@@ -436,6 +494,8 @@ void Api_Connection(DatabaseStructure* db_table, parse_node* head) {
 So to make it so that the server can talk over a network that doesnt know it exists
 is to set server.sin_addr.s_addr = INADDR_ANY, 
 
+ERROR handling here is fucked. It will crash the program if a bad request is sent 
+more specifically, the switch statements are not catching it and returning properly.
 
 */
 

@@ -73,7 +73,6 @@ parse_node* initialize_parse_tree() {
 
 	head->value = -1; // Root node
 	
-	//head->map_array = (parse_node*)calloc(26, sizeof(parse_node)); // Allocate array for 26 letters
 	if (head->map_array == NULL) {
 		printf("error\n");
 		free(head);
@@ -91,6 +90,8 @@ parse_node* initialize_parse_tree() {
 	Add_Parse_Word(head, "GENRE", GENRE);
 	Add_Parse_Word(head, "ALL", ALL);
 	Add_Parse_Word(head, "ID", ID);
+	Add_Parse_Word(head, "DIRPATH", DIRPATH);
+	Add_Parse_Word(head, "VIDLEN", VIDLEN);
 	
 	Add_Parse_Word(head, "WHERE", WHERE);
 	Add_Parse_Word(head, "FROM", FROM);
