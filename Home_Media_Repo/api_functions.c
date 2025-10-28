@@ -637,6 +637,7 @@ cJSON* Request_Parsing(const DatabaseStructure* database_table, parse_node* head
 }
 
 //to be called when a video stream is requested
+//Debrecated
 int Stream_Video(SOCKET client_socket, MediaData** hash_table, size_t array_size, char* title) {
 	
 	//Needs to check if its a valid command
