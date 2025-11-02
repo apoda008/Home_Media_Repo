@@ -31,13 +31,13 @@ typedef struct Master_Directory {
     TCHAR master_folder[MAX_PATH];
 
     TCHAR genre_path[MAX_PATH];
-    TCHAR temp_folder_path[MAX_PATH];
-    TCHAR path_to_media[MAX_PATH];
+    TCHAR temp_folder_path[MAX_PATH]; //user folder
+    TCHAR path_to_media[MAX_PATH]; 
 
     TCHAR path_to_media_for_import[MAX_PATH];
 
-    TCHAR movie_bin_path[MAX_PATH];
-    TCHAR series_bin_path[MAX_PATH];
+    TCHAR movie_bin_path[MAX_PATH]; //temp folder 
+    TCHAR series_bin_path[MAX_PATH]; //may not need
     
     size_t tmdb_limiter;
     size_t num_of_files;

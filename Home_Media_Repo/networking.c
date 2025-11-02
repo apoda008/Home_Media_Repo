@@ -93,72 +93,13 @@ void media_write(cJSON* title, cJSON* description, cJSON* id, cJSON* genre_ids, 
 
 	fclose(file);
 
-	//genre bin write
-	//for (int i = 0; i < 19; i++) {
-	//	//DELETE
-	//	//printf("GENRE: %d\n", temp.genre_types[i]);
 
-	//	switch (temp.genre_types[i]) {
-	//	case ACTION:
-	//		genre_write("ACTION", temp.title);
-	//		break;
-	//	case ADVENTURE:
-	//		genre_write("ADVENTURE", temp.title);
-	//		break;
-	//	case ANIMATION:
-	//		genre_write("ANIMATION", temp.title);
-	//		break;
-	//	case COMEDY:
-	//		genre_write("COMEDY", temp.title);
-	//		break;
-	//	case CRIME:
-	//		genre_write("CRIME", temp.title);
-	//		break;
-	//	case DOCUMENTARY:
-	//		genre_write("DOCUMENTARY", temp.title);
-	//		break;
-	//	case DRAMA:
-	//		genre_write("DRAMA", temp.title);
-	//		break;
-	//	case FAMILY:
-	//		genre_write("FAMILY", temp.title);
-	//		break;
-	//	case FANTASY:
-	//		genre_write("FANTASY", temp.title);
-	//		break;
-	//	case HISTORY:
-	//		genre_write("HISTORY", temp.title);
-	//		break;
-	//	case HORROR:
-	//		genre_write("HORROR", temp.title);
-	//		break;
-	//	case MUSIC:
-	//		genre_write("MUSIC", temp.title);
-	//		break;
-	//	case MYSTERY:
-	//		genre_write("MYSTERY", temp.title);
-	//		break;
-	//	case ROMANCE:
-	//		break;
-	//		genre_write("ROMANCE", temp.title);
-	//	case SCIENCE_FICTION:
-	//		genre_write("SCIENCE_FICTION", temp.title);
-	//		break;
-	//	case TV_MOVIE:
-	//		genre_write("TV_MOVIE", temp.title);
-	//		break;
-	//	case THRILLER:
-	//		genre_write("THRILLER", temp.title);
-	//		break;
-	//	case WAR:
-	//		genre_write("WAR", temp.title);
-	//		break;
-	//	case WESTERN:
-	//		genre_write("WESTER", temp.title);
-	//		break;
-	//	}
-	//}
 }//end of media_write
+
+//PROBABLY WONT NEED, WILL MAKE A TABLE_SAVE FUNCTION IN DATABASE STRUCTURES
+void Media_WriteV2(cJSON* title, cJSON* description, cJSON* id, cJSON* genre_ids, cJSON* media_type, TCHAR* dir_position, Master_Directory* global_ptr) {
+	return;
+}
 
 //sourced by themoviedb.org api system
 void information_Request(TCHAR* parsed_movie_title, Master_Directory* global_ptr, TCHAR* dir_title) {
@@ -277,6 +218,148 @@ void information_Request(TCHAR* parsed_movie_title, Master_Directory* global_ptr
 	
 	return 0;
 }//end of information_request 
+
+void From_Json_To_Table(cJSON* tmdb_json, DatabaseStructure* Database, Master_Directory* global_ptr, TCHAR* dir_title) {
+	//This is to pass into media_write
+	TCHAR dir_position[MAX_PATH];
+	_tcscpy_s(dir_position, MAX_PATH, global_ptr->path_to_media);
+	_tcscat_s(dir_position, MAX_PATH, _T("\\"));
+	_tcscat_s(dir_position, MAX_PATH, dir_title);
+	
+	if (!tmdb_json) {
+		fprintf(stderr, "Error parsing JSON\n");
+		return 0;
+	}
+	else {
+
+		cJSON* results = cJSON_GetObjectItemCaseSensitive(tmdb_json, "results");
+
+		if (cJSON_IsArray) {
+
+			cJSON* movie = NULL;
+
+			//grab first response and break out of loop. Wont always be the correct response 
+			//will need users to correct later through DB api
+			cJSON_ArrayForEach(movie, results) {
+				//DELETE
+				//char* json_str2 = cJSON_Print(movie);
+				//printf("THING: %s\n", json_str2);
+
+				cJSON* title = cJSON_GetArrayItem(movie, 3);
+				cJSON* description = cJSON_GetObjectItemCaseSensitive(movie, "overview");
+				cJSON* id = cJSON_GetObjectItemCaseSensitive(movie, "id");
+				cJSON* genre_ids = cJSON_GetObjectItemCaseSensitive(movie, "genre_ids");
+				cJSON* media_type = cJSON_GetObjectItemCaseSensitive(movie, "media_type");
+
+				//moves directly into table 
+				Insert_Movie(Database, title->valuestring, description->valuestring, dir_position, video_size);
+
+
+
+				break;
+			}
+		}
+		//Frees JSON after use
+		cJSON_Delete(tmdb_json);
+	}
+
+}
+
+//updated func to try and get info from TMDB and return the JSON that TMDB gives you
+cJSON* Information_RequestV2(TCHAR* parsed_movie_title, Master_Directory* global_ptr, TCHAR* dir_title) {
+	
+	//DELETE
+	//This is to pass into media_write
+	//TCHAR dir_position[MAX_PATH];
+	//_tcscpy_s(dir_position, MAX_PATH, global_ptr->path_to_media);
+	//_tcscat_s(dir_position, MAX_PATH, _T("\\"));
+	//_tcscat_s(dir_position, MAX_PATH, dir_title);
+
+	//tmbd request control 
+	if (global_ptr->tmdb_limiter >= 40) {
+		printf("You have reached the TMDB API limit for this session.\n");
+		Sleep(10000);
+		global_ptr->tmdb_limiter = 0; //reset the limiter
+	}
+
+	//====this is solely to get the key for api call============= 
+	//in real implentation this will ask for the users key
+	FILE* file = fopen("C:\\Users\\dan_a\\Desktop\\key.txt", "r");
+	if (file == NULL) {
+		perror("TEMP FILE FAILED\n");
+		//return NULL;
+	}
+	char authorization[267] = "";
+
+	if (fgets(authorization, 267, file) == NULL) {
+		perror("Failed to get API Key\n");
+		return NULL;
+	};
+	
+	fclose(file);
+	//==========================================================
+
+	CURL* hnd = curl_easy_init();
+
+	char* utf8_movie[MAX_PATH];
+	ConvertTCHARtoUTF8(parsed_movie_title, utf8_movie, sizeof(utf8_movie));
+
+	char search_buffer[MAX_PATH];
+	snprintf(search_buffer, sizeof(search_buffer), "https://api.themoviedb.org/3/search/multi?query=%s&include_adult=false&language=en-US", utf8_movie);
+
+	if (!hnd) {
+		fprintf(stderr, "Error with curl initialization \n");
+		return NULL;
+	}
+
+	//object for response
+	struct Memory response;
+	response.string = malloc(1);
+	response.size = 0;
+
+	curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "GET");
+	curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, write_chunk); //needs to be nulled for stdout
+	curl_easy_setopt(hnd, CURLOPT_WRITEDATA, (void*)&response); //needs to nulled for stdout
+
+	//DELETE strictly for viewing what is being fully returned in the JSON, serves no function to the program overall
+	//curl_easy_setopt(hnd, CURLOPT_WRITEDATA, stdout);
+
+	curl_easy_setopt(hnd, CURLOPT_URL, search_buffer);
+
+	struct curl_slist* headers = NULL;
+	headers = curl_slist_append(headers, "accept: application/json");
+	headers = curl_slist_append(headers, authorization);
+	curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);
+
+	CURLcode ret = curl_easy_perform(hnd);
+
+	if (ret != CURLE_OK) {
+		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(ret));
+
+	}
+	else {
+		
+		cJSON* tmdb_json_response = cJSON_Parse(response.string);
+		if (!tmdb_json_response) {
+			fprintf(stderr, "Error parsing JSON\n");
+			return NULL;
+		}
+		curl_easy_cleanup(hnd);
+		free(response.string);
+		free(parsed_movie_title);
+		parsed_movie_title = NULL; //removes dangling pointer
+		global_ptr->tmdb_limiter++; //Increment for request limit
+		return tmdb_json_response;
+	}
+
+	//clean up and close on fail
+	curl_easy_cleanup(hnd);
+	free(response.string);
+	free(parsed_movie_title);
+	parsed_movie_title = NULL; //removes dangling pointer
+	global_ptr->tmdb_limiter++; // Increment for request limit 
+	return NULL;
+}
 
 
 bool IpAddress_Validation(const char* ip_address) {

@@ -74,11 +74,9 @@ void Copy_To_Mp4(TCHAR* path, Master_Directory* global_ptr) {
             _tcscpy_s(next_dir, MAX_PATH, path);
             _tcscat_s(next_dir, MAX_PATH, _T("\\"));
             _tcscat_s(next_dir, MAX_PATH, findFileData.cFileName);
-            //_tprintf(_T("NEXT_DIR: %s\n"), next_dir);
 
             //check if it's a directory or a file
             if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-                //_tprintf(_T("[DIR]: %s\n"), findFileData.cFileName);
 
 				Copy_To_Mp4(next_dir, global_ptr); //recursive call for subdirectories
 
@@ -319,6 +317,8 @@ int File_Search_Parse(Master_Directory* global_ptr) {
                 //TAKE FILE NAME AND PARSE IT FOR SENDING TO TMDB
                 TCHAR* parsed_name = Parse_Helper(findFileData.cFileName);
 				//_tprintf(_T("Parsed Name: %s\n"), parsed_name);
+
+                //REPLACE WITH V2
                 information_Request(parsed_name, global_ptr, findFileData.cFileName);
 				global_ptr->num_of_files++;
                

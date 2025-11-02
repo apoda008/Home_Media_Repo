@@ -30,5 +30,7 @@ int File_Search_Parse(Master_Directory* global_ptr);
 
 void FolderExecution(Master_Directory* global_ptr);
 
+void Copy_To_Mp4(TCHAR* path, Master_Directory* global_ptr);
+
 
 #endif // !FOLDER_MANAGEMENT_H
