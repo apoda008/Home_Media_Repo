@@ -54,13 +54,17 @@ int main() {
     //para needs to be num of files 
 	DatabaseStructure* test = Construct_Database_Structure(master_pathing.num_of_files, 10);
     
+    Media_Files_Into_Table(global_ptr, test);
+
+    //SAVE TABLE
+
+
 	//fill constructed DB structure with movies from bin files
-    Fill_Table_Movies(test, global_ptr);
+    //Fill_Table_Movies(test, global_ptr);
     
     //print constructed movie table
     Print_Movie_Table(test->movies);
     
-	printf("NUM OF ELEMENTS: %d\n", test->movies->num_elements_MV);
 	//Needs restructuring to include the new tables instead of MediaData
     //Api_Connection();
 

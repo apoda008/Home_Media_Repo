@@ -90,6 +90,7 @@ void Copy_To_Mp4(TCHAR* path, Master_Directory* global_ptr) {
 
 				//Converts the file to mp4 for stream and moves it to the media folder
 				Convert_to_Mp4(dest, findFileData.cFileName, global_ptr);
+                global_ptr->num_of_files++;
 
             }
 
@@ -286,8 +287,8 @@ TCHAR* Parse_Helper(TCHAR* title) {
     return return_char_ptr;
 }
 
-//MIGHT NOT BE NEEDED HERE AND MOVED SOMEWHERE ELSE
-int File_Search_Parse(Master_Directory* global_ptr, DatabaseStructure* Database) {
+//MIGHT NOT BE NEEDED HERE AND MOVED SOMEWHERE ELSE, CURRENTLY MOVIES ONLY
+int Media_Files_Into_Table(Master_Directory* global_ptr, DatabaseStructure* Database) {
     TCHAR copy_path[MAX_PATH];
     _tcscpy_s(copy_path, MAX_PATH,global_ptr->path_to_media);
     _tcscat_s(copy_path, MAX_PATH, _T("\\*"));
@@ -334,8 +335,7 @@ int File_Search_Parse(Master_Directory* global_ptr, DatabaseStructure* Database)
                     global_ptr->tmdb_limiter++;
                 }
 
-                From_Json_To_Table(tmdb_json, Database, global_ptr, parsed_name);
-                global_ptr->num_of_files++;
+                From_Json_To_Table(tmdb_json, Database, global_ptr, findFileData.cFileName);
                 free(parsed_name);
                
             }
@@ -350,7 +350,6 @@ int File_Search_Parse(Master_Directory* global_ptr, DatabaseStructure* Database)
     }
     return 0;
 }
-
 
 //Deprecated
 void FolderExecution(Master_Directory* global_ptr) {
@@ -399,6 +398,6 @@ void FolderExecution(Master_Directory* global_ptr) {
 	Copy_To_Mp4(global_ptr->path_to_media_for_import, global_ptr);
     
     //some point needs to ask user to do this
-    File_Search_Parse(global_ptr);
+    //File_Search_Parse(global_ptr);
     
 }

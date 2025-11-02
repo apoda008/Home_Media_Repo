@@ -256,12 +256,15 @@ __int64 GetVideoSize(TCHAR* movie_path) {
 
 
 void From_Json_To_Table(cJSON* tmdb_json, DatabaseStructure* Database, Master_Directory* global_ptr, TCHAR* dir_title) {
-	//This is to pass into media_write
+	
+	//This is a set up to be moved into the table for the media path
 	TCHAR dir_position[MAX_PATH];
 	_tcscpy_s(dir_position, MAX_PATH, global_ptr->path_to_media);
 	_tcscat_s(dir_position, MAX_PATH, _T("\\"));
 	_tcscat_s(dir_position, MAX_PATH, dir_title);
 	
+
+
 	if (!tmdb_json) {
 		fprintf(stderr, "Error parsing JSON\n");
 		return 0;
@@ -306,7 +309,6 @@ void From_Json_To_Table(cJSON* tmdb_json, DatabaseStructure* Database, Master_Di
 cJSON* Information_RequestV2(TCHAR* parsed_movie_title) {
 
 	//====this is solely to get the key for api call============= 
-	//in real implentation this will ask for the users key
 	FILE* file = fopen("C:\\Users\\dan_a\\Desktop\\key.txt", "r");
 	if (file == NULL) {
 		perror("TEMP FILE FAILED\n");
