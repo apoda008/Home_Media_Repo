@@ -36,8 +36,11 @@ void media_write(cJSON* title, cJSON* description, cJSON* id, cJSON* genre_ids, 
 
 void information_Request(TCHAR* title, Master_Directory* global_ptr, TCHAR* dir_title);
 
-void Api_Connection(DatabaseStructure* db_table, parse_node* head);
+cJSON* Information_RequestV2(TCHAR* parsed_movie_title);
 
+void From_Json_To_Table(cJSON* tmdb_json, DatabaseStructure* Database, Master_Directory* global_ptr, TCHAR* dir_title);
+
+void Api_Connection(DatabaseStructure* db_table, parse_node* head);
 
 //Establishes pipe to server
 bool pipe_to_server();

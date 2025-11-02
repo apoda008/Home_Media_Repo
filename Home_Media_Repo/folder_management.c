@@ -286,7 +286,8 @@ TCHAR* Parse_Helper(TCHAR* title) {
     return return_char_ptr;
 }
 
-int File_Search_Parse(Master_Directory* global_ptr) {
+//MIGHT NOT BE NEEDED HERE AND MOVED SOMEWHERE ELSE
+int File_Search_Parse(Master_Directory* global_ptr, DatabaseStructure* Database) {
     TCHAR copy_path[MAX_PATH];
     _tcscpy_s(copy_path, MAX_PATH,global_ptr->path_to_media);
     _tcscat_s(copy_path, MAX_PATH, _T("\\*"));
@@ -319,8 +320,23 @@ int File_Search_Parse(Master_Directory* global_ptr) {
 				//_tprintf(_T("Parsed Name: %s\n"), parsed_name);
 
                 //REPLACE WITH V2
-                information_Request(parsed_name, global_ptr, findFileData.cFileName);
-				global_ptr->num_of_files++;
+                //information_Request(parsed_name, global_ptr, findFileData.cFileName);
+                
+                cJSON* tmdb_json = Information_RequestV2(parsed_name);
+                
+                //tmbd request control 
+                if (global_ptr->tmdb_limiter >= 40) {
+                    printf("You have reached the TMDB API limit for this session.\n");
+                    Sleep(10000);
+                    global_ptr->tmdb_limiter = 0; //reset the limiter
+                }
+                else {
+                    global_ptr->tmdb_limiter++;
+                }
+
+                From_Json_To_Table(tmdb_json, Database, global_ptr, parsed_name);
+                global_ptr->num_of_files++;
+                free(parsed_name);
                
             }
 

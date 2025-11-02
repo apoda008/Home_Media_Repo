@@ -222,6 +222,7 @@ void information_Request(TCHAR* parsed_movie_title, Master_Directory* global_ptr
 //===============================================NEW STUFF TO BE MOVED LATER====================================================
 
 //MAY CAUSE CONFLICTION ON COMPLIATION
+//gets the total byte size of the movie 
 __int64 GetVideoSize(TCHAR* movie_path) {
 	_tprintf(_T("Getting video size for: %s\n"), movie_path);
 
@@ -302,21 +303,7 @@ void From_Json_To_Table(cJSON* tmdb_json, DatabaseStructure* Database, Master_Di
 //============================================================================================================
 
 //updated func to try and get info from TMDB and return the JSON that TMDB gives you
-cJSON* Information_RequestV2(TCHAR* parsed_movie_title, Master_Directory* global_ptr, TCHAR* dir_title) {
-	
-	//DELETE
-	//This is to pass into media_write
-	//TCHAR dir_position[MAX_PATH];
-	//_tcscpy_s(dir_position, MAX_PATH, global_ptr->path_to_media);
-	//_tcscat_s(dir_position, MAX_PATH, _T("\\"));
-	//_tcscat_s(dir_position, MAX_PATH, dir_title);
-
-	//tmbd request control 
-	if (global_ptr->tmdb_limiter >= 40) {
-		printf("You have reached the TMDB API limit for this session.\n");
-		Sleep(10000);
-		global_ptr->tmdb_limiter = 0; //reset the limiter
-	}
+cJSON* Information_RequestV2(TCHAR* parsed_movie_title) {
 
 	//====this is solely to get the key for api call============= 
 	//in real implentation this will ask for the users key
@@ -382,18 +369,14 @@ cJSON* Information_RequestV2(TCHAR* parsed_movie_title, Master_Directory* global
 		}
 		curl_easy_cleanup(hnd);
 		free(response.string);
-		free(parsed_movie_title);
 		parsed_movie_title = NULL; //removes dangling pointer
-		global_ptr->tmdb_limiter++; //Increment for request limit
 		return tmdb_json_response;
 	}
 
 	//clean up and close on fail
 	curl_easy_cleanup(hnd);
 	free(response.string);
-	free(parsed_movie_title);
-	parsed_movie_title = NULL; //removes dangling pointer
-	global_ptr->tmdb_limiter++; // Increment for request limit 
+	parsed_movie_title = NULL; //removes dangling pointer 
 	return NULL;
 }
 
