@@ -419,12 +419,6 @@ void Api_Connection(DatabaseStructure* db_table, parse_node* head) {
 				memcpy_s(req_struct.request, 256, buffer + 85, req_length);
 				req_struct.request[req_length] = '\0'; //null terminate
 				printf("Request String received: %s\n", req_struct.request);
-				
-				//printf("Received Authorization: %s\n", req_struct.authorization);
-				//printf("Received Stream or Request Flag: %d\n", req_struct.stream_or_request);
-				//printf("Received Video Position: %lld\n", req_struct.video_position);
-				//printf("Received Request Length: %d\n", req_length);
-				//printf("Received Request: %s\n", req_struct.request);
 
 				if(!req_struct.stream_or_request) {
 					//REQUEST PROCESSING==========================================
@@ -443,6 +437,7 @@ void Api_Connection(DatabaseStructure* db_table, parse_node* head) {
 						break; // break and wait for new client
 					}
 				
+					//DELETE OR LOG
 					char* j_print = cJSON_Print(req);
 					printf("sending (as JSON) %s\n", j_print);
 
@@ -454,28 +449,21 @@ void Api_Connection(DatabaseStructure* db_table, parse_node* head) {
 				else {
 					//STREAM PROCESSING==========================================
 					printf("Stream processing selected.\n");
+					
 					VideoStream vid_obj = { req_struct.video_position, req_struct.request_vid_size, req_struct.request, db_table, head, client_socket };
 
 					Stream_Video_V2(vid_obj);
-					//printf("Size of response %d\n", sizeof(&vid_response));
-					//send(client_socket, vid_response, 1024 * 1024, 0);
-					//free(vid_response);
 				}
 
 
 			} else if (bytes_received == 0) {
 				printf("Connection closed by client.\n");
-				//break;
+				
 			}
 			else {
 				printf("recv failed: %d\n", WSAGetLastError());
-				//break;
+				
 			}
-		
-		//PRETTY SURE ERROR IS FROM NOT BEING ABLE TO PROPERLY RESET AND AWAIT A NEW REQUEST
-		
-
-		//END TEST REGION===========================================================
 
 		//this will be the var to use to shut down listening and close all connections
 		printf("Closing connection with client...\n");
