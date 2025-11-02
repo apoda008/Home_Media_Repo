@@ -335,6 +335,8 @@ int File_Search_Parse(Master_Directory* global_ptr) {
     return 0;
 }
 
+
+//Deprecated
 void FolderExecution(Master_Directory* global_ptr) {
 	
     //return;

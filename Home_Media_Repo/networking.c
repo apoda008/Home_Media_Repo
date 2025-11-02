@@ -219,6 +219,41 @@ void information_Request(TCHAR* parsed_movie_title, Master_Directory* global_ptr
 	return 0;
 }//end of information_request 
 
+//===============================================NEW STUFF TO BE MOVED LATER====================================================
+
+//MAY CAUSE CONFLICTION ON COMPLIATION
+__int64 GetVideoSize(TCHAR* movie_path) {
+	_tprintf(_T("Getting video size for: %s\n"), movie_path);
+
+	FILE* video_file = _tfopen(movie_path, _T("rb"));
+	if (video_file == NULL) {
+		_tperror(_T("Failed to open video file"));
+		return -1;
+	}
+
+	// Use 64-bit seek for large files
+	if (_fseeki64(video_file, 0, SEEK_END) != 0) {
+		_tperror(_T("Error seeking to end of video file"));
+		fclose(video_file);
+		return -1;
+	}
+
+	__int64 result = _ftelli64(video_file);
+	if (result == -1) {
+		_tperror(_T("Error getting file size"));
+		fclose(video_file);
+		return -1;
+	}
+
+	//DELETE
+	//_tprintf(_T("Size: %I64d bytes\n"), result);
+
+	fclose(video_file);
+	return result;
+}
+
+
+
 void From_Json_To_Table(cJSON* tmdb_json, DatabaseStructure* Database, Master_Directory* global_ptr, TCHAR* dir_title) {
 	//This is to pass into media_write
 	TCHAR dir_position[MAX_PATH];
@@ -250,11 +285,10 @@ void From_Json_To_Table(cJSON* tmdb_json, DatabaseStructure* Database, Master_Di
 				cJSON* id = cJSON_GetObjectItemCaseSensitive(movie, "id");
 				cJSON* genre_ids = cJSON_GetObjectItemCaseSensitive(movie, "genre_ids");
 				cJSON* media_type = cJSON_GetObjectItemCaseSensitive(movie, "media_type");
-
-				//moves directly into table 
+				__int64 video_size = GetVideoSize(dir_position);
+				
+				//moves data directly into table 
 				Insert_Movie(Database, title->valuestring, description->valuestring, dir_position, video_size);
-
-
 
 				break;
 			}
@@ -264,6 +298,8 @@ void From_Json_To_Table(cJSON* tmdb_json, DatabaseStructure* Database, Master_Di
 	}
 
 }
+
+//============================================================================================================
 
 //updated func to try and get info from TMDB and return the JSON that TMDB gives you
 cJSON* Information_RequestV2(TCHAR* parsed_movie_title, Master_Directory* global_ptr, TCHAR* dir_title) {

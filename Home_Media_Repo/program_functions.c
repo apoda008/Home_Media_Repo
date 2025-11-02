@@ -118,7 +118,7 @@ void Fill_Table_Movies(DatabaseStructure* db_structure, Master_Directory* global
 	
 	char* alpha = "abcdefghijklmnopqrstuvwxyz";
 	
-	//iterates throught the bin folder files Ex: a.bin, b.bin, c.bin, etc.
+	//iterates through the bin folder files Ex: a.bin, b.bin, c.bin, etc.
 	for (int i = 0; i < strlen(alpha); i++) {
 		TCHAR* path[MAX_PATH];
 		_stprintf_s(path, MAX_PATH, _T("%s\\%c.bin"), global_ptr->movie_bin_path, alpha[i]);
