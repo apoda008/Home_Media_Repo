@@ -13,7 +13,7 @@ int main() {
     printf("Starting up Media Repository\n\n");
     
     static struct Master_Directory master_pathing;
-    static struct Master_Directory* dir_struct_ptr = &master_pathing;
+    static struct Master_Directory* global_ptr = &master_pathing;
     master_pathing.tmdb_limiter = 0;
 	master_pathing.num_of_files = 0;
 	master_pathing.size_of_hash = 0; 
@@ -27,45 +27,49 @@ int main() {
     //    CoUninitialize();
     //}
 
-    FolderExecution(dir_struct_ptr);
+    
+    //hardcoded for now for both time and I need to ensure the folder selection works properly
+    _tcsnccpy_s(global_ptr->master_folder, MAX_PATH, _T("C:\\Users\\dan_a\\Desktop"), MAX_PATH);
+    _tcsnccpy_s(global_ptr->path_to_media_for_import, MAX_PATH, _T("C:\\Users\\dan_a\\Desktop\\testdirfolder"), MAX_PATH);
+    
+    //Creates folders if not already there 
+    Create_Folders(global_ptr);
+    
+    //Creates the movies into mp4 regardless of their type for streaming
+    Copy_To_Mp4(global_ptr->path_to_media_for_import, global_ptr);
 
+    //This will be DELETED or turned into logs at a later date
     printf("\n\n\n");
     _tprintf(_T("Global dir MASTER: %s\n"), master_pathing.master_folder);
     _tprintf(_T("Global dir IMPORT: %s\n"), master_pathing.path_to_media_for_import);
     printf("Global tmdb counter: %d\n", master_pathing.tmdb_limiter);
-    printf("Total files: %d\n", master_pathing.num_of_files);
-
-    //builds folders at requested location
-    //moves Media from where it is to the constructed folders
-    //TMDB the parsed media 
-    //writes media to bin 
-    //bin_media is instanced and put into a hash table
-    //DB sets up Genre mapping
-    //DB waits for commands 
-    //..
-
-    //para needs to be num of files 
-	DatabaseStructure* test = Construct_Database_Structure(master_pathing.num_of_files, 10);
+    printf("Total files: %d\n\n", master_pathing.num_of_files);
+ 
+    //Initialize the Database
+	DatabaseStructure* database = Construct_Database_Structure(master_pathing.num_of_files, global_ptr->num_of_files);
     
-	//fill constrcuted DB structure with movies from bin files
-    Fill_Table_Movies(test, dir_struct_ptr);
-    
+    //Takes all the converted Media files pings the TMDB api for their info and stores in the table
+    Media_Files_Into_Table(global_ptr, database);
+
+    //SAVE TABLE
+    //TODO
+     
     //print constructed movie table
-    Print_Movie_Table(test->movies);
-    
-	printf("NUM OF ELEMENTS: %d\n", test->movies->num_elements_MV);
-	//Needs restructuring to include the new tables instead of MediaData
-    //Api_Connection();
+    //Print_Movie_Table(database->movies);
+    Better_Print_Table(database->movies);
 
-	//////////////////////////////////////////TEST ZONE//////////////////////////////////////////
-	
-    //in full implementation this will be initialized in the Api_Connection() function
-    parse_node* root_test = initialize_parse_tree();
-    
-	Api_Connection(test, root_test);
+    //Create config/SaveState for restarts of the program
 
-	Free_Database_Structure(test);
-	free(root_test);    
+
+    //initialize the parse tree 
+    parse_node* root_parse = initialize_parse_tree();
+    
+    //open the API connection and wait for requests
+	Api_Connection(database, root_parse);
+
+
+	Free_Database_Structure(database);
+	free(root_parse);    
     return 0;
 }
 

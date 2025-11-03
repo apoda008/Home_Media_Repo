@@ -26,9 +26,11 @@ void MoveMediaToMaster(TCHAR* path, Master_Directory* global_ptr);
 
 TCHAR* Parse_Helper(TCHAR title);
 
-int File_Search_Parse(Master_Directory* global_ptr);
+int Media_Files_Into_Table(Master_Directory* global_ptr, DatabaseStructure* Database);
 
 void FolderExecution(Master_Directory* global_ptr);
+
+void Copy_To_Mp4(TCHAR* path, Master_Directory* global_ptr);
 
 
 #endif // !FOLDER_MANAGEMENT_H

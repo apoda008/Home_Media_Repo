@@ -137,7 +137,6 @@ void Insert_Movie(DatabaseStructure* db_structure, const char* title, const char
 
 	//LOG
 	printf("Inserted movie: %s with ID: %d\n", title, db_structure->movies->id[db_structure->movies->num_elements_MV - 1]);
-	printf("Total movies in table: %d\n", db_structure->movies->num_elements_MV);
 }
 
 void Free_Database_Structure(DatabaseStructure* db_structure) {
@@ -216,7 +215,7 @@ void Better_Print_Table(const MovieTable* movies) {
 
 	printf("Movie Table:\n");
 	printf("--------------------------------------------------------------------------------------------------------------------------------------------------\n");
-	printf("| %6s | %-50s | %-5s | %-50s | %20s |\n",
+	printf("| %6s | %-50s | %-50s | %-50s | %20s |\n",
 		"ID", "Title", "Desc", "Dir Position", "Size");
 	printf("--------------------------------------------------------------------------------------------------------------------------------------------------\n");
 	for (int i = 0; i < movies->num_elements_MV; i++) {
@@ -231,10 +230,15 @@ void Better_Print_Table(const MovieTable* movies) {
 		}
 		else { printf(" %-50s |", movies->title[i]); }
 		
+		if (movies->description == NULL) {
+			printf(" %-50s |", "null");
+		}
+		else { printf(" %-50.50s |", movies->description[i]);}
+
 		if ( movies->dir_position == NULL || movies->dir_position[i][0] == '\0') {
 			printf(" %-50s |", "(null)");
 		}
-		else { printf(" %-50s |", /*movies->dir_position[i])*/ "Nothing"); }
+		else { /*printf(" %-50s |", movies->dir_position[i]) "Nothing");*/ _tprintf(_T(" %-50.50s |"), movies->dir_position[i]); }
 		
 		if (movies->video_size == NULL) {
 			printf(" %20s |\n", "(null)");
@@ -344,6 +348,124 @@ void Sort_Movie_Table(DatabaseStructure* db_structure) {
 	
 }
 
+int Save_Database(const DatabaseStructure* database, TCHAR* location) {
+	//where to save....
+	FILE* table_file = _tfopen(location, _T("ab"));
+	if (table_file == NULL) {
+		perror("Failed to create/open table file\n");
+		return -1;
+	}
+
+	int total_elements = database->movies->num_elements_MV;
+	fwrite(&total_elements, sizeof(int), 1, table_file);
+
+	size_t written = 0;
+	for (int i = 0; i < total_elements; i++) {
+		written = (fwrite(&database->movies->id[i], sizeof(int), 1, table_file));
+		if (written == 0) {
+			perror("Failed to write id\n");
+			return -1;
+		}
+		written = (fwrite(&database->movies->title[i], 256, 1, table_file));
+		if (written == 0) {
+			perror("Failed to write title\n");
+			return -1;
+		}
+		written = (fwrite(&database->movies->description[i], 2000, 1, table_file));
+		if (written == 0) {
+			perror("Failed to write description\n");
+			return -1;
+		}
+		written = (fwrite(&database->movies->dir_position[i], 256, 1, table_file));
+		if (written == 0) {
+			perror("Failed to write dir_position\n");
+			return -1;
+		}
+		written = (fwrite(&database->movies->video_size[i], sizeof(__int64), 1, table_file));
+		if (written == 0) {
+			perror("Failed to write video_size\n");
+			return -1;
+		}
+	}
+
+	fclose(table_file);
+	return 0;
+}
+
+DatabaseStructure* Read_Into_Table(TCHAR* location) {
+
+	FILE* table_file = _tfopen(location, _T("ab"));
+	if (table_file == NULL) {
+		perror("Failed to create/open table file\n");
+		return -1;
+	}
+
+	size_t read = 0;
+	size_t total_elements_to_read = 0;
+
+	fread(&total_elements_to_read, sizeof(int), 1, table_file);
+
+	DatabaseStructure* NewDb = Construct_Database_Structure(total_elements_to_read, 0);
+	int bytes_read = 0;
+	for (int j = 0; j < total_elements_to_read; j++) {
+		bytes_read = fread(NewDb->movies->id[j], sizeof(int), 1, table_file);
+		if (bytes_read == 0) {
+			perror("Failed to read id\n");
+		}
+		bytes_read = fread(NewDb->movies->title[j], 256 * sizeof(char), 1, table_file);
+		if (bytes_read == 0) {
+			perror("Failed to read id\n");
+		}
+		bytes_read = fread(NewDb->movies->description[j], 2000 * sizeof(char), 1, table_file);
+		if (bytes_read == 0) {
+			perror("Failed to read id\n");
+		}
+		bytes_read = fread(NewDb->movies->dir_position[j], 256 * sizeof(TCHAR), 1, table_file);
+		if (bytes_read == 0) {
+			perror("Failed to read id\n");
+		}
+		bytes_read = fread(NewDb->movies->video_size[j], sizeof(__int64), 1, table_file);
+		if (bytes_read == 0) {
+			perror("Failed to read id\n");
+		}
+	}
+	fclose(table_file);
+	return NewDb;
+
+}
+
+void Movie_Table_Copy(const MovieTable* source, MovieTable* dest) {
+	if (source == NULL || dest == NULL) {
+		fprintf(stderr, "Source or destination MovieTable is NULL\n");
+		return;
+	}
+	dest->num_elements_MV = source->num_elements_MV;
+	// Allocate memory for destination arrays
+	dest->id = (int*)malloc(source->num_elements_MV * sizeof(int));
+	dest->title = (char(*)[256])malloc(source->num_elements_MV * sizeof(char[256]));
+	dest->description = (char(*)[2000])malloc(source->num_elements_MV * sizeof(char[2000]));
+	dest->dir_position = (TCHAR(*)[256])malloc(source->num_elements_MV * sizeof(TCHAR[256]));
+	dest->video_size = (long*)malloc(source->num_elements_MV * sizeof(__int64));
+	if (!dest->id || !dest->title || !dest->description || !dest->dir_position || !dest->video_size) {
+		fprintf(stderr, "Memory allocation failed for one or more fields in destination MovieTable\n");
+		free(dest->id);
+		free(dest->title);
+		free(dest->description);
+		free(dest->dir_position);
+		free(dest->video_size);
+		return;
+	}
+	// Copy data from source to destination
+	for (int i = 0; i < source->num_elements_MV; i++) {
+		dest->id[i] = source->id[i];
+		strcpy_s(dest->title[i], 256, source->title[i]);
+		strcpy_s(dest->description[i], 2000, source->description[i]);
+		_tcscpy_s(dest->dir_position[i], 256, source->dir_position[i]);
+		dest->video_size[i] = source->video_size[i];
+	}
+}
+
+//deprecated
 void Insert_String_Trie(TrieNode* trie, const char* str, int switch_val) {
 	/*
 	* String must be ALL CAPITAL LETTERS. Or this function will need adjustments
@@ -409,7 +531,7 @@ void Insert_String_Trie(TrieNode* trie, const char* str, int switch_val) {
 		}
 	}
 }
-
+//deprecated
 void Print_Trie(TrieNode* trie) {
 	if (trie == NULL) {
 		fprintf(stderr, "Trie is NULL\n");
@@ -424,35 +546,6 @@ void Print_Trie(TrieNode* trie) {
 	}
 }
 
-void Movie_Table_Copy(const MovieTable* source, MovieTable* dest) {
-	if (source == NULL || dest == NULL) {
-		fprintf(stderr, "Source or destination MovieTable is NULL\n");
-		return;
-	}
-	dest->num_elements_MV = source->num_elements_MV;
-	// Allocate memory for destination arrays
-	dest->id = (int*)malloc(source->num_elements_MV * sizeof(int));
-	dest->title = (char(*)[256])malloc(source->num_elements_MV * sizeof(char[256]));
-	dest->description = (char(*)[2000])malloc(source->num_elements_MV * sizeof(char[2000]));
-	dest->dir_position = (TCHAR(*)[256])malloc(source->num_elements_MV * sizeof(TCHAR[256]));
-	dest->video_size = (long*)malloc(source->num_elements_MV * sizeof(__int64));
-	if (!dest->id || !dest->title || !dest->description || !dest->dir_position || !dest->video_size) {
-		fprintf(stderr, "Memory allocation failed for one or more fields in destination MovieTable\n");
-		free(dest->id);
-		free(dest->title);
-		free(dest->description);
-		free(dest->dir_position);
-		free(dest->video_size);
-		return;
-	}
-	// Copy data from source to destination
-	for (int i = 0; i < source->num_elements_MV; i++) {
-		dest->id[i] = source->id[i];
-		strcpy_s(dest->title[i], 256, source->title[i]);
-		strcpy_s(dest->description[i], 2000, source->description[i]);
-		_tcscpy_s(dest->dir_position[i], 256, source->dir_position[i]);
-		dest->video_size[i] = source->video_size[i];
-	}
-}
+
 
 

@@ -2,35 +2,35 @@
 //temp
 #include "data_structures.h"
 
-__int64 GetVideoSize(TCHAR* movie_path) {
-	_tprintf(_T("Getting video size for: %s\n"), movie_path);
-
-	FILE* video_file = _tfopen(movie_path, _T("rb"));
-	if (video_file == NULL) {
-		_tperror(_T("Failed to open video file"));
-		return -1;
-	}
-
-	// Use 64-bit seek for large files
-	if (_fseeki64(video_file, 0, SEEK_END) != 0) {
-		_tperror(_T("Error seeking to end of video file"));
-		fclose(video_file);
-		return -1;
-	}
-
-	__int64 result = _ftelli64(video_file);
-	if (result == -1) {
-		_tperror(_T("Error getting file size"));
-		fclose(video_file);
-		return -1;
-	}
-	
-	//DELETE
-	//_tprintf(_T("Size: %I64d bytes\n"), result);
-	
-	fclose(video_file);
-	return result;
-}
+//__int64 GetVideoSize(TCHAR* movie_path) {
+//	_tprintf(_T("Getting video size for: %s\n"), movie_path);
+//
+//	FILE* video_file = _tfopen(movie_path, _T("rb"));
+//	if (video_file == NULL) {
+//		_tperror(_T("Failed to open video file"));
+//		return -1;
+//	}
+//
+//	// Use 64-bit seek for large files
+//	if (_fseeki64(video_file, 0, SEEK_END) != 0) {
+//		_tperror(_T("Error seeking to end of video file"));
+//		fclose(video_file);
+//		return -1;
+//	}
+//
+//	__int64 result = _ftelli64(video_file);
+//	if (result == -1) {
+//		_tperror(_T("Error getting file size"));
+//		fclose(video_file);
+//		return -1;
+//	}
+//	
+//	//DELETE
+//	//_tprintf(_T("Size: %I64d bytes\n"), result);
+//	
+//	fclose(video_file);
+//	return result;
+//}
 
 void genre_write(const char* genre, const char* title, int index) {
 	
@@ -118,7 +118,7 @@ void Fill_Table_Movies(DatabaseStructure* db_structure, Master_Directory* global
 	
 	char* alpha = "abcdefghijklmnopqrstuvwxyz";
 	
-	//iterates throught the bin folder files Ex: a.bin, b.bin, c.bin, etc.
+	//iterates through the bin folder files Ex: a.bin, b.bin, c.bin, etc.
 	for (int i = 0; i < strlen(alpha); i++) {
 		TCHAR* path[MAX_PATH];
 		_stprintf_s(path, MAX_PATH, _T("%s\\%c.bin"), global_ptr->movie_bin_path, alpha[i]);

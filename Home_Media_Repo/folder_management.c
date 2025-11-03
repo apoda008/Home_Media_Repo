@@ -74,11 +74,9 @@ void Copy_To_Mp4(TCHAR* path, Master_Directory* global_ptr) {
             _tcscpy_s(next_dir, MAX_PATH, path);
             _tcscat_s(next_dir, MAX_PATH, _T("\\"));
             _tcscat_s(next_dir, MAX_PATH, findFileData.cFileName);
-            //_tprintf(_T("NEXT_DIR: %s\n"), next_dir);
 
             //check if it's a directory or a file
             if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-                //_tprintf(_T("[DIR]: %s\n"), findFileData.cFileName);
 
 				Copy_To_Mp4(next_dir, global_ptr); //recursive call for subdirectories
 
@@ -92,6 +90,7 @@ void Copy_To_Mp4(TCHAR* path, Master_Directory* global_ptr) {
 
 				//Converts the file to mp4 for stream and moves it to the media folder
 				Convert_to_Mp4(dest, findFileData.cFileName, global_ptr);
+                global_ptr->num_of_files++;
 
             }
 
@@ -288,7 +287,8 @@ TCHAR* Parse_Helper(TCHAR* title) {
     return return_char_ptr;
 }
 
-int File_Search_Parse(Master_Directory* global_ptr) {
+//MIGHT NOT BE NEEDED HERE AND MOVED SOMEWHERE ELSE, CURRENTLY MOVIES ONLY
+int Media_Files_Into_Table(Master_Directory* global_ptr, DatabaseStructure* Database) {
     TCHAR copy_path[MAX_PATH];
     _tcscpy_s(copy_path, MAX_PATH,global_ptr->path_to_media);
     _tcscat_s(copy_path, MAX_PATH, _T("\\*"));
@@ -319,8 +319,24 @@ int File_Search_Parse(Master_Directory* global_ptr) {
                 //TAKE FILE NAME AND PARSE IT FOR SENDING TO TMDB
                 TCHAR* parsed_name = Parse_Helper(findFileData.cFileName);
 				//_tprintf(_T("Parsed Name: %s\n"), parsed_name);
-                information_Request(parsed_name, global_ptr, findFileData.cFileName);
-				global_ptr->num_of_files++;
+
+                //REPLACE WITH V2
+                //information_Request(parsed_name, global_ptr, findFileData.cFileName);
+                
+                cJSON* tmdb_json = Information_RequestV2(parsed_name);
+                
+                //tmbd request control 
+                if (global_ptr->tmdb_limiter >= 40) {
+                    printf("You have reached the TMDB API limit for this session.\n");
+                    Sleep(10000);
+                    global_ptr->tmdb_limiter = 0; //reset the limiter
+                }
+                else {
+                    global_ptr->tmdb_limiter++;
+                }
+
+                From_Json_To_Table(tmdb_json, Database, global_ptr, findFileData.cFileName);
+                free(parsed_name);
                
             }
 
@@ -335,6 +351,7 @@ int File_Search_Parse(Master_Directory* global_ptr) {
     return 0;
 }
 
+//Deprecated
 void FolderExecution(Master_Directory* global_ptr) {
 	
     //return;
@@ -381,6 +398,6 @@ void FolderExecution(Master_Directory* global_ptr) {
 	Copy_To_Mp4(global_ptr->path_to_media_for_import, global_ptr);
     
     //some point needs to ask user to do this
-    File_Search_Parse(global_ptr);
+    //File_Search_Parse(global_ptr);
     
 }
