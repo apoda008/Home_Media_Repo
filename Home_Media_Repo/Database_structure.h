@@ -77,5 +77,9 @@ void Insert_String_Trie(TrieNode* trie, const char* str, int switch_val);
 void Print_Trie(TrieNode* root, int level);	
 
 void Movie_Table_Copy(const MovieTable* source, MovieTable* dest);
+
+int Save_Database(const DatabaseStructure* database, TCHAR* location);
+
+DatabaseStructure* Read_Into_Table(TCHAR* location);
 #endif // !DATABASE_STRUCTURE_H
 

@@ -38,45 +38,38 @@ int main() {
     //Creates the movies into mp4 regardless of their type for streaming
     Copy_To_Mp4(global_ptr->path_to_media_for_import, global_ptr);
 
-
-
-    //DEPRECATED
-    //FolderExecution(dir_struct_ptr);
-
+    //This will be DELETED or turned into logs at a later date
     printf("\n\n\n");
     _tprintf(_T("Global dir MASTER: %s\n"), master_pathing.master_folder);
     _tprintf(_T("Global dir IMPORT: %s\n"), master_pathing.path_to_media_for_import);
     printf("Global tmdb counter: %d\n", master_pathing.tmdb_limiter);
-    printf("Total files: %d\n", master_pathing.num_of_files);
-
+    printf("Total files: %d\n\n", master_pathing.num_of_files);
  
-
-    //para needs to be num of files 
-	DatabaseStructure* test = Construct_Database_Structure(master_pathing.num_of_files, 10);
+    //Initialize the Database
+	DatabaseStructure* database = Construct_Database_Structure(master_pathing.num_of_files, global_ptr->num_of_files);
     
-    Media_Files_Into_Table(global_ptr, test);
+    //Takes all the converted Media files pings the TMDB api for their info and stores in the table
+    Media_Files_Into_Table(global_ptr, database);
 
     //SAVE TABLE
-
-
-	//fill constructed DB structure with movies from bin files
-    //Fill_Table_Movies(test, global_ptr);
-    
+    //TODO
+     
     //print constructed movie table
-    Print_Movie_Table(test->movies);
-    
-	//Needs restructuring to include the new tables instead of MediaData
-    //Api_Connection();
+    //Print_Movie_Table(database->movies);
+    Better_Print_Table(database->movies);
 
-	//////////////////////////////////////////TEST ZONE//////////////////////////////////////////
-	
-    //in full implementation this will be initialized in the Api_Connection() function
-    parse_node* root_test = initialize_parse_tree();
-    
-	Api_Connection(test, root_test);
+    //Create config/SaveState for restarts of the program
 
-	Free_Database_Structure(test);
-	free(root_test);    
+
+    //initialize the parse tree 
+    parse_node* root_parse = initialize_parse_tree();
+    
+    //open the API connection and wait for requests
+	Api_Connection(database, root_parse);
+
+
+	Free_Database_Structure(database);
+	free(root_parse);    
     return 0;
 }
 

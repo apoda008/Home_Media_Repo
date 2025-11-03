@@ -37,6 +37,7 @@ size_t write_chunk(void* contents, size_t size, size_t nmemb, void* userp) {
 	return total_size;
 }
 
+//DEPRECATED
 void media_write(cJSON* title, cJSON* description, cJSON* id, cJSON* genre_ids, cJSON* media_type, TCHAR* dir_position, Master_Directory* global_ptr) {
 	char* first_char_string = title->valuestring;
 	TCHAR filename[8] = _T("\\a.bin");
@@ -96,12 +97,7 @@ void media_write(cJSON* title, cJSON* description, cJSON* id, cJSON* genre_ids, 
 
 }//end of media_write
 
-//PROBABLY WONT NEED, WILL MAKE A TABLE_SAVE FUNCTION IN DATABASE STRUCTURES
-void Media_WriteV2(cJSON* title, cJSON* description, cJSON* id, cJSON* genre_ids, cJSON* media_type, TCHAR* dir_position, Master_Directory* global_ptr) {
-	return;
-}
-
-//sourced by themoviedb.org api system
+//sourced by themoviedb.org api system DEPRECATED
 void information_Request(TCHAR* parsed_movie_title, Master_Directory* global_ptr, TCHAR* dir_title) {
 	//This is to pass into media_write
 	TCHAR dir_position[MAX_PATH];
@@ -224,7 +220,6 @@ void information_Request(TCHAR* parsed_movie_title, Master_Directory* global_ptr
 //MAY CAUSE CONFLICTION ON COMPLIATION
 //gets the total byte size of the movie 
 __int64 GetVideoSize(TCHAR* movie_path) {
-	_tprintf(_T("Getting video size for: %s\n"), movie_path);
 
 	FILE* video_file = _tfopen(movie_path, _T("rb"));
 	if (video_file == NULL) {
@@ -245,9 +240,6 @@ __int64 GetVideoSize(TCHAR* movie_path) {
 		fclose(video_file);
 		return -1;
 	}
-
-	//DELETE
-	//_tprintf(_T("Size: %I64d bytes\n"), result);
 
 	fclose(video_file);
 	return result;
@@ -280,9 +272,6 @@ void From_Json_To_Table(cJSON* tmdb_json, DatabaseStructure* Database, Master_Di
 			//grab first response and break out of loop. Wont always be the correct response 
 			//will need users to correct later through DB api
 			cJSON_ArrayForEach(movie, results) {
-				//DELETE
-				//char* json_str2 = cJSON_Print(movie);
-				//printf("THING: %s\n", json_str2);
 
 				cJSON* title = cJSON_GetArrayItem(movie, 3);
 				cJSON* description = cJSON_GetObjectItemCaseSensitive(movie, "overview");
@@ -305,7 +294,7 @@ void From_Json_To_Table(cJSON* tmdb_json, DatabaseStructure* Database, Master_Di
 
 //============================================================================================================
 
-//updated func to try and get info from TMDB and return the JSON that TMDB gives you
+//updated function to try and get info from TMDB and return the JSON that TMDB gives you
 cJSON* Information_RequestV2(TCHAR* parsed_movie_title) {
 
 	//====this is solely to get the key for api call============= 
@@ -345,9 +334,6 @@ cJSON* Information_RequestV2(TCHAR* parsed_movie_title) {
 	curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "GET");
 	curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, write_chunk); //needs to be nulled for stdout
 	curl_easy_setopt(hnd, CURLOPT_WRITEDATA, (void*)&response); //needs to nulled for stdout
-
-	//DELETE strictly for viewing what is being fully returned in the JSON, serves no function to the program overall
-	//curl_easy_setopt(hnd, CURLOPT_WRITEDATA, stdout);
 
 	curl_easy_setopt(hnd, CURLOPT_URL, search_buffer);
 
