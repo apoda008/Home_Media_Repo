@@ -10,7 +10,7 @@
 
 int main() {
     
-    printf("Starting up Media Repository\n\n");
+    printf("Starting up Media Database...\n\n");
     
     static struct Master_Directory master_pathing;
     static struct Master_Directory* global_ptr = &master_pathing;
@@ -39,7 +39,7 @@ int main() {
     Copy_To_Mp4(global_ptr->path_to_media_for_import, global_ptr);
 
     //This will be DELETED or turned into logs at a later date
-    printf("\n\n\n");
+    printf("\n\n");
     _tprintf(_T("Global dir MASTER: %s\n"), master_pathing.master_folder);
     _tprintf(_T("Global dir IMPORT: %s\n"), master_pathing.path_to_media_for_import);
     printf("Global tmdb counter: %d\n", master_pathing.tmdb_limiter);
@@ -48,16 +48,23 @@ int main() {
     //Initialize the Database
 	DatabaseStructure* database = Construct_Database_Structure(master_pathing.num_of_files, global_ptr->num_of_files);
     
+    //NEEDS TO CHECK IF A Table.Bin file already exists and load from there. 
+    
+    
     //Takes all the converted Media files pings the TMDB api for their info and stores in the table
     Media_Files_Into_Table(global_ptr, database);
 
     //SAVE TABLE
-    //TODO
-     
+    int result = Save_Database(database, global_ptr->temp_folder_path);
+    if (result != 0) {
+        perror("Failed to save database \n");
+
+    }
     //print constructed movie table
     //Print_Movie_Table(database->movies);
+    printf("\n");
     Better_Print_Table(database->movies);
-
+    printf("\n");
     //Create config/SaveState for restarts of the program
 
 

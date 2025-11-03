@@ -214,10 +214,10 @@ void Better_Print_Table(const MovieTable* movies) {
 	}
 
 	printf("Movie Table:\n");
-	printf("--------------------------------------------------------------------------------------------------------------------------------------------------\n");
+	printf("------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
 	printf("| %6s | %-50s | %-50s | %-50s | %20s |\n",
-		"ID", "Title", "Desc", "Dir Position", "Size");
-	printf("--------------------------------------------------------------------------------------------------------------------------------------------------\n");
+		"ID", "Title", "Description", "Dir Position", "Size");
+	printf("------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
 	for (int i = 0; i < movies->num_elements_MV; i++) {
 		
 		if( movies->id != NULL) {
@@ -245,7 +245,7 @@ void Better_Print_Table(const MovieTable* movies) {
 		}
 		else { printf(" %20I64d |\n", movies->video_size[i]); }
 	}
-	printf("------------------------------------------------------------------------------------------------------------------------------------------------\n");
+	printf("------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
 	return;
 }
 
@@ -349,8 +349,12 @@ void Sort_Movie_Table(DatabaseStructure* db_structure) {
 }
 
 int Save_Database(const DatabaseStructure* database, TCHAR* location) {
-	//where to save....
-	FILE* table_file = _tfopen(location, _T("ab"));
+
+	TCHAR file_buffer[_MAX_PATH];
+	_tcscpy_s(file_buffer, _MAX_PATH, location);
+	_tcscat_s(file_buffer, _MAX_PATH, _T("\\table.bin"));
+
+	FILE* table_file = _tfopen(file_buffer, _T("ab"));
 	if (table_file == NULL) {
 		perror("Failed to create/open table file\n");
 		return -1;
@@ -376,7 +380,7 @@ int Save_Database(const DatabaseStructure* database, TCHAR* location) {
 			perror("Failed to write description\n");
 			return -1;
 		}
-		written = (fwrite(&database->movies->dir_position[i], 256, 1, table_file));
+		written = (fwrite(&database->movies->dir_position[i], 256 * sizeof(TCHAR), 1, table_file));
 		if (written == 0) {
 			perror("Failed to write dir_position\n");
 			return -1;
@@ -393,8 +397,12 @@ int Save_Database(const DatabaseStructure* database, TCHAR* location) {
 }
 
 DatabaseStructure* Read_Into_Table(TCHAR* location) {
+	//THIS IS STATIC. WILL NEED A MORE ROBUST WAY TO FIND DYNAMICALLY TODO:
+	TCHAR file_buffer[_MAX_PATH];
+	_tcscpy_s(file_buffer, _MAX_PATH, location);
+	_tcscat_s(file_buffer, _MAX_PATH, _T("\\table.bin"));
 
-	FILE* table_file = _tfopen(location, _T("ab"));
+	FILE* table_file = _tfopen(file_buffer, _T("ab"));
 	if (table_file == NULL) {
 		perror("Failed to create/open table file\n");
 		return -1;
