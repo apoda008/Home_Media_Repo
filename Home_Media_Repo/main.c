@@ -29,6 +29,7 @@ int main() {
 
 
     //hardcoded for now for both time and I need to ensure the folder selection works properly
+    //will be replaced for user input. Might need to after folder creation
     _tcsnccpy_s(global_ptr->master_folder, MAX_PATH, _T("C:\\Users\\dan_a\\Desktop"), MAX_PATH);
     _tcsnccpy_s(global_ptr->path_to_media_for_import, MAX_PATH, _T("C:\\Users\\dan_a\\Desktop\\testdirfolder"), MAX_PATH);
 
@@ -37,6 +38,7 @@ int main() {
 
     DatabaseStructure* database;
 
+    //Checks to see if there is a table already made and loads that instead of constructing one from scratch
     FILE* file_check = fopen("C:\\Users\\dan_a\\Desktop\\MediaDatabase\\Users\\table.bin", "r");
     if (file_check != NULL) {
         database = Read_Into_Table(_T("C:\\Users\\dan_a\\Desktop\\MediaDatabase\\Users"));
@@ -46,6 +48,7 @@ int main() {
         fclose(file_check);
         master_pathing.num_of_files = database->movies->num_elements_MV;
     }
+    //if its not there then it builds a database
     else {
         
         //Creates the movies into mp4 regardless of their type for streaming
