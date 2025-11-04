@@ -2,7 +2,7 @@
 #define PROGRAM_FUNCTIONS_H
 
 #include "master.h"
-#include "data_structures.h"
+//#include "data_structures.h"
 
 
 //This is the genre/number relation for Movies from TMDB as of 1/13/2025
@@ -28,7 +28,5 @@ enum GenreTypeMovie {
     WESTERN = 37
 };
 
-
-void Fill_Table_Movies(DatabaseStructure* db_structure, Master_Directory* global_ptr);
 
 #endif // !PROGRAM_FUNCTIONS_H

@@ -636,57 +636,6 @@ cJSON* Request_Parsing(const DatabaseStructure* database_table, parse_node* head
 	return json_response;
 }
 
-//to be called when a video stream is requested
-//Debrecated
-int Stream_Video(SOCKET client_socket, MediaData** hash_table, size_t array_size, char* title) {
-	
-	//Needs to check if its a valid command
-	printf("Streaming video for title: %s\n", title);
-	
-	MediaData* target_vid = hash_table[Hash_Function(title, array_size)];
-	if ((target_vid == NULL)) {
-		printf("Video not found in hash table.\n");
-		return 1; //Error code for video not found
-	}
-	
-	//TODO:
-	//at some point there should be a conversion from whatever video format the video is in into 
-	///mp4 which is natively supported by the C# app (HTML5)
-	//And just a heads up so that you can hate yourself more. At some point, probably soon you're gonna 
-	// have to self implement REST so have fun with that 
-	//TCHAR* transcoded_video = Video_Transcode_Mp4(target_vid->dir_position_media);
-	
-	FILE* video_file = _tfopen(target_vid->dir_position_media, _T("rb"));
-	
-	//May not need if I decide to restructure this whole DB
-	//long video_size = GetVideoSize(video_file);
-
-	void* large_buffer = malloc(5000);
-	if (large_buffer == NULL) {
-		printf("Memory allocation failed for large buffer.\n");
-		fclose(video_file);
-		return 1; //Error code for memory allocation failure
-	}
-	size_t bytes_read;
-	int bytes_packet = 1;
-	while ((bytes_read = fread(large_buffer, 1, 5000, video_file)) > 0) {
-		printf("Sending packet[%d] with %zu bytes\n", bytes_packet, bytes_read);
-		int bytes_sent = send(client_socket, large_buffer, bytes_read, 0);
-		if (bytes_sent == SOCKET_ERROR) {
-			printf("Failed to send video data: %d\n", WSAGetLastError());
-			free(large_buffer);
-			fclose(video_file);
-			return 1; //Error code for send failure
-		}
-		bytes_packet++;
-		recv(client_socket, NULL, 0, 0); //Wait for client to be ready for more data
-	}
-	fclose(video_file);	
-
-	return 0;
-	
-}
-
 int Stream_Video_V2(const VideoStream vid_obj) {
 	
 	int* parsed_array = Query_Transform(vid_obj.head, vid_obj.request);
@@ -773,5 +722,5 @@ int Stream_Video_V2(const VideoStream vid_obj) {
 	fclose(video_file);
 	return 0;
 
-	//Request_Parsing(database_table, head, request );
+	
 }

@@ -39,15 +39,6 @@
     <ClCompile Include="cJSON.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="data_structures.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GarbageCollection.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Function_Test.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="database_structure.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -66,12 +57,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cJSON.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="data_structures.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Function_Test.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Database_structure.h">
