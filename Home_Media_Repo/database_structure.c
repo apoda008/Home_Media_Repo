@@ -238,7 +238,7 @@ void Better_Print_Table(const MovieTable* movies) {
 		if ( movies->dir_position == NULL || movies->dir_position[i][0] == '\0') {
 			printf(" %-50s |", "(null)");
 		}
-		else { /*printf(" %-50s |", movies->dir_position[i]) "Nothing");*/ _tprintf(_T(" %-50.50s |"), movies->dir_position[i]); }
+		else { _tprintf(_T(" %-50.50s |"), movies->dir_position[i]); }
 		
 		if (movies->video_size == NULL) {
 			printf(" %20s |\n", "(null)");
@@ -402,9 +402,9 @@ DatabaseStructure* Read_Into_Table(TCHAR* location) {
 	_tcscpy_s(file_buffer, _MAX_PATH, location);
 	_tcscat_s(file_buffer, _MAX_PATH, _T("\\table.bin"));
 
-	FILE* table_file = _tfopen(file_buffer, _T("ab"));
+	FILE* table_file = _tfopen(file_buffer, _T("rb"));
 	if (table_file == NULL) {
-		perror("Failed to create/open table file\n");
+		perror("Failed to open for read table file\n");
 		return -1;
 	}
 
@@ -414,29 +414,43 @@ DatabaseStructure* Read_Into_Table(TCHAR* location) {
 	fread(&total_elements_to_read, sizeof(int), 1, table_file);
 
 	DatabaseStructure* NewDb = Construct_Database_Structure(total_elements_to_read, 0);
-	int bytes_read = 0;
-	for (int j = 0; j < total_elements_to_read; j++) {
-		bytes_read = fread(NewDb->movies->id[j], sizeof(int), 1, table_file);
-		if (bytes_read == 0) {
-			perror("Failed to read id\n");
-		}
-		bytes_read = fread(NewDb->movies->title[j], 256 * sizeof(char), 1, table_file);
-		if (bytes_read == 0) {
-			perror("Failed to read id\n");
-		}
-		bytes_read = fread(NewDb->movies->description[j], 2000 * sizeof(char), 1, table_file);
-		if (bytes_read == 0) {
-			perror("Failed to read id\n");
-		}
-		bytes_read = fread(NewDb->movies->dir_position[j], 256 * sizeof(TCHAR), 1, table_file);
-		if (bytes_read == 0) {
-			perror("Failed to read id\n");
-		}
-		bytes_read = fread(NewDb->movies->video_size[j], sizeof(__int64), 1, table_file);
-		if (bytes_read == 0) {
-			perror("Failed to read id\n");
-		}
+	if (NewDb == NULL) {
+		printf("Failed to create table\n");
+		return NULL;
 	}
+
+	int bytes_read = 0;
+	
+	for (int j = 0; j < total_elements_to_read; j++) {
+		
+		bytes_read = fread(&NewDb->movies->id[j], sizeof(int), 1, table_file);
+		if (bytes_read == 0) {
+			perror("Failed to read id\n");
+		}
+		
+		bytes_read = fread(&NewDb->movies->title[j], 256, 1, table_file);
+		if (bytes_read == 0) {
+			perror("Failed to read id\n");
+		}
+		
+		bytes_read = fread(&NewDb->movies->description[j], 2000, 1, table_file);
+		if (bytes_read == 0) {
+			perror("Failed to read id\n");
+		}
+		
+		bytes_read = fread(&NewDb->movies->dir_position[j], 256 * sizeof(TCHAR), 1, table_file);
+		if (bytes_read == 0) {
+			perror("Failed to read id\n");
+		}
+		
+		bytes_read = fread(&NewDb->movies->video_size[j], sizeof(__int64), 1, table_file);
+		if (bytes_read == 0) {
+			perror("Failed to read id\n");
+		}
+
+		
+	}
+	NewDb->movies->num_elements_MV = total_elements_to_read;
 	fclose(table_file);
 	return NewDb;
 
