@@ -70,12 +70,6 @@ void Better_Print_Table(const MovieTable* movies);
 //sorts movie table alphabetically by title
 void Sort_Movie_Table(DatabaseStructure* db_structure);
 
-//debrecated
-void Insert_String_Trie(TrieNode* trie, const char* str, int switch_val);
-
-//debrecated
-void Print_Trie(TrieNode* root, int level);	
-
 void Movie_Table_Copy(const MovieTable* source, MovieTable* dest);
 
 int Save_Database(const DatabaseStructure* database, TCHAR* location);

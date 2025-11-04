@@ -4,20 +4,6 @@
 
 #include "master.h"
 
-//typedef struct Master_Directory {
-//    TCHAR master_folder[MAX_PATH];
-//   
-//    TCHAR genre_path[MAX_PATH];
-//    TCHAR temp_folder_path[MAX_PATH];
-//    TCHAR path_to_media[MAX_PATH];
-//    
-//    TCHAR path_to_media_for_import[MAX_PATH];
-//
-//    TCHAR movie_bin_path[MAX_PATH];
-//    TCHAR series_bin_path[MAX_PATH];
-//    size_t tmdb_limiter;
-//} Master_Directory;
-
 bool BrowseForFolder(Master_Directory* ptr, int create_or_move);
 
 void Create_Folders(Master_Directory* global_ptr);

@@ -214,10 +214,10 @@ void Better_Print_Table(const MovieTable* movies) {
 	}
 
 	printf("Movie Table:\n");
-	printf("--------------------------------------------------------------------------------------------------------------------------------------------------\n");
+	printf("------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
 	printf("| %6s | %-50s | %-50s | %-50s | %20s |\n",
-		"ID", "Title", "Desc", "Dir Position", "Size");
-	printf("--------------------------------------------------------------------------------------------------------------------------------------------------\n");
+		"ID", "Title", "Description", "Dir Position", "Size");
+	printf("------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
 	for (int i = 0; i < movies->num_elements_MV; i++) {
 		
 		if( movies->id != NULL) {
@@ -238,14 +238,14 @@ void Better_Print_Table(const MovieTable* movies) {
 		if ( movies->dir_position == NULL || movies->dir_position[i][0] == '\0') {
 			printf(" %-50s |", "(null)");
 		}
-		else { /*printf(" %-50s |", movies->dir_position[i]) "Nothing");*/ _tprintf(_T(" %-50.50s |"), movies->dir_position[i]); }
+		else { _tprintf(_T(" %-50.50s |"), movies->dir_position[i]); }
 		
 		if (movies->video_size == NULL) {
 			printf(" %20s |\n", "(null)");
 		}
 		else { printf(" %20I64d |\n", movies->video_size[i]); }
 	}
-	printf("------------------------------------------------------------------------------------------------------------------------------------------------\n");
+	printf("------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
 	return;
 }
 
@@ -349,8 +349,12 @@ void Sort_Movie_Table(DatabaseStructure* db_structure) {
 }
 
 int Save_Database(const DatabaseStructure* database, TCHAR* location) {
-	//where to save....
-	FILE* table_file = _tfopen(location, _T("ab"));
+
+	TCHAR file_buffer[_MAX_PATH];
+	_tcscpy_s(file_buffer, _MAX_PATH, location);
+	_tcscat_s(file_buffer, _MAX_PATH, _T("\\table.bin"));
+
+	FILE* table_file = _tfopen(file_buffer, _T("ab"));
 	if (table_file == NULL) {
 		perror("Failed to create/open table file\n");
 		return -1;
@@ -376,7 +380,7 @@ int Save_Database(const DatabaseStructure* database, TCHAR* location) {
 			perror("Failed to write description\n");
 			return -1;
 		}
-		written = (fwrite(&database->movies->dir_position[i], 256, 1, table_file));
+		written = (fwrite(&database->movies->dir_position[i], 256 * sizeof(TCHAR), 1, table_file));
 		if (written == 0) {
 			perror("Failed to write dir_position\n");
 			return -1;
@@ -393,10 +397,14 @@ int Save_Database(const DatabaseStructure* database, TCHAR* location) {
 }
 
 DatabaseStructure* Read_Into_Table(TCHAR* location) {
+	//THIS IS STATIC. WILL NEED A MORE ROBUST WAY TO FIND DYNAMICALLY TODO:
+	TCHAR file_buffer[_MAX_PATH];
+	_tcscpy_s(file_buffer, _MAX_PATH, location);
+	_tcscat_s(file_buffer, _MAX_PATH, _T("\\table.bin"));
 
-	FILE* table_file = _tfopen(location, _T("ab"));
+	FILE* table_file = _tfopen(file_buffer, _T("rb"));
 	if (table_file == NULL) {
-		perror("Failed to create/open table file\n");
+		perror("Failed to open for read table file\n");
 		return -1;
 	}
 
@@ -406,29 +414,43 @@ DatabaseStructure* Read_Into_Table(TCHAR* location) {
 	fread(&total_elements_to_read, sizeof(int), 1, table_file);
 
 	DatabaseStructure* NewDb = Construct_Database_Structure(total_elements_to_read, 0);
-	int bytes_read = 0;
-	for (int j = 0; j < total_elements_to_read; j++) {
-		bytes_read = fread(NewDb->movies->id[j], sizeof(int), 1, table_file);
-		if (bytes_read == 0) {
-			perror("Failed to read id\n");
-		}
-		bytes_read = fread(NewDb->movies->title[j], 256 * sizeof(char), 1, table_file);
-		if (bytes_read == 0) {
-			perror("Failed to read id\n");
-		}
-		bytes_read = fread(NewDb->movies->description[j], 2000 * sizeof(char), 1, table_file);
-		if (bytes_read == 0) {
-			perror("Failed to read id\n");
-		}
-		bytes_read = fread(NewDb->movies->dir_position[j], 256 * sizeof(TCHAR), 1, table_file);
-		if (bytes_read == 0) {
-			perror("Failed to read id\n");
-		}
-		bytes_read = fread(NewDb->movies->video_size[j], sizeof(__int64), 1, table_file);
-		if (bytes_read == 0) {
-			perror("Failed to read id\n");
-		}
+	if (NewDb == NULL) {
+		printf("Failed to create table\n");
+		return NULL;
 	}
+
+	int bytes_read = 0;
+	
+	for (int j = 0; j < total_elements_to_read; j++) {
+		
+		bytes_read = fread(&NewDb->movies->id[j], sizeof(int), 1, table_file);
+		if (bytes_read == 0) {
+			perror("Failed to read id\n");
+		}
+		
+		bytes_read = fread(&NewDb->movies->title[j], 256, 1, table_file);
+		if (bytes_read == 0) {
+			perror("Failed to read id\n");
+		}
+		
+		bytes_read = fread(&NewDb->movies->description[j], 2000, 1, table_file);
+		if (bytes_read == 0) {
+			perror("Failed to read id\n");
+		}
+		
+		bytes_read = fread(&NewDb->movies->dir_position[j], 256 * sizeof(TCHAR), 1, table_file);
+		if (bytes_read == 0) {
+			perror("Failed to read id\n");
+		}
+		
+		bytes_read = fread(&NewDb->movies->video_size[j], sizeof(__int64), 1, table_file);
+		if (bytes_read == 0) {
+			perror("Failed to read id\n");
+		}
+
+		
+	}
+	NewDb->movies->num_elements_MV = total_elements_to_read;
 	fclose(table_file);
 	return NewDb;
 
@@ -464,88 +486,4 @@ void Movie_Table_Copy(const MovieTable* source, MovieTable* dest) {
 		dest->video_size[i] = source->video_size[i];
 	}
 }
-
-//deprecated
-void Insert_String_Trie(TrieNode* trie, const char* str, int switch_val) {
-	/*
-	* String must be ALL CAPITAL LETTERS. Or this function will need adjustments
-	* so that any character can be inserted into the trie
-	*/
-	
-	if (trie == NULL || str == NULL) {
-		fprintf(stderr, "Trie or string is NULL\n");
-		return;
-	}
-	
-	//This matches the first character of the string to the first letter of the trie
-	for (int k = 0; k < 8; k++) {
-		
-		if (trie[k].letter == str[0]) {
-			TrieNode* current = &trie[k];
-			int size = strlen(str);
-
-			//this builds the trie structure for whatever word is passed in
-			for (int i = 1; i < size; i++) {
-				TrieNode* newNode = (TrieNode*)malloc(sizeof(TrieNode));
-				if (newNode == NULL) {
-					fprintf(stderr, "Memory allocation failed for TrieNode\n");
-					return;
-				}
-
-				if (str[i] == '\0') {
-					fprintf(stderr, "Invalid character in string at index %d\n", i);
-					free(newNode);
-					return;
-				}
-
-				newNode->next_l = NULL;
-				newNode->next_m = NULL;
-				newNode->next_r = NULL;
-				newNode->letter = str[i];
-				
-				if (i == size - 1) {
-					newNode->switch_case = switch_val; // Set switch case for the last node
-					printf("Inserting character '%c' with switch case %d\n", newNode->letter, newNode->switch_case);
-				}
-				else {
-					newNode->switch_case = -1; // Set switch case for intermediate nodes
-				}
-
-				if (current->next_l == NULL) {
-					current->next_l = newNode; // Insert as left child if no left child exists
-				}
-				else if (current->next_m == NULL) {
-					current->next_m = newNode; // Insert as middle child if no middle child exists
-				}
-				else if (current->next_r == NULL) {
-					current->next_r = newNode; // Insert as right child if no right child exists
-				}
-				else {
-					fprintf(stderr, "Trie is full, cannot insert more nodes\n");
-					free(newNode);
-					return;
-				}
-
-				current = newNode; // Move to the newly created node
-			}
-		}
-	}
-}
-//deprecated
-void Print_Trie(TrieNode* trie) {
-	if (trie == NULL) {
-		fprintf(stderr, "Trie is NULL\n");
-		return;
-	}
-	printf("Trie Structure:\n");
-	for (int i = 0; i < 8; i++) {
-		if (trie[i].letter != '\0') {
-			printf("Root %d: %c\n", i, trie[i].letter);
-			// You can add more logic to traverse and print the entire trie structure
-		}
-	}
-}
-
-
-
 

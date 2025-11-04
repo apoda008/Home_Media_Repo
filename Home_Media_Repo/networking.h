@@ -3,7 +3,7 @@
 
 #include "master.h"
 #include "folder_management.h"
-//#include "data_structures.h"
+
 #include "api_functions.h"
 
 struct Memory {
@@ -31,10 +31,6 @@ typedef struct Request {
 void ConvertTCHARtoUTF8(const TCHAR* input, char* output, size_t outputSize);
 
 size_t write_chunk(void* data, size_t size, size_t nmemb, void* user_data);
-
-void media_write(cJSON* title, cJSON* description, cJSON* id, cJSON* genre_ids, cJSON* media_type, TCHAR* movie_dir, Master_Directory* global_ptr);
-
-void information_Request(TCHAR* title, Master_Directory* global_ptr, TCHAR* dir_title);
 
 cJSON* Information_RequestV2(TCHAR* parsed_movie_title);
 

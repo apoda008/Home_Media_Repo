@@ -51,7 +51,8 @@ void Add_Parse_Word(parse_node* head, const char* str, int val) {
 		if (i == strlen(str) - 1) {
 			// If it's the last character, set the value
 			current->value = val;
-			printf("Set value %d for word %s\n", val, str);
+			//LOG
+			//printf("Set value %d for word %s\n", val, str);
 		}	
 
 		current = current->map_array[index]; // Move to the next node
